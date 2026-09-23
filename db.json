@@ -2,22 +2,182 @@
   "users": [],
   "cart": [
     {
-      "productId": "p001",
+      "productId": "p002",
       "size": "S",
-      "color": "White",
-      "quantity": 6,
-      "id": "80gHYhj0GQM"
+      "color": "Cream",
+      "quantity": 1,
+      "id": "aLeP_JQYbT0"
     },
     {
-      "productId": "p001",
-      "size": "M",
-      "color": "White",
-      "quantity": 2,
-      "id": "Fccl_yYGjns"
+      "productId": "p003",
+      "size": "32",
+      "color": "Black",
+      "quantity": 1,
+      "id": "B8He9CrK25w"
     }
   ],
-  "wishlists": [],
-  "orders": [],
+  "wishlists": [
+    {
+      "id": "jbUF3QCVQeo",
+      "productId": "p003"
+    },
+    {
+      "id": "3pSiGf7FRik",
+      "productId": "p001"
+    }
+  ],
+  "orders": [
+    {
+      "id": "B04dkY-S52Q",
+      "orderNumber": "SA-260923-0001",
+      "items": [
+        {
+          "productId": "p002",
+          "name": "Relaxed Linen Shirt",
+          "image": "assets/products/linen-shirt-1.jpg",
+          "size": "S",
+          "color": "Cream",
+          "quantity": 1,
+          "price": 5999,
+          "total": 5999
+        }
+      ],
+      "subtotal": 5999,
+      "shipping": 0,
+      "total": 5999,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "VP",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "Kerala",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "cancelled",
+      "createdAt": "2026-09-23T07:58:47.440Z"
+    },
+    {
+      "id": "V34Sufv-RG4",
+      "orderNumber": "SA-260923-0002",
+      "items": [
+        {
+          "productId": "p002",
+          "name": "Relaxed Linen Shirt",
+          "image": "assets/products/linen-shirt-1.jpg",
+          "size": "M",
+          "color": "Stone",
+          "quantity": 1,
+          "price": 5999,
+          "total": 5999
+        },
+        {
+          "productId": "p005",
+          "name": "Classic Pique Polo",
+          "image": "assets/products/pique-polo-1.jpg",
+          "size": "S",
+          "color": "Navy",
+          "quantity": 1,
+          "price": 4999,
+          "total": 4999
+        }
+      ],
+      "subtotal": 10998,
+      "shipping": 0,
+      "total": 10998,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "VP",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "Kerala",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-09-23T08:07:33.881Z"
+    },
+    {
+      "id": "R56F316C3sE",
+      "orderNumber": "SA-260923-0003",
+      "items": [
+        {
+          "productId": "p003",
+          "name": "Signature Straight Trousers",
+          "image": "assets/products/straight-trousers-1.jpg",
+          "size": "30",
+          "color": "Black",
+          "quantity": 1,
+          "price": 7499,
+          "total": 7499
+        }
+      ],
+      "subtotal": 7499,
+      "shipping": 0,
+      "total": 7499,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "VP",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "Kerala",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-09-23T09:28:00.350Z"
+    },
+    {
+      "id": "SdTKeC0vY1Q",
+      "orderNumber": "SA-260923-0004",
+      "items": [
+        {
+          "productId": "p001",
+          "name": "Classic Oxford Shirt",
+          "image": "public/assets/products/shirt-1.jpg",
+          "size": "S",
+          "color": "White",
+          "quantity": 1,
+          "price": 6499,
+          "total": 6499
+        }
+      ],
+      "subtotal": 6499,
+      "shipping": 0,
+      "total": 6499,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "VP",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "Kerala",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-09-23T09:37:49.043Z"
+    }
+  ],
   "products": [
     {
       "id": "p001",

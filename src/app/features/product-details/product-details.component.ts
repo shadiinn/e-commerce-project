@@ -7,33 +7,54 @@ import {
 
 import {
   ActivatedRoute,
-  RouterLink
+  RouterLink,
+  Router
 } from '@angular/router';
 
 import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
+
 import { Product } from '../../core/models/product.model';
+
 import { addToCart } from '../../store/cart/cart.actions';
-import { toggleWishlist } from '../../store/wishlist/wishlist.actions';
-import { selectIsProductInWishlist } from '../../store/wishlist/wishlist.selectors';
+
+import {
+  startCheckout
+} from '../../store/checkout/checkout.actions';
+
+import {
+  toggleWishlist
+} from '../../store/wishlist/wishlist.actions';
+
+import {
+  selectIsProductInWishlist
+} from '../../store/wishlist/wishlist.selectors';
+
 import {
   selectProductById
 } from '../../store/products/products.selectors';
+
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [RouterLink, AsyncPipe],
+  imports: [
+    RouterLink,
+    AsyncPipe
+  ],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.css'
 })
-export class ProductDetailsComponent implements OnInit {
+export class ProductDetailsComponent
+  implements OnInit {
 
   private store = inject(Store);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   productId = '';
+
   isWishlisted$!: Observable<boolean>;
 
   product$ = this.store.select(
@@ -42,54 +63,86 @@ export class ProductDetailsComponent implements OnInit {
 
   // Currently selected image
   selectedImage = signal('');
+
+  // Currently selected size
   selectedSize = signal<string | null>(null);
+
+  // Currently selected color
   selectedColor = signal<string | null>(null);
+
 
   ngOnInit(): void {
 
     this.route.paramMap.subscribe(params => {
 
-      this.productId = params.get('id') ?? '';
+      this.productId =
+        params.get('id') ?? '';
 
-      this.product$ = this.store.select(
-        selectProductById(this.productId)
-      );
+      this.product$ =
+        this.store.select(
+          selectProductById(this.productId)
+        );
 
-      this.isWishlisted$ = this.store.select(
-        selectIsProductInWishlist(this.productId)
-      );
+      this.isWishlisted$ =
+        this.store.select(
+          selectIsProductInWishlist(
+            this.productId
+          )
+        );
 
-      // Get the product once and set the first image
+
+      // Get product once and set first image
       this.product$.subscribe(product => {
 
         if (product) {
-          this.selectedImage.set(product.images[0]);
+
+          this.selectedImage.set(
+            product.images[0]
+          );
+
         }
 
       });
 
     });
+
   }
+
 
   selectImage(image: string): void {
+
     this.selectedImage.set(image);
+
   }
+
 
   selectSize(size: string): void {
+
     this.selectedSize.set(size);
+
   }
+
 
   selectColor(color: string): void {
+
     this.selectedColor.set(color);
+
   }
 
+
   addToCart(product: Product): void {
-    const size = this.selectedSize();
-    const color = this.selectedColor();
+
+    const size =
+      this.selectedSize();
+
+    const color =
+      this.selectedColor();
+
 
     if (!size || !color) {
       return;
     }
+
 
     this.store.dispatch(
       addToCart({
@@ -98,7 +151,49 @@ export class ProductDetailsComponent implements OnInit {
         color
       })
     );
+
   }
+
+
+  buyNow(product: Product): void {
+
+    const size =
+      this.selectedSize();
+
+    const color =
+      this.selectedColor();
+
+
+    // Size and color are required
+    if (!size || !color) {
+      return;
+    }
+
+
+    // Start checkout directly
+    this.store.dispatch(
+      startCheckout({
+        mode: 'buy-now',
+
+        items: [
+          {
+            productId: product.id,
+            size,
+            color,
+            quantity: 1
+          }
+        ]
+      })
+    );
+
+
+    // Navigate to checkout
+    this.router.navigate([
+      '/checkout'
+    ]);
+
+  }
+
 
   toggleWishlist(product: Product): void {
 
@@ -109,4 +204,5 @@ export class ProductDetailsComponent implements OnInit {
     );
 
   }
+
 }

@@ -1,0 +1,334 @@
+<section class="min-h-screen bg-brand-background">
+
+  <div class="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+
+    <!-- Header -->
+    <div class="border-b border-brand-border pb-8">
+
+      <p
+        class="text-xs uppercase tracking-[0.25em] text-brand-muted"
+      >
+        Account
+      </p>
+
+      <h1
+        class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
+      >
+        My Orders
+      </h1>
+
+      <p
+        class="mt-3 text-sm text-brand-muted"
+      >
+        View your order history and track your purchases.
+      </p>
+
+    </div>
+
+
+    <!-- Observable values -->
+    @if (
+      {
+        loading: loading$ | async,
+        error: error$ | async,
+        orders: orders$ | async
+      };
+      as state
+    ) {
+
+      <!-- Loading -->
+      @if (state.loading) {
+
+        <div class="py-20 text-center">
+
+          <p class="text-sm text-brand-muted">
+            Loading your orders...
+          </p>
+
+        </div>
+
+      }
+
+
+      <!-- Error -->
+      @else if (state.error) {
+
+        <div class="py-20 text-center">
+
+          <p class="text-sm text-red-600">
+            {{ state.error }}
+          </p>
+
+        </div>
+
+      }
+
+
+      <!-- Orders -->
+      @else {
+
+        @if (state.orders && state.orders.length > 0) {
+
+          <div class="mt-8 space-y-5">
+
+            @for (order of state.orders; track order.id) {
+
+              <article
+                class="border border-brand-border bg-brand-background"
+              >
+
+                <!-- Order Header -->
+                <div
+                  class="flex flex-col gap-4 border-b border-brand-border px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                >
+
+                  <!-- Order Number -->
+                  <div>
+
+                    <p
+                      class="text-xs uppercase tracking-[0.15em] text-brand-muted"
+                    >
+                      Order
+                    </p>
+
+                    <p
+                      class="mt-1 text-sm font-medium text-brand-text"
+                    >
+                      {{ order.orderNumber }}
+                    </p>
+
+                  </div>
+
+
+                  <!-- Date + Total -->
+                  <div class="sm:text-right">
+
+                    <p
+                      class="text-xs text-brand-muted"
+                    >
+                      {{ order.createdAt | date:'dd MMM yyyy' }}
+                    </p>
+
+                    <p
+                      class="mt-1 text-sm font-medium text-brand-text"
+                    >
+                      ₹{{ order.total }}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <!-- Order Body -->
+                <div class="px-5 py-6 sm:px-6">
+
+                  <div
+                    class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
+                  >
+
+                    <!-- Products -->
+                    <div class="space-y-4">
+
+                      @for (
+                        item of order.items.slice(0, 2);
+                        track item.productId + item.size + item.color
+                      ) {
+
+                        <div class="flex items-center gap-4">
+
+                          <!-- Product Image -->
+                          <div
+                            class="h-16 w-14 shrink-0 overflow-hidden bg-brand-surface"
+                          >
+
+                            <img
+                              [src]="item.image"
+                              [alt]="item.name"
+                              class="h-full w-full object-cover"
+                            />
+
+                          </div>
+
+
+                          <!-- Product Info -->
+                          <div>
+
+                            <p
+                              class="text-sm font-medium text-brand-text"
+                            >
+                              {{ item.name }}
+                            </p>
+
+                            <p
+                              class="mt-1 text-xs text-brand-muted"
+                            >
+                              Size: {{ item.size }}
+
+                              <span class="mx-1">
+                                ·
+                              </span>
+
+                              Color: {{ item.color }}
+
+                              <span class="mx-1">
+                                ·
+                              </span>
+
+                              Qty {{ item.quantity }}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+                      }
+
+
+                      <!-- More Items -->
+                      @if (order.items.length > 2) {
+
+                        <p
+                          class="text-xs text-brand-muted"
+                        >
+                          + {{ order.items.length - 2 }}
+                          more
+                          {{ order.items.length - 2 === 1
+                            ? 'item'
+                            : 'items'
+                          }}
+                        </p>
+
+                      }
+
+                    </div>
+
+
+                    <!-- Status + Action -->
+                    <div
+                      class="flex flex-col gap-4 sm:items-end"
+                    >
+
+                      <!-- Order Status -->
+                      <div class="flex items-center gap-2">
+
+                        <span
+                          class="h-2 w-2 rounded-full"
+                          [class.bg-brand-accent]="
+                            order.orderStatus !== 'cancelled'
+                          "
+                          [class.bg-red-500]="
+                            order.orderStatus === 'cancelled'
+                          "
+                        ></span>
+
+                        <span
+                          class="text-xs capitalize"
+                          [class.text-brand-text]="
+                            order.orderStatus !== 'cancelled'
+                          "
+                          [class.text-red-600]="
+                            order.orderStatus === 'cancelled'
+                          "
+                        >
+                          {{ order.orderStatus }}
+                        </span>
+
+                      </div>
+
+
+                      <!-- Actions -->
+                      <div
+                        class="flex flex-col gap-2 sm:flex-row"
+                      >
+
+                        <!-- View Order -->
+                        <a
+                          [routerLink]="[
+                            '/order-confirmation',
+                            order.id
+                          ]"
+                          class="inline-flex items-center justify-center border border-brand-border px-6 py-3 text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:border-brand-text"
+                        >
+                          View Order
+                        </a>
+
+
+                        <!-- Cancel Order -->
+                        @if (canCancel(order)) {
+
+                          <button
+                            type="button"
+                            (click)="cancelOrder(order)"
+                            class="inline-flex items-center justify-center border border-red-300 px-6 py-3 text-xs font-medium uppercase tracking-[0.15em] text-red-600 transition-colors hover:border-red-600"
+                          >
+                            Cancel Order
+                          </button>
+
+                        }
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            }
+
+          </div>
+
+        }
+
+
+        <!-- Empty State -->
+        @else {
+
+          <div
+            class="flex min-h-[50vh] items-center justify-center text-center"
+          >
+
+            <div>
+
+              <p
+                class="text-xs uppercase tracking-[0.25em] text-brand-muted"
+              >
+                No Orders
+              </p>
+
+              <h2
+                class="mt-4 text-2xl font-light text-brand-text"
+              >
+                You haven't placed any orders yet.
+              </h2>
+
+              <p
+                class="mx-auto mt-3 max-w-md text-sm leading-6 text-brand-muted"
+              >
+                Explore our collection and find something
+                you'll love.
+              </p>
+
+              <a
+                routerLink="/shop"
+                class="mt-8 inline-flex bg-brand-text px-8 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+              >
+                Shop Collection
+              </a>
+
+            </div>
+
+          </div>
+
+        }
+
+      }
+
+    }
+
+  </div>
+
+</section>

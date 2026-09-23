@@ -130,28 +130,34 @@ export class CartComponent {
 
   proceedToCheckout(): void {
 
-  this.cartItems$
-    .pipe(take(1))
-    .subscribe(items => {
+    console.log('PROCEED TO CHECKOUT CLICKED');
 
-      const checkoutItems = items.map(item => ({
-        productId: item.product.id,
-        size: item.size,
-        color: item.color,
-        quantity: item.quantity
-      }));
+    this.cartItems$
+      .pipe(take(1))
+      .subscribe(items => {
 
-      this.store.dispatch(
-        startCheckout({
-          mode: 'cart',
-          items: checkoutItems
-        })
-      );
+        console.log('CART ITEMS:', items);
 
-      this.router.navigate(['/checkout']);
+        const checkoutItems = items.map(item => ({
+          productId: item.product.id,
+          size: item.size,
+          color: item.color,
+          quantity: item.quantity
+        }));
 
-    });
+        console.log('CHECKOUT ITEMS TO STORE:', checkoutItems);
 
-}
+        this.store.dispatch(
+          startCheckout({
+            mode: 'cart',
+            items: checkoutItems
+          })
+        );
+
+        console.log('START CHECKOUT DISPATCHED');
+
+        this.router.navigate(['/checkout']);
+      });
+  }
 
 }

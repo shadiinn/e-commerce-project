@@ -1,17 +1,28 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { take } from 'rxjs';
 
 import {
   selectCheckoutMode,
-  selectCheckoutItems,selectCheckoutItemsWithProducts,selectCheckoutSubtotal
+  selectCheckoutItems,
+  selectCheckoutItemsWithProducts,
+  selectCheckoutSubtotal
 } from '../../store/checkout/checkout.selectors';
 
 import { clearCheckout } from '../../store/checkout/checkout.actions';
-import { Product } from '../../core/models/product.model';
 
+import { placeOrder } from '../../store/orders/orders.actions';
+
+import {
+  CreateOrderRequest
+} from '../../core/models/order.model';
 
 @Component({
   selector: 'app-checkout',
@@ -39,7 +50,13 @@ export class CheckoutComponent {
       selectCheckoutMode
     );
 
+  // Raw checkout items
+  checkoutItemsRaw$ =
+    this.store.select(
+      selectCheckoutItems
+    );
 
+  // Checkout items joined with Product Entity
   checkoutItems$ =
     this.store.select(
       selectCheckoutItemsWithProducts
@@ -49,8 +66,6 @@ export class CheckoutComponent {
     this.store.select(
       selectCheckoutSubtotal
     );
-
-
 
 
   // =====================================================
@@ -139,28 +154,167 @@ export class CheckoutComponent {
   });
 
 
-
   // =====================================================
   // PLACE ORDER
   // =====================================================
 
   placeOrder(): void {
 
-    if (
-      this.checkoutForm.invalid
-    ) {
+    console.log('================================');
+    console.log('PLACE ORDER CLICKED');
+    console.log('================================');
+
+
+    // -------------------------------------------------
+    // CHECK FORM
+    // -------------------------------------------------
+
+    if (this.checkoutForm.invalid) {
+
+      console.log(
+        'CHECKOUT FORM IS INVALID'
+      );
 
       this.checkoutForm.markAllAsTouched();
 
       return;
-
     }
 
-
     console.log(
-      'Checkout data:',
-      this.checkoutForm.value
+      'CHECKOUT FORM IS VALID'
     );
+
+
+    // -------------------------------------------------
+    // CHECK RAW CHECKOUT STATE
+    // -------------------------------------------------
+
+    this.checkoutItemsRaw$
+      .pipe(take(1))
+      .subscribe(items => {
+
+        console.log(
+          'RAW CHECKOUT ITEMS:',
+          items
+        );
+
+      });
+
+
+    // -------------------------------------------------
+    // CHECK CHECKOUT ITEMS WITH PRODUCTS
+    // -------------------------------------------------
+
+    this.checkoutItems$
+      .pipe(take(1))
+      .subscribe(items => {
+
+        console.log(
+          'CHECKOUT ITEMS WITH PRODUCTS:',
+          items
+        );
+
+
+        if (!items.length) {
+
+          console.log(
+            'NO CHECKOUT ITEMS'
+          );
+
+          return;
+        }
+
+
+        const formValue =
+          this.checkoutForm.getRawValue();
+
+
+        // =================================================
+        // CREATE ORDER REQUEST
+        // =================================================
+
+        const request: CreateOrderRequest = {
+
+          items: items.map(item => ({
+
+            productId:
+              item.product.id,
+
+            size:
+              item.size,
+
+            color:
+              item.color,
+
+            quantity:
+              item.quantity
+
+          })),
+
+
+          shippingAddress: {
+
+            firstName:
+              formValue.firstName!,
+
+            lastName:
+              formValue.lastName!,
+
+            address:
+              formValue.address!,
+
+            apartment:
+              formValue.apartment ?? '',
+
+            city:
+              formValue.city!,
+
+            state:
+              formValue.state!,
+
+            postalCode:
+              formValue.postalCode!,
+
+            country:
+              formValue.country!,
+
+            phone:
+              formValue.phone!,
+
+            email:
+              formValue.email!
+
+          },
+
+
+          paymentMethod:
+            formValue.paymentMethod as 'cod' | 'online'
+
+        };
+
+
+        console.log(
+          'ORDER REQUEST:',
+          request
+        );
+
+
+        // =================================================
+        // DISPATCH ORDER
+        // =================================================
+
+        this.store.dispatch(
+          placeOrder({
+            request
+          })
+        );
+
+
+        console.log(
+          'PLACE ORDER DISPATCHED'
+        );
+
+      });
 
   }
 
