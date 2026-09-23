@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #f3f0ec;
+  --color-surface: #e8e3dc;
+  --color-text: #151515;
+  --color-muted: #77736e;
+  --color-border: #d8d3cd;
+  --color-accent: #9a7b55;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: Arial, Helvetica, sans-serif;
+}

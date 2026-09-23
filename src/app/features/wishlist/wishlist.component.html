@@ -1,0 +1,281 @@
+<section class="min-h-screen bg-brand-background">
+
+  <!-- ===================================================== -->
+  <!-- WISHLIST HEADER -->
+  <!-- ===================================================== -->
+
+  <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-16">
+
+    <div class="flex items-end justify-between border-b border-brand-border pb-6">
+
+      <div>
+        <p
+          class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+        >
+          Your Saved Pieces
+        </p>
+
+        <h1
+          class="mt-3 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
+        >
+          Wishlist
+        </h1>
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- WISHLIST COUNT -->
+      <!-- ================================================= -->
+
+      @if (wishlistCount$ | async; as count) {
+
+        @if (count > 0) {
+
+          <p class="text-sm text-brand-muted">
+            {{ count }} {{ count === 1 ? 'item' : 'items' }}
+          </p>
+
+        }
+
+      }
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- WISHLIST CONTENT -->
+    <!-- ===================================================== -->
+
+    @if (wishlistItems$ | async; as items) {
+
+      @if (items.length > 0) {
+
+        <!-- =============================================== -->
+        <!-- ACTION BAR -->
+        <!-- =============================================== -->
+
+        <div class="flex justify-end pt-6">
+
+          <button
+            type="button"
+            (click)="clearWishlist()"
+            class="text-xs uppercase tracking-[0.15em] text-brand-muted transition-colors duration-300 hover:text-brand-text"
+          >
+            Clear Wishlist
+          </button>
+
+        </div>
+
+
+        <!-- =============================================== -->
+        <!-- PRODUCT GRID -->
+        <!-- =============================================== -->
+
+        <div
+          class="mt-8 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+
+          @for (item of items; track item.id) {
+
+            <article class="group">
+
+              <!-- ========================================= -->
+              <!-- PRODUCT IMAGE -->
+              <!-- ========================================= -->
+
+              <div
+                class="relative overflow-hidden bg-brand-surface"
+              >
+
+                <!-- Product link -->
+
+                <a
+                  [routerLink]="['/products', item.product.id]"
+                  class="block"
+                >
+
+                  <div class="aspect-[3/4] overflow-hidden">
+
+                    <img
+                      [src]="item.product.images[0]"
+                      [alt]="item.product.name"
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+
+                  </div>
+
+                </a>
+
+
+                <!-- ======================================= -->
+                <!-- REMOVE FROM WISHLIST -->
+                <!-- ======================================= -->
+
+                <button
+                  type="button"
+                  (click)="removeFromWishlist(item.product)"
+                  aria-label="Remove from wishlist"
+                  class="absolute right-4 top-4 flex h-9 w-9 items-center justify-center bg-white/95 shadow-sm transition-opacity duration-300 hover:opacity-70"
+                >
+
+                  <!-- Filled Heart -->
+
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="h-4 w-4 text-brand-text"
+                  >
+                    <path
+                      d="M20.8 8.6c0 5.5-8.8 10.4-8.8 10.4S3.2 14.1 3.2 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 8.8 2.4Z"
+                    ></path>
+                  </svg>
+
+                </button>
+
+              </div>
+
+
+              <!-- ========================================= -->
+              <!-- PRODUCT INFORMATION -->
+              <!-- ========================================= -->
+
+              <div class="pt-4">
+
+                <div class="flex items-start justify-between gap-4">
+
+                  <div>
+
+                    <h2
+                      class="text-sm font-medium text-brand-text"
+                    >
+                      {{ item.product.name }}
+                    </h2>
+
+                    <p
+                      class="mt-1 text-sm capitalize text-brand-muted"
+                    >
+                      {{ item.product.category }}
+                    </p>
+
+                  </div>
+
+
+                  <!-- Price -->
+
+                  <p
+                    class="text-sm font-medium text-brand-text"
+                  >
+                    ₹{{ item.product.price }}
+                  </p>
+
+                </div>
+
+
+                <!-- ======================================= -->
+                <!-- COLORS -->
+                <!-- ======================================= -->
+
+                <div class="mt-3 flex gap-2">
+
+                  @for (
+                    color of item.product.colors;
+                    track color
+                  ) {
+
+                    <span
+                      class="h-3 w-3 rounded-full border border-brand-border"
+                      [title]="color"
+                    ></span>
+
+                  }
+
+                </div>
+
+
+                <!-- ======================================= -->
+                <!-- VIEW PRODUCT -->
+                <!-- ======================================= -->
+
+                <a
+                  [routerLink]="['/products', item.product.id]"
+                  class="mt-5 block w-full border border-brand-border px-5 py-3 text-center text-[11px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-300 hover:border-brand-text hover:bg-brand-text hover:text-white"
+                >
+                  View Product
+                </a>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      }
+
+      @else {
+
+        <!-- ================================================= -->
+        <!-- EMPTY WISHLIST -->
+        <!-- ================================================= -->
+
+        <div
+          class="flex min-h-[55vh] flex-col items-center justify-center text-center"
+        >
+
+          <!-- Heart -->
+
+          <div
+            class="flex h-16 w-16 items-center justify-center border border-brand-border"
+          >
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="h-6 w-6 text-brand-muted"
+            >
+              <path
+                d="M20.8 8.6c0 5.5-8.8 10.4-8.8 10.4S3.2 14.1 3.2 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 8.8 2.4Z"
+              ></path>
+            </svg>
+
+          </div>
+
+
+          <h2
+            class="mt-6 text-2xl font-light text-brand-text"
+          >
+            Your wishlist is empty
+          </h2>
+
+
+          <p
+            class="mt-3 max-w-md text-sm leading-6 text-brand-muted"
+          >
+            Save pieces you love and come back to them whenever
+            you're ready.
+          </p>
+
+
+          <!-- Continue Shopping -->
+
+          <a
+            routerLink="/shop"
+            class="mt-8 bg-brand-text px-8 py-4 text-[11px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-300 hover:opacity-80"
+          >
+            Explore Collection
+          </a>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+</section>

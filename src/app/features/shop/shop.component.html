@@ -1,0 +1,699 @@
+<section class="min-h-screen bg-brand-background">
+
+  <!-- ========================================================= -->
+  <!-- HEADER -->
+  <!-- ========================================================= -->
+
+  <div class="border-b border-brand-border">
+
+    <div class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+
+      <div class="max-w-2xl">
+
+        <p class="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-brand-muted">
+          The Collection
+        </p>
+
+        <h1 class="text-4xl font-light tracking-tight text-brand-text sm:text-5xl">
+          Shop
+        </h1>
+
+        <p class="mt-5 max-w-xl text-sm leading-7 text-brand-muted sm:text-base">
+          Timeless pieces designed with a focus on quality, simplicity,
+          and effortless everyday style.
+        </p>
+
+      </div>
+
+
+      <!-- CATEGORIES -->
+      <div class="mt-12 overflow-x-auto">
+
+        <div class="flex min-w-max items-center gap-8">
+
+          <!-- ALL -->
+          <button
+            type="button"
+            (click)="selectAllCategories()"
+            class="relative pb-3 text-sm"
+            [class.text-brand-text]="selectedCategories().length === 0"
+            [class.text-brand-muted]="selectedCategories().length !== 0"
+          >
+            All
+
+            @if (selectedCategories().length === 0) {
+              <span class="absolute bottom-0 left-0 h-px w-full bg-brand-text"></span>
+            }
+          </button>
+
+
+          <!-- CATEGORY LINKS -->
+          @for (category of categories; track category.slug) {
+
+            <button
+              type="button"
+              (click)="selectHeaderCategory(category.slug)"
+              class="relative pb-3 text-sm"
+              [class.text-brand-text]="
+                selectedCategories().length === 1 &&
+                selectedCategories()[0] === category.slug
+              "
+              [class.text-brand-muted]="!(
+                selectedCategories().length === 1 &&
+                selectedCategories()[0] === category.slug
+              )"
+            >
+
+              {{ category.name }}
+
+              @if (
+                selectedCategories().length === 1 &&
+                selectedCategories()[0] === category.slug
+              ) {
+                <span class="absolute bottom-0 left-0 h-px w-full bg-brand-text"></span>
+              }
+
+            </button>
+
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- SHOP CONTENT -->
+  <!-- ========================================================= -->
+
+  <div class="mx-auto max-w-7xl px-6 py-10 lg:px-8">
+
+
+    <!-- TOOLBAR -->
+    <div class="flex items-center justify-between border-b border-brand-border pb-6">
+
+      <!-- FILTER -->
+      <button
+        type="button"
+        (click)="openFilters()"
+        class="inline-flex items-center gap-2 border border-brand-border px-5 py-2.5 text-sm text-brand-text hover:bg-brand-surface"
+      >
+
+        Filter
+
+        @if (
+          selectedCategories().length ||
+          selectedSizes().length ||
+          minPrice() > 0 ||
+          maxPrice() < 10000 ||
+          inStockOnly()
+        ) {
+
+          <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-text px-1.5 text-[10px] text-white">
+            {{
+              selectedCategories().length +
+              selectedSizes().length +
+              (minPrice() > 0 ? 1 : 0) +
+              (maxPrice() < 10000 ? 1 : 0) +
+              (inStockOnly() ? 1 : 0)
+            }}
+          </span>
+
+        }
+
+      </button>
+
+
+      <!-- PRODUCT COUNT -->
+      <p class="hidden text-sm text-brand-muted sm:block">
+
+        @if (loading$ | async) {
+          Loading products...
+        } @else {
+          {{ filteredProducts().length }}
+          {{ filteredProducts().length === 1 ? 'Product' : 'Products' }}
+        }
+
+      </p>
+
+
+      <!-- SORT -->
+      <select
+        [value]="sortBy()"
+        (change)="sortBy.set($any($event.target).value)"
+        class="border border-brand-border bg-transparent px-4 py-2.5 text-sm text-brand-text outline-none"
+      >
+
+        <option value="featured">Featured</option>
+        <option value="newest">Newest</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+
+      </select>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- LOADING -->
+    <!-- ========================================================= -->
+
+    @if (loading$ | async) {
+
+      <div class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+        @for (item of [1,2,3,4,5,6,7,8]; track item) {
+
+          <div>
+
+            <div class="aspect-[3/4] animate-pulse bg-brand-surface"></div>
+
+            <div class="pt-4">
+
+              <div class="h-4 w-3/4 animate-pulse bg-brand-surface"></div>
+
+              <div class="mt-2 h-3 w-1/3 animate-pulse bg-brand-surface"></div>
+
+              <div class="mt-4 h-4 w-1/4 animate-pulse bg-brand-surface"></div>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- ERROR -->
+    <!-- ========================================================= -->
+
+    @else if (error$ | async) {
+
+      <div class="flex min-h-[400px] items-center justify-center">
+
+        <div class="max-w-md text-center">
+
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
+            Something went wrong
+          </p>
+
+          <h2 class="mt-4 text-2xl font-light text-brand-text">
+            Unable to load products
+          </h2>
+
+          <p class="mt-3 text-sm text-brand-muted">
+            {{ error$ | async }}
+          </p>
+
+          <button
+            type="button"
+            (click)="reloadProducts()"
+            class="mt-8 border border-brand-text px-6 py-3 text-sm text-brand-text hover:bg-brand-text hover:text-white"
+          >
+            Try Again
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- ========================================================= -->
+    <!-- PRODUCTS -->
+    <!-- ========================================================= -->
+
+    @else {
+
+      @if (filteredProducts().length) {
+
+        <div class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+          @for (product of sortedProducts(); track product.id) {
+
+            <app-product-card
+              [product]="product"
+            />
+
+          }
+
+        </div>
+
+      } @else {
+
+        <!-- EMPTY STATE -->
+
+        <div class="flex min-h-[400px] items-center justify-center">
+
+          <div class="max-w-md text-center">
+
+            <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
+              No results
+            </p>
+
+            <h2 class="mt-4 text-2xl font-light text-brand-text">
+              Nothing matches your filters
+            </h2>
+
+            <p class="mt-3 text-sm text-brand-muted">
+              Try adjusting your filters or browse the complete collection.
+            </p>
+
+            <button
+              type="button"
+              (click)="clearAllFilters()"
+              class="mt-8 border border-brand-text px-6 py-3 text-sm text-brand-text hover:bg-brand-text hover:text-white"
+            >
+              Clear Filters
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- FILTER OVERLAY -->
+  <!-- ========================================================= -->
+
+  @if (isFilterOpen()) {
+
+    <div
+      class="fixed inset-0 z-40 bg-black/30"
+      (click)="closeFilters()"
+    ></div>
+
+  }
+
+
+  <!-- ========================================================= -->
+  <!-- FILTER PANEL -->
+  <!-- ========================================================= -->
+
+  <aside
+    class="fixed left-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300"
+    [class.translate-x-0]="isFilterOpen()"
+    [class.-translate-x-full]="!isFilterOpen()"
+  >
+
+
+    <!-- FILTER HEADER -->
+
+    <div class="flex items-center justify-between border-b border-gray-300 px-6 py-6">
+
+      <h2 class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text">
+        Filter
+      </h2>
+
+      <button
+        type="button"
+        (click)="closeFilters()"
+        class="text-2xl font-light text-brand-text"
+        aria-label="Close filters"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- FILTER SECTIONS -->
+
+    <div class="flex-1 overflow-y-auto">
+
+
+      <!-- ===================================================== -->
+      <!-- CATEGORIES -->
+      <!-- ===================================================== -->
+
+      <div class="border-b border-gray-300">
+
+        <button
+          type="button"
+          (click)="toggleFilter('categories')"
+          class="flex w-full items-center justify-between px-6 py-8 text-left"
+        >
+
+          <span class="text-sm uppercase tracking-wide text-brand-text">
+            Categories
+          </span>
+
+          <span
+            class="text-lg font-light transition-transform duration-200"
+            [class.rotate-180]="activeFilter() === 'categories'"
+          >
+            ⌄
+          </span>
+
+        </button>
+
+
+        @if (activeFilter() === 'categories') {
+
+          <div class="px-6 pb-8">
+
+            @for (category of categories; track category.slug) {
+
+              <label
+                class="flex cursor-pointer items-center justify-between border-b border-gray-100 py-3 text-sm"
+              >
+
+                <span class="text-brand-text">
+                  {{ category.name }}
+                </span>
+
+                <input
+                  type="checkbox"
+                  [checked]="tempCategories().includes(category.slug)"
+                  (change)="toggleCategory(category.slug)"
+                  class="h-4 w-4 accent-black"
+                />
+
+              </label>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- ===================================================== -->
+      <!-- SIZE -->
+      <!-- ===================================================== -->
+
+      <div class="border-b border-gray-300">
+
+        <button
+          type="button"
+          (click)="toggleFilter('size')"
+          class="flex w-full items-center justify-between px-6 py-8 text-left"
+        >
+
+          <span class="text-sm uppercase tracking-wide text-brand-text">
+            Size
+          </span>
+
+          <span
+            class="text-lg font-light transition-transform duration-200"
+            [class.rotate-180]="activeFilter() === 'size'"
+          >
+            ⌄
+          </span>
+
+        </button>
+
+
+        @if (activeFilter() === 'size') {
+
+          <div class="space-y-7 px-6 pb-8">
+
+
+            <!-- CLOTHING SIZES -->
+
+            <div>
+
+              <p class="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-brand-muted">
+                Clothing Sizes
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+
+                @for (size of availableSizes.slice(0, 4); track size) {
+
+                  <button
+                    type="button"
+                    (click)="toggleSize(size)"
+                    class="min-w-12 border px-4 py-2 text-sm transition-colors"
+                    [class.border-brand-text]="tempSizes().includes(size)"
+                    [class.bg-brand-text]="tempSizes().includes(size)"
+                    [class.text-white]="tempSizes().includes(size)"
+                    [class.border-gray-300]="!tempSizes().includes(size)"
+                    [class.text-brand-text]="!tempSizes().includes(size)"
+                  >
+                    {{ size }}
+                  </button>
+
+                }
+
+              </div>
+
+            </div>
+
+
+            <!-- TROUSER SIZES -->
+
+            <div>
+
+              <p class="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-brand-muted">
+                Trouser Sizes
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+
+                @for (size of availableSizes.slice(4); track size) {
+
+                  <button
+                    type="button"
+                    (click)="toggleSize(size)"
+                    class="min-w-12 border px-4 py-2 text-sm transition-colors"
+                    [class.border-brand-text]="tempSizes().includes(size)"
+                    [class.bg-brand-text]="tempSizes().includes(size)"
+                    [class.text-white]="tempSizes().includes(size)"
+                    [class.border-gray-300]="!tempSizes().includes(size)"
+                    [class.text-brand-text]="!tempSizes().includes(size)"
+                  >
+                    {{ size }}
+                  </button>
+
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+      <!-- ===================================================== -->
+      <!-- AVAILABILITY -->
+      <!-- ===================================================== -->
+
+      <div class="border-b border-gray-300">
+
+        <button
+          type="button"
+          (click)="toggleFilter('availability')"
+          class="flex w-full items-center justify-between px-6 py-8 text-left"
+        >
+
+          <span class="text-sm uppercase tracking-wide text-brand-text">
+            Availability
+          </span>
+
+          <span
+            class="text-lg font-light transition-transform duration-200"
+            [class.rotate-180]="activeFilter() === 'availability'"
+          >
+            ⌄
+          </span>
+
+        </button>
+
+
+        @if (activeFilter() === 'availability') {
+
+          <div class="px-6 pb-8">
+
+            <label class="flex cursor-pointer items-center justify-between">
+
+              <div>
+
+                <p class="text-sm text-brand-text">
+                  In Stock
+                </p>
+
+                <p class="mt-1 text-xs text-brand-muted">
+                  Show only products currently in stock
+                </p>
+
+              </div>
+
+              <input
+                type="checkbox"
+                [checked]="tempInStockOnly()"
+                (change)="tempInStockOnly.set($any($event.target).checked)"
+                class="h-4 w-4 accent-black"
+              />
+
+            </label>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- ===================================================== -->
+      <!-- PRICE -->
+      <!-- ===================================================== -->
+
+      <div class="border-b border-gray-300">
+
+        <button
+          type="button"
+          (click)="toggleFilter('price')"
+          class="flex w-full items-center justify-between px-6 py-8 text-left"
+        >
+
+          <span class="text-sm uppercase tracking-wide text-brand-text">
+            Price
+          </span>
+
+          <span
+            class="text-lg font-light transition-transform duration-200"
+            [class.rotate-180]="activeFilter() === 'price'"
+          >
+            ⌄
+          </span>
+
+        </button>
+
+
+        @if (activeFilter() === 'price') {
+
+          <div class="grid grid-cols-2 gap-5 px-6 pb-8">
+
+            <div>
+
+              <label class="mb-2 block text-xs uppercase tracking-wide text-brand-muted">
+                Minimum
+              </label>
+
+              <input
+                type="number"
+                [value]="tempMinPrice()"
+                (input)="tempMinPrice.set(+$any($event.target).value)"
+                class="w-full border-b border-gray-400 bg-transparent px-1 py-3 text-sm text-brand-text outline-none"
+              />
+
+            </div>
+
+
+            <div>
+
+              <label class="mb-2 block text-xs uppercase tracking-wide text-brand-muted">
+                Maximum
+              </label>
+
+              <input
+                type="number"
+                [value]="tempMaxPrice()"
+                (input)="tempMaxPrice.set(+$any($event.target).value)"
+                class="w-full border-b border-gray-400 bg-transparent px-1 py-3 text-sm text-brand-text outline-none"
+              />
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- ===================================================== -->
+      <!-- OLD MONEY ESSENTIALS -->
+      <!-- ===================================================== -->
+
+      <div class="border-b border-gray-300">
+
+        <button
+          type="button"
+          (click)="toggleFilter('essentials')"
+          class="flex w-full items-center justify-between px-6 py-8 text-left"
+        >
+
+          <span class="text-sm uppercase tracking-wide text-brand-text">
+            Old Money Essentials
+          </span>
+
+          <span
+            class="text-lg font-light transition-transform duration-200"
+            [class.rotate-180]="activeFilter() === 'essentials'"
+          >
+            ⌄
+          </span>
+
+        </button>
+
+
+        @if (activeFilter() === 'essentials') {
+
+          <div class="px-6 pb-8">
+
+            <p class="text-sm leading-6 text-brand-muted">
+              Timeless pieces selected for a refined and understated wardrobe.
+            </p>
+
+          </div>
+
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- FILTER FOOTER -->
+    <!-- ===================================================== -->
+
+    <div class="border-t border-gray-300 bg-white p-6">
+
+      <div class="flex gap-3">
+
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="flex-1 border border-brand-border px-5 py-3 text-sm uppercase tracking-wide text-brand-text hover:bg-brand-surface"
+        >
+          Reset
+        </button>
+
+        <button
+          type="button"
+          (click)="applyFilters()"
+          class="flex-1 border border-brand-border px-5 py-3 text-sm uppercase tracking-wide text-brand-text hover:bg-brand-surface"
+        >
+          Apply
+        </button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+</section>

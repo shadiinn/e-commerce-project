@@ -1,0 +1,256 @@
+{
+  "users": [],
+  "cart": [
+    {
+      "productId": "p001",
+      "size": "S",
+      "color": "White",
+      "quantity": 6,
+      "id": "80gHYhj0GQM"
+    },
+    {
+      "productId": "p001",
+      "size": "M",
+      "color": "White",
+      "quantity": 2,
+      "id": "Fccl_yYGjns"
+    }
+  ],
+  "wishlists": [],
+  "orders": [],
+  "products": [
+    {
+      "id": "p001",
+      "name": "Classic Oxford Shirt",
+      "slug": "classic-oxford-shirt",
+      "category": "shirts",
+      "price": 6499,
+      "oldPrice": 7499,
+      "description": "A timeless relaxed-fit Oxford shirt designed for effortless everyday elegance.",
+      "images": [
+        "public/assets/products/shirt-1.jpg",
+        "assets/products/oxford-shirt-2.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "White",
+        "Beige",
+        "Black"
+      ],
+      "rating": 4.8,
+      "reviewsCount": 124,
+      "stock": 20,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p002",
+      "name": "Relaxed Linen Shirt",
+      "slug": "relaxed-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/products/linen-shirt-1.jpg",
+        "assets/products/linen-shirt-2.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p003",
+      "name": "Signature Straight Trousers",
+      "slug": "signature-straight-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "images": [
+        "assets/products/straight-trousers-1.jpg",
+        "assets/products/straight-trousers-2.jpg"
+      ],
+      "sizes": [
+        "30",
+        "32",
+        "34",
+        "36",
+        "38"
+      ],
+      "colors": [
+        "Black",
+        "Charcoal",
+        "Beige"
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "stock": 25,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p004",
+      "name": "Pleated Tailored Trousers",
+      "slug": "pleated-tailored-trousers",
+      "category": "trousers",
+      "price": 7999,
+      "description": "Pleated trousers with a relaxed tailored fit and sophisticated finish.",
+      "images": [
+        "assets/products/pleated-trousers-1.jpg",
+        "assets/products/pleated-trousers-2.jpg"
+      ],
+      "sizes": [
+        "30",
+        "32",
+        "34",
+        "36",
+        "38"
+      ],
+      "colors": [
+        "Beige",
+        "Brown",
+        "Navy"
+      ],
+      "rating": 4.8,
+      "reviewsCount": 73,
+      "stock": 15,
+      "isNew": true,
+      "isFeatured": false
+    },
+    {
+      "id": "p005",
+      "name": "Classic Pique Polo",
+      "slug": "classic-pique-polo",
+      "category": "polo-shirts",
+      "price": 4999,
+      "oldPrice": 5499,
+      "description": "A refined pique polo with a clean silhouette and understated detailing.",
+      "images": [
+        "assets/products/pique-polo-1.jpg",
+        "assets/products/pique-polo-2.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "White",
+        "Navy",
+        "Black",
+        "Olive"
+      ],
+      "rating": 4.8,
+      "reviewsCount": 112,
+      "stock": 30,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p006",
+      "name": "Merino Crewneck Sweater",
+      "slug": "merino-crewneck-sweater",
+      "category": "sweaters",
+      "price": 8999,
+      "description": "A soft merino wool crewneck with a relaxed yet refined silhouette.",
+      "images": [
+        "assets/products/merino-sweater-1.jpg",
+        "assets/products/merino-sweater-2.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Charcoal",
+        "Brown"
+      ],
+      "rating": 4.9,
+      "reviewsCount": 91,
+      "stock": 12,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p007",
+      "name": "Heavyweight Essential Hoodie",
+      "slug": "heavyweight-essential-hoodie",
+      "category": "hoodies",
+      "price": 6999,
+      "description": "A heavyweight cotton hoodie with a relaxed fit and minimal branding.",
+      "images": [
+        "assets/products/essential-hoodie-1.jpg",
+        "assets/products/essential-hoodie-2.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Black",
+        "Stone",
+        "Grey"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 64,
+      "stock": 22,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p008",
+      "name": "Oversized Essential Tee",
+      "slug": "oversized-essential-tee",
+      "category": "oversized-tshirts",
+      "price": 3499,
+      "description": "Premium heavyweight cotton oversized T-shirt with a relaxed contemporary fit.",
+      "images": [
+        "assets/products/oversized-tee-1.jpg",
+        "assets/products/oversized-tee-2.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "White",
+        "Black",
+        "Stone",
+        "Grey"
+      ],
+      "rating": 4.8,
+      "reviewsCount": 203,
+      "stock": 40,
+      "isNew": true,
+      "isFeatured": true
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

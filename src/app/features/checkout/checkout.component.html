@@ -1,0 +1,646 @@
+<section class="min-h-screen bg-brand-background">
+
+  <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="border-b border-brand-border pb-6">
+
+      <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
+        Complete Your Purchase
+      </p>
+
+      <h1 class="mt-3 text-3xl font-light tracking-tight text-brand-text">
+        Checkout
+      </h1>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- CHECKOUT -->
+    <!-- ================================================= -->
+
+    <form
+      [formGroup]="checkoutForm"
+      (ngSubmit)="placeOrder()"
+      class="mt-10 grid gap-12 lg:grid-cols-[1fr_380px]"
+    >
+
+      <!-- ================================================= -->
+      <!-- LEFT SIDE -->
+      <!-- ================================================= -->
+
+      <div class="space-y-10">
+
+
+        <!-- =============================================== -->
+        <!-- CONTACT INFORMATION -->
+        <!-- =============================================== -->
+
+        <section>
+
+          <div class="border-b border-brand-border pb-4">
+
+            <h2
+              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+            >
+              Contact Information
+            </h2>
+
+          </div>
+
+
+          <div class="mt-6 grid gap-5 sm:grid-cols-2">
+
+            <!-- EMAIL -->
+
+            <div class="sm:col-span-2">
+
+              <label
+                for="email"
+                class="text-xs text-brand-muted"
+              >
+                Email Address
+              </label>
+
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="you@example.com"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors placeholder:text-brand-muted focus:border-brand-text"
+              />
+
+              @if (
+                checkoutForm.controls.email.touched &&
+                checkoutForm.controls.email.invalid
+              ) {
+
+                <p class="mt-2 text-xs text-red-600">
+                  Please enter a valid email address.
+                </p>
+
+              }
+
+            </div>
+
+
+            <!-- PHONE -->
+
+            <div class="sm:col-span-2">
+
+              <label
+                for="phone"
+                class="text-xs text-brand-muted"
+              >
+                Phone Number
+              </label>
+
+              <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                placeholder="10 digit mobile number"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors placeholder:text-brand-muted focus:border-brand-text"
+              />
+
+              @if (
+                checkoutForm.controls.phone.touched &&
+                checkoutForm.controls.phone.invalid
+              ) {
+
+                <p class="mt-2 text-xs text-red-600">
+                  Please enter a valid 10 digit phone number.
+                </p>
+
+              }
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- =============================================== -->
+        <!-- SHIPPING ADDRESS -->
+        <!-- =============================================== -->
+
+        <section>
+
+          <div class="border-b border-brand-border pb-4">
+
+            <h2
+              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+            >
+              Shipping Address
+            </h2>
+
+          </div>
+
+
+          <div class="mt-6 grid gap-5 sm:grid-cols-2">
+
+            <!-- FIRST NAME -->
+
+            <div>
+
+              <label
+                for="firstName"
+                class="text-xs text-brand-muted"
+              >
+                First Name
+              </label>
+
+              <input
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- LAST NAME -->
+
+            <div>
+
+              <label
+                for="lastName"
+                class="text-xs text-brand-muted"
+              >
+                Last Name
+              </label>
+
+              <input
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- ADDRESS -->
+
+            <div class="sm:col-span-2">
+
+              <label
+                for="address"
+                class="text-xs text-brand-muted"
+              >
+                Address
+              </label>
+
+              <input
+                id="address"
+                type="text"
+                formControlName="address"
+                placeholder="Street address"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none placeholder:text-brand-muted focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- APARTMENT -->
+
+            <div class="sm:col-span-2">
+
+              <label
+                for="apartment"
+                class="text-xs text-brand-muted"
+              >
+                Apartment, Suite, etc.
+                <span class="text-brand-muted">
+                  (optional)
+                </span>
+              </label>
+
+              <input
+                id="apartment"
+                type="text"
+                formControlName="apartment"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- CITY -->
+
+            <div>
+
+              <label
+                for="city"
+                class="text-xs text-brand-muted"
+              >
+                City
+              </label>
+
+              <input
+                id="city"
+                type="text"
+                formControlName="city"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- STATE -->
+
+            <div>
+
+              <label
+                for="state"
+                class="text-xs text-brand-muted"
+              >
+                State
+              </label>
+
+              <input
+                id="state"
+                type="text"
+                formControlName="state"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- POSTAL CODE -->
+
+            <div>
+
+              <label
+                for="postalCode"
+                class="text-xs text-brand-muted"
+              >
+                Postal Code
+              </label>
+
+              <input
+                id="postalCode"
+                type="text"
+                inputmode="numeric"
+                formControlName="postalCode"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              />
+
+            </div>
+
+
+            <!-- COUNTRY -->
+
+            <div>
+
+              <label
+                for="country"
+                class="text-xs text-brand-muted"
+              >
+                Country
+              </label>
+
+              <input
+                id="country"
+                type="text"
+                formControlName="country"
+                readonly
+                class="mt-2 w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-muted outline-none"
+              />
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- =============================================== -->
+        <!-- DELIVERY -->
+        <!-- =============================================== -->
+
+        <section>
+
+          <div class="border-b border-brand-border pb-4">
+
+            <h2
+              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+            >
+              Delivery
+            </h2>
+
+          </div>
+
+
+          <div
+            class="mt-6 border border-brand-text bg-brand-surface p-5"
+          >
+
+            <div class="flex items-start justify-between gap-4">
+
+              <div>
+
+                <p class="text-sm font-medium text-brand-text">
+                  Standard Delivery
+                </p>
+
+                <p class="mt-1 text-xs text-brand-muted">
+                  Delivered within 3–7 business days
+                </p>
+
+              </div>
+
+              <p class="text-sm text-brand-text">
+                Free
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- =============================================== -->
+        <!-- PAYMENT -->
+        <!-- =============================================== -->
+
+        <section>
+
+          <div class="border-b border-brand-border pb-4">
+
+            <h2
+              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+            >
+              Payment
+            </h2>
+
+          </div>
+
+
+          <div class="mt-6 space-y-3">
+
+            <!-- COD -->
+
+            <label
+              class="flex cursor-pointer items-start gap-4 border border-brand-text bg-brand-surface p-5"
+            >
+
+              <input
+                type="radio"
+                formControlName="paymentMethod"
+                value="cod"
+                class="mt-1"
+              />
+
+              <div>
+
+                <p class="text-sm font-medium text-brand-text">
+                  Cash on Delivery
+                </p>
+
+                <p class="mt-1 text-xs leading-5 text-brand-muted">
+                  Pay when your order is delivered.
+                </p>
+
+              </div>
+
+            </label>
+
+
+            <!-- ONLINE PAYMENT -->
+
+            <label
+              class="flex cursor-pointer items-start gap-4 border border-brand-border p-5 transition-colors hover:border-brand-text"
+            >
+
+              <input
+                type="radio"
+                formControlName="paymentMethod"
+                value="online"
+                class="mt-1"
+              />
+
+              <div>
+
+                <p class="text-sm font-medium text-brand-text">
+                  Online Payment
+                </p>
+
+                <p class="mt-1 text-xs leading-5 text-brand-muted">
+                  Payment gateway integration will be added later.
+                </p>
+
+              </div>
+
+            </label>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- RIGHT SIDE — ORDER SUMMARY -->
+      <!-- ================================================= -->
+
+      <aside
+        class="h-fit border border-brand-border bg-brand-surface p-6 lg:sticky lg:top-24"
+      >
+
+        <h2
+          class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+        >
+          Order Summary
+        </h2>
+
+
+        <!-- =============================================== -->
+        <!-- CHECKOUT ITEMS -->
+        <!-- =============================================== -->
+
+        @if (
+          checkoutItems$ | async;
+          as items
+        ) {
+
+          <div class="mt-6 space-y-5">
+
+            @for (
+              item of items;
+              track item.productId + item.size + item.color
+            ) {
+
+              <div class="flex gap-4">
+
+                <!-- IMAGE -->
+
+                <div
+                  class="relative h-20 w-16 shrink-0 overflow-hidden bg-brand-background"
+                >
+
+                  <img
+                    [src]="item.product.images[0]"
+                    [alt]="item.product.name"
+                    class="h-full w-full object-cover"
+                  />
+
+                  <span
+                    class="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center bg-brand-text px-1 text-[9px] text-white"
+                  >
+                    {{ item.quantity }}
+                  </span>
+
+                </div>
+
+
+                <!-- PRODUCT INFO -->
+
+                <div class="min-w-0 flex-1">
+
+                  <p
+                    class="truncate text-sm font-medium text-brand-text"
+                  >
+                    {{ item.product.name }}
+                  </p>
+
+                  <p class="mt-1 text-xs text-brand-muted">
+                    {{ item.size }}
+                    ·
+                    {{ item.color }}
+                  </p>
+
+                  <p class="mt-2 text-xs text-brand-muted">
+                    ₹{{ item.product.price }}
+                    ×
+                    {{ item.quantity }}
+                  </p>
+
+                </div>
+
+
+                <!-- ITEM TOTAL -->
+
+                <p
+                  class="text-sm font-medium text-brand-text"
+                >
+                  ₹{{ item.product.price * item.quantity }}
+                </p>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+
+        <!-- =============================================== -->
+        <!-- PRICE -->
+        <!-- =============================================== -->
+
+        <div
+          class="mt-6 space-y-4 border-t border-brand-border pt-6"
+        >
+
+          <!-- SUBTOTAL -->
+
+          <div class="flex justify-between text-sm">
+
+            <span class="text-brand-muted">
+              Subtotal
+            </span>
+
+            <span class="text-brand-text">
+              ₹{{ checkoutSubtotal$ | async }}
+            </span>
+
+          </div>
+
+
+          <!-- SHIPPING -->
+
+          <div class="flex justify-between text-sm">
+
+            <span class="text-brand-muted">
+              Shipping
+            </span>
+
+            <span class="text-brand-text">
+              Free
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- =============================================== -->
+        <!-- TOTAL -->
+        <!-- =============================================== -->
+
+        <div
+          class="mt-6 border-t border-brand-border pt-6"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <span
+              class="text-sm font-medium text-brand-text"
+            >
+              Total
+            </span>
+
+            <span
+              class="text-lg font-medium text-brand-text"
+            >
+              ₹{{ checkoutSubtotal$ | async }}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- =============================================== -->
+        <!-- PLACE ORDER -->
+        <!-- =============================================== -->
+
+        <button
+          type="submit"
+          [disabled]="checkoutForm.invalid"
+          class="mt-6 w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Place Order
+        </button>
+
+
+        <!-- =============================================== -->
+        <!-- RETURN TO CART -->
+        <!-- =============================================== -->
+
+        <a
+          routerLink="/cart"
+          (click)="cancelCheckout()"
+          class="mt-4 block text-center text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
+        >
+          Return to Cart
+        </a>
+
+      </aside>
+
+    </form>
+
+  </div>
+
+</section>

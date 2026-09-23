@@ -1,0 +1,330 @@
+<section class="min-h-screen bg-brand-background">
+
+  @if (product$ | async; as product) {
+
+    <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20">
+
+      <div class="grid gap-12 lg:grid-cols-2">
+
+        <!-- IMAGE -->
+
+        <div class="grid gap-4">
+
+        <div class="relative overflow-hidden bg-brand-surface">
+
+        <!-- =============================================== -->
+        <!-- MAIN PRODUCT IMAGE -->
+        <!-- =============================================== -->
+
+        <div class="aspect-[3/4]">
+
+            <img
+            [src]="selectedImage()"
+            [alt]="product.name"
+            class="h-full w-full object-cover transition-opacity duration-300"
+            />
+
+        </div>
+
+
+        <!-- =============================================== -->
+        <!-- WISHLIST -->
+        <!-- =============================================== -->
+
+        <button
+            type="button"
+            (click)="toggleWishlist(product)"
+            aria-label="Toggle wishlist"
+            class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center bg-white/95 shadow-sm transition-opacity duration-300 hover:opacity-80"
+        >
+
+            @if (isWishlisted$ | async) {
+
+            <!-- ========================================= -->
+            <!-- FILLED HEART -->
+            <!-- ========================================= -->
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+            >
+                <path
+                d="M20.8 8.6c0 5.5-8.8 10.4-8.8 10.4S3.2 14.1 3.2 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 8.8 2.4Z"
+                ></path>
+            </svg>
+
+            } @else {
+
+            <!-- ========================================= -->
+            <!-- OUTLINE HEART -->
+            <!-- ========================================= -->
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+            >
+                <path
+                d="M20.8 8.6c0 5.5-8.8 10.4-8.8 10.4S3.2 14.1 3.2 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 8.8 2.4Z"
+                ></path>
+            </svg>
+
+            }
+
+        </button>
+
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="grid grid-cols-4 gap-3">
+
+            @for (image of product.images; track image) {
+
+            <button
+                type="button"
+                (click)="selectImage(image)"
+                class="overflow-hidden border transition-colors"
+                [class.border-brand-text]="selectedImage() === image"
+                [class.border-brand-border]="selectedImage() !== image"
+            >
+
+                <div class="aspect-square">
+                <img
+                    [src]="image"
+                    [alt]="product.name"
+                    class="h-full w-full object-cover"
+                />
+                </div>
+
+            </button>
+
+            }
+
+        </div>
+
+    </div>
+
+
+        <!-- INFORMATION -->
+
+        <div class="flex flex-col justify-center">
+
+          <p
+            class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+          >
+            {{ product.category }}
+          </p>
+
+          <h1
+            class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
+          >
+            {{ product.name }}
+          </h1>
+
+          <p
+            class="mt-5 text-lg text-brand-text"
+          >
+            ₹{{ product.price }}
+          </p>
+
+          @if (product.oldPrice) {
+
+            <p
+              class="mt-1 text-sm text-brand-muted line-through"
+            >
+              ₹{{ product.oldPrice }}
+            </p>
+
+          }
+
+
+          <!-- DESCRIPTION -->
+
+          <p
+            class="mt-8 max-w-lg text-sm leading-7 text-brand-muted"
+          >
+            {{ product.description }}
+          </p>
+
+          <!-- SIZE -->
+
+          <div class="mt-8">
+
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-medium uppercase tracking-[0.15em] text-brand-text">
+                Select Size
+                </p>
+
+                <button
+                type="button"
+                class="text-xs text-brand-muted underline underline-offset-4"
+                >
+                Size Guide
+                </button>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+
+                @for (size of product.sizes; track size) {
+
+                <button
+                    type="button"
+                    (click)="selectSize(size)"
+                    class="min-w-14 border px-5 py-3 text-xs uppercase tracking-wider transition-colors"
+                    [class.border-brand-text]="selectedSize() === size"
+                    [class.bg-brand-text]="selectedSize() === size"
+                    [class.text-white]="selectedSize() === size"
+                    [class.border-brand-border]="selectedSize() !== size"
+                    [class.text-brand-text]="selectedSize() !== size"
+                >
+                    {{ size }}
+                </button>
+
+                }
+
+            </div>
+
+          </div>
+
+          <!-- COLOR -->
+
+          <div class="mt-8">
+
+            <p class="text-xs font-medium uppercase tracking-[0.15em] text-brand-text">
+                Select Color
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+
+                @for (color of product.colors; track color) {
+
+                <button
+                    type="button"
+                    (click)="selectColor(color)"
+                    class="border px-5 py-3 text-xs uppercase tracking-wider transition-colors"
+                    [class.border-brand-text]="selectedColor() === color"
+                    [class.bg-brand-text]="selectedColor() === color"
+                    [class.text-white]="selectedColor() === color"
+                    [class.border-brand-border]="selectedColor() !== color"
+                    [class.text-brand-text]="selectedColor() !== color"
+                >
+                    {{ color }}
+                </button>
+
+                }
+
+            </div>
+
+            </div>
+
+
+          <!-- RATING -->
+
+          <div class="mt-6 flex items-center gap-3">
+
+            <span class="text-sm text-brand-text">
+              {{ product.rating }}
+            </span>
+
+            <span class="text-sm text-brand-muted">
+              ({{ product.reviewsCount }} reviews)
+            </span>
+
+          </div>
+
+
+
+          <!-- STOCK -->
+
+          <div class="mt-6">
+
+            @if (product.stock > 0) {
+
+              <p class="text-sm text-brand-text">
+                In stock
+              </p>
+
+            } @else {
+
+              <p class="text-sm text-red-600">
+                Out of stock
+              </p>
+
+            }
+
+          </div>
+
+
+          <!-- BACK TO SHOP -->
+
+          <div class="mt-10">
+
+            <button
+                type="button"
+                (click)="addToCart(product)"
+                [disabled]="!selectedSize() || !selectedColor() || product.stock === 0"
+                class="w-full bg-brand-text px-8 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            >
+                Add to Cart
+            </button>
+
+            @if (!selectedSize() || !selectedColor()) {
+                <p class="mt-3 text-center text-xs text-brand-muted">
+                Please select a size and color
+                </p>
+            }
+
+            </div>
+
+            <a
+            routerLink="/shop"
+            class="mt-6 inline-flex w-fit border border-brand-text px-8 py-3 text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:bg-brand-text hover:text-white"
+            >
+            Back to Shop
+            </a>
+
+          </div>
+
+      </div>
+
+    </div>
+
+  } @else {
+
+    <div
+      class="flex min-h-[500px] items-center justify-center"
+    >
+
+      <div class="text-center">
+
+        <p
+          class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+        >
+          Product not found
+        </p>
+
+        <a
+          routerLink="/shop"
+          class="mt-6 inline-block border border-brand-text px-6 py-3 text-xs uppercase tracking-[0.15em]"
+        >
+          Back to Shop
+        </a>
+
+      </div>
+
+    </div>
+
+  }
+
+</section>
