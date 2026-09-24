@@ -16,13 +16,13 @@ export class CartService {
 
 
   // =====================================================
-  // GET CART
+  // GET CURRENT USER'S CART
   // =====================================================
 
-  getCart(): Observable<CartItem[]> {
+  getCart(userId: string): Observable<CartItem[]> {
 
     return this.http.get<CartItem[]>(
-      this.API_URL
+      `${this.API_URL}?userId=${userId}`
     );
 
   }

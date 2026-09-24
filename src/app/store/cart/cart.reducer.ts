@@ -8,14 +8,13 @@ import {
   clearCart,
   loadCart,
   loadCartSuccess,
-  loadCartFailure
+  loadCartFailure,
+  resetCart
 } from './cart.actions';
 
 import {
-  CartState,
   initialCartState
 } from './cart.state';
-import { CartItem } from '../../core/models/cart.model';
 
 
 export const cartReducer = createReducer(
@@ -30,13 +29,9 @@ export const cartReducer = createReducer(
   on(
     loadCart,
     state => ({
-
       ...state,
-
       loading: true,
-
       error: null
-
     })
   ),
 
@@ -48,15 +43,10 @@ export const cartReducer = createReducer(
   on(
     loadCartSuccess,
     (state, { items }) => ({
-
       ...state,
-
       items,
-
       loading: false,
-
       error: null
-
     })
   ),
 
@@ -68,13 +58,9 @@ export const cartReducer = createReducer(
   on(
     loadCartFailure,
     (state, { error }) => ({
-
       ...state,
-
       loading: false,
-
       error
-
     })
   ),
 
@@ -83,81 +69,23 @@ export const cartReducer = createReducer(
   // ADD TO CART
   // =====================================================
 
+  /*
+   * Backend persistence is handled by CartEffects.
+   *
+   * The effect:
+   * 1. Gets the authenticated user
+   * 2. Gets that user's cart
+   * 3. Checks for the same product/size/color
+   * 4. Updates the existing item OR creates a new item
+   * 5. Reloads the user's cart
+   *
+   * Therefore the reducer does not modify the state here.
+   */
+
   on(
     addToCart,
-    (state, { product, size, color }) => {
-
-        const existingItem =
-        state.items.find(
-            item =>
-            item.productId === product.id &&
-            item.size === size &&
-            item.color === color
-        );
-
-
-        // ===============================================
-        // EXISTING ITEM
-        // ===============================================
-
-        if (existingItem) {
-
-        return {
-
-            ...state,
-
-            items: state.items.map(item =>
-
-            item.id === existingItem.id
-
-                ? {
-                    ...item,
-                    quantity:
-                    item.quantity + 1
-                }
-
-                : item
-
-            )
-
-        };
-
-        }
-
-
-        // ===============================================
-        // NEW ITEM
-        // ===============================================
-
-        const newCartItem: CartItem = {
-
-        productId: product.id,
-
-        size,
-
-        color,
-
-        quantity: 1
-
-        };
-
-
-        return {
-
-        ...state,
-
-        items: [
-
-            ...state.items,
-
-            newCartItem
-
-        ]
-
-        };
-
-    }
-    ),
+    state => state
+  ),
 
 
   // =====================================================
@@ -167,26 +95,16 @@ export const cartReducer = createReducer(
   on(
     increaseQuantity,
     (state, { cartItemId }) => ({
-
       ...state,
 
       items: state.items.map(item =>
-
         item.id === cartItemId
-
           ? {
-
               ...item,
-
-              quantity:
-                item.quantity + 1
-
+              quantity: item.quantity + 1
             }
-
           : item
-
       )
-
     })
   ),
 
@@ -198,32 +116,18 @@ export const cartReducer = createReducer(
   on(
     decreaseQuantity,
     (state, { cartItemId }) => ({
-
       ...state,
 
       items: state.items
-
         .map(item =>
-
           item.id === cartItemId
-
             ? {
-
                 ...item,
-
-                quantity:
-                  item.quantity - 1
-
+                quantity: item.quantity - 1
               }
-
             : item
-
         )
-
-        .filter(
-          item => item.quantity > 0
-        )
-
+        .filter(item => item.quantity > 0)
     })
   ),
 
@@ -235,13 +139,11 @@ export const cartReducer = createReducer(
   on(
     removeFromCart,
     (state, { cartItemId }) => ({
-
       ...state,
 
       items: state.items.filter(
         item => item.id !== cartItemId
       )
-
     })
   ),
 
@@ -253,12 +155,20 @@ export const cartReducer = createReducer(
   on(
     clearCart,
     state => ({
-
       ...state,
-
-      items: []
-
+      items: [],
+      error: null
     })
-  )
+  ),
+
+  on(
+    resetCart,
+    state => ({
+      ...state,
+      items: [],
+      loading: false,
+      error: null
+    })
+  ),
 
 );

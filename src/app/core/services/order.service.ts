@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
-  CreateOrderRequest,
   Order
 } from '../models/order.model';
 
@@ -17,40 +16,82 @@ export class OrderService {
   private readonly API_URL =
     'http://localhost:3000/orders';
 
-  getOrders(): Observable<Order[]> {
+
+  // =====================================================
+  // GET CURRENT USER'S ORDERS
+  // =====================================================
+
+  getOrders(
+    userId: string
+  ): Observable<Order[]> {
+
     return this.http.get<Order[]>(
-      this.API_URL
+      `${this.API_URL}?userId=${userId}`
     );
+
   }
 
-  getOrder(id: string): Observable<Order> {
+
+  // =====================================================
+  // GET SINGLE ORDER
+  // =====================================================
+
+  getOrder(
+    id: string
+  ): Observable<Order> {
+
     return this.http.get<Order>(
       `${this.API_URL}/${id}`
     );
+
   }
+
+
+  // =====================================================
+  // CREATE ORDER
+  // =====================================================
 
   createOrder(
     order: Order
   ): Observable<Order> {
+
     return this.http.post<Order>(
       this.API_URL,
       order
     );
+
   }
+
+
+  // =====================================================
+  // UPDATE ORDER
+  // =====================================================
 
   updateOrder(
     id: string,
     changes: Partial<Order>
   ): Observable<Order> {
+
     return this.http.patch<Order>(
       `${this.API_URL}/${id}`,
       changes
     );
+
   }
 
-  deleteOrder(id: string): Observable<void> {
+
+  // =====================================================
+  // DELETE ORDER
+  // =====================================================
+
+  deleteOrder(
+    id: string
+  ): Observable<void> {
+
     return this.http.delete<void>(
       `${this.API_URL}/${id}`
     );
+
   }
+
 }

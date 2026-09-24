@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  inject
-} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import {
   Actions,
@@ -11,29 +8,37 @@ import {
 
 import {
   catchError,
-  concatMap,
   forkJoin,
   map,
   of,
-  switchMap
+  switchMap,
+  take,
+  tap
 } from 'rxjs';
 
+import { Store } from '@ngrx/store';
+
+import { CartService } from '../../core/services/cart.service';
+
 import {
+  loadCart,
+  loadCartSuccess,
+  loadCartFailure,
   addToCart,
   increaseQuantity,
   decreaseQuantity,
   removeFromCart,
   clearCart,
-  loadCart,
-  loadCartSuccess,
-  loadCartFailure
+  resetCart
 } from './cart.actions';
 
-import { CartService } from '../../core/services/cart.service';
-
 import {
-  loadProductsSuccess
-} from '../products/products.actions';
+  loginSuccess,
+  logout,
+  restoreAuthSuccess
+} from '../auth/auth.actions';
+
+import { selectCurrentUser } from '../auth/auth.selectors';
 
 import { CartItem } from '../../core/models/cart.model';
 
@@ -41,29 +46,43 @@ import { CartItem } from '../../core/models/cart.model';
 @Injectable()
 export class CartEffects {
 
-  private actions$ =
-    inject(Actions);
+  private actions$ = inject(Actions);
 
-  private cartService =
-    inject(CartService);
+  private store = inject(Store);
+
+  private cartService = inject(CartService);
 
 
   // =====================================================
-  // LOAD CART AFTER PRODUCTS ARE LOADED
+  // LOAD CART AFTER LOGIN / AUTH RESTORE
   // =====================================================
 
-  loadCartAfterProducts$ = createEffect(() =>
-
+  loadCartAfterAuth$ = createEffect(() =>
     this.actions$.pipe(
 
-      ofType(loadProductsSuccess),
+      ofType(
+        loginSuccess,
+        restoreAuthSuccess
+      ),
 
-      map(() =>
-        loadCart()
-      )
+      map(() => loadCart())
 
     )
+  );
 
+
+  // =====================================================
+  // RESET CART ON LOGOUT
+  // =====================================================
+
+  resetCartOnLogout$ = createEffect(() =>
+    this.actions$.pipe(
+
+      ofType(logout),
+
+      map(() => resetCart())
+
+    )
   );
 
 
@@ -72,47 +91,79 @@ export class CartEffects {
   // =====================================================
 
   loadCart$ = createEffect(() =>
-
     this.actions$.pipe(
 
       ofType(loadCart),
 
       switchMap(() =>
+        this.store.select(selectCurrentUser).pipe(
 
-        this.cartService
-          .getCart()
-          .pipe(
+          take(1),
 
-            map(items =>
+          switchMap(user => {
 
-              loadCartSuccess({
-                items
-              })
+            // -----------------------------------------
+            // NO USER
+            // -----------------------------------------
 
-            ),
+            if (!user) {
 
-            catchError(error =>
+              return of(
+                loadCartSuccess({
+                  items: []
+                })
+              );
 
-              of(
+            }
 
-                loadCartFailure({
 
-                  error:
-                    error.message ??
-                    'Failed to load cart'
+            // -----------------------------------------
+            // GET CURRENT USER'S CART
+            // -----------------------------------------
+
+            return this.cartService
+              .getCart(user.id)
+              .pipe(
+
+                map(items => {
+
+                  console.log(
+                    'CART LOADED:',
+                    items
+                  );
+
+                  return loadCartSuccess({
+                    items
+                  });
+
+                }),
+
+                catchError(error => {
+
+                  console.error(
+                    'LOAD CART ERROR:',
+                    error
+                  );
+
+                  return of(
+                    loadCartFailure({
+                      error:
+                        error.message ??
+                        'Failed to load cart'
+                    })
+                  );
 
                 })
 
-              )
+              );
 
-            )
+          })
 
-          )
+        )
 
       )
 
     )
-
   );
 
 
@@ -120,71 +171,100 @@ export class CartEffects {
   // ADD TO CART
   // =====================================================
 
-  addToCart$ = createEffect(
+  addToCart$ = createEffect(() =>
+    this.actions$.pipe(
 
-    () =>
+      ofType(addToCart),
 
-      this.actions$.pipe(
+      switchMap(({ product, size, color }) =>
 
-        ofType(addToCart),
+        this.store.select(selectCurrentUser).pipe(
 
-        concatMap(
-          ({
-            product,
-            size,
-            color
-          }) => {
+          take(1),
+
+          switchMap(user => {
+
+            // -----------------------------------------
+            // USER NOT LOGGED IN
+            // -----------------------------------------
+
+            if (!user) {
+
+              console.error(
+                'Cannot add to cart: user not logged in'
+              );
+
+              return of(
+                loadCartFailure({
+                  error:
+                    'You must be logged in to add items to cart'
+                })
+              );
+
+            }
+
+
+            // -----------------------------------------
+            // GET USER'S EXISTING CART
+            // -----------------------------------------
 
             return this.cartService
-              .getCart()
+              .getCart(user.id)
               .pipe(
 
-                switchMap(items => {
+                switchMap(cartItems => {
 
-                  // =====================================
-                  // FIND SAME PRODUCT VARIANT
-                  // =====================================
+                  // -----------------------------------
+                  // FIND EXISTING ITEM
+                  // -----------------------------------
 
                   const existingItem =
-                    items.find(
-
+                    cartItems.find(
                       item =>
-
-                        item.productId ===
-                          product.id &&
-
-                        item.size ===
-                          size &&
-
-                        item.color ===
-                          color
-
+                        item.productId === product.id &&
+                        item.size === size &&
+                        item.color === color
                     );
 
 
-                  // =====================================
-                  // ITEM ALREADY EXISTS
-                  // =====================================
+                  // -----------------------------------
+                  // EXISTING ITEM
+                  // -----------------------------------
 
                   if (existingItem) {
 
+                    console.log(
+                      'CART ITEM EXISTS. INCREASING QUANTITY.'
+                    );
+
+
                     return this.cartService
                       .updateCartItem(
-
                         existingItem.id!,
-
                         existingItem.quantity + 1
+                      )
+                      .pipe(
+
+                        switchMap(() =>
+                          of(loadCart())
+                        )
 
                       );
 
                   }
 
 
-                  // =====================================
-                  // NEW CART ITEM
-                  // =====================================
+                  // -----------------------------------
+                  // NEW ITEM
+                  // -----------------------------------
 
-                  const cartItem: CartItem = {
+                  const newCartItem: CartItem = {
+
+                    id:
+                      `${product.id}-${size}-${color}`,
+
+                    userId:
+                      user.id,
 
                     productId:
                       product.id,
@@ -198,9 +278,20 @@ export class CartEffects {
                   };
 
 
+                  console.log(
+                    'ADDING NEW CART ITEM:',
+                    newCartItem
+                  );
+
+
                   return this.cartService
-                    .addCartItem(
-                      cartItem
+                    .addCartItem(newCartItem)
+                    .pipe(
+
+                      switchMap(() =>
+                        of(loadCart())
+                      )
+
                     );
 
                 }),
@@ -208,26 +299,29 @@ export class CartEffects {
                 catchError(error => {
 
                   console.error(
-                    'Failed to persist cart item:',
+                    'ADD TO CART ERROR:',
                     error
                   );
 
-                  return of(null);
+                  return of(
+                    loadCartFailure({
+                      error:
+                        error.message ??
+                        'Failed to add item to cart'
+                    })
+                  );
 
                 })
 
               );
 
-          }
+          })
 
         )
 
-      ),
+      )
 
-    {
-      dispatch: false
-    }
-
+    )
   );
 
 
@@ -235,54 +329,80 @@ export class CartEffects {
   // INCREASE QUANTITY
   // =====================================================
 
-  increaseQuantity$ = createEffect(
+  increaseQuantity$ = createEffect(() =>
+    this.actions$.pipe(
 
-    () =>
+      ofType(increaseQuantity),
 
-      this.actions$.pipe(
+      // IMPORTANT:
+      // Action property is cartItemId, NOT id
+      switchMap(({ cartItemId }) =>
 
-        ofType(increaseQuantity),
+        this.store.select(selectCurrentUser).pipe(
 
-        concatMap(
-          ({ cartItemId }) =>
+          take(1),
 
-            this.cartService
-              .getCart()
+          switchMap(user => {
+
+            // -----------------------------------------
+            // NO USER
+            // -----------------------------------------
+
+            if (!user) {
+
+              return of(
+                loadCartSuccess({
+                  items: []
+                })
+              );
+
+            }
+
+
+            // -----------------------------------------
+            // GET USER CART
+            // -----------------------------------------
+
+            return this.cartService
+              .getCart(user.id)
               .pipe(
 
-                switchMap(items => {
+                switchMap(cartItems => {
 
                   const item =
-                    items.find(
-
-                      item =>
-                        item.id ===
-                        cartItemId
-
+                    cartItems.find(
+                      cartItem =>
+                        cartItem.id === cartItemId
                     );
 
 
-                  // ===================================
+                  // -----------------------------------
                   // ITEM NOT FOUND
-                  // ===================================
+                  // -----------------------------------
 
                   if (!item) {
 
-                    return of(null);
+                    return of(
+                      loadCart()
+                    );
 
                   }
 
 
-                  // ===================================
-                  // UPDATE QUANTITY
-                  // ===================================
+                  // -----------------------------------
+                  // INCREASE QUANTITY
+                  // -----------------------------------
 
                   return this.cartService
                     .updateCartItem(
-
-                      cartItemId,
-
+                      item.id!,
                       item.quantity + 1
+                    )
+                    .pipe(
+
+                      switchMap(() =>
+                        of(loadCart())
+                      )
 
                     );
 
@@ -291,24 +411,29 @@ export class CartEffects {
                 catchError(error => {
 
                   console.error(
-                    'Failed to increase cart quantity:',
+                    'INCREASE QUANTITY ERROR:',
                     error
                   );
 
-                  return of(null);
+                  return of(
+                    loadCartFailure({
+                      error:
+                        error.message ??
+                        'Failed to increase quantity'
+                    })
+                  );
 
                 })
 
-              )
+              );
+
+          })
 
         )
 
-      ),
+      )
 
-    {
-      dispatch: false
-    }
-
+    )
   );
 
 
@@ -316,74 +441,100 @@ export class CartEffects {
   // DECREASE QUANTITY
   // =====================================================
 
-  decreaseQuantity$ = createEffect(
+  decreaseQuantity$ = createEffect(() =>
+    this.actions$.pipe(
 
-    () =>
+      ofType(decreaseQuantity),
 
-      this.actions$.pipe(
+      // IMPORTANT:
+      // Action property is cartItemId, NOT id
+      switchMap(({ cartItemId }) =>
 
-        ofType(decreaseQuantity),
+        this.store.select(selectCurrentUser).pipe(
 
-        concatMap(
-          ({ cartItemId }) =>
+          take(1),
 
-            this.cartService
-              .getCart()
+          switchMap(user => {
+
+            // -----------------------------------------
+            // NO USER
+            // -----------------------------------------
+
+            if (!user) {
+
+              return of(
+                loadCartSuccess({
+                  items: []
+                })
+              );
+
+            }
+
+
+            // -----------------------------------------
+            // GET USER CART
+            // -----------------------------------------
+
+            return this.cartService
+              .getCart(user.id)
               .pipe(
 
-                switchMap(items => {
+                switchMap(cartItems => {
 
                   const item =
-                    items.find(
-
-                      item =>
-                        item.id ===
-                        cartItemId
-
+                    cartItems.find(
+                      cartItem =>
+                        cartItem.id === cartItemId
                     );
 
 
-                  // ===================================
+                  // -----------------------------------
                   // ITEM NOT FOUND
-                  // ===================================
+                  // -----------------------------------
 
                   if (!item) {
 
-                    return of(null);
+                    return of(
+                      loadCart()
+                    );
 
                   }
 
 
-                  const newQuantity =
-                    item.quantity - 1;
+                  // -----------------------------------
+                  // QUANTITY > 1
+                  // -----------------------------------
 
-
-                  // ===================================
-                  // REMOVE WHEN ZERO
-                  // ===================================
-
-                  if (
-                    newQuantity <= 0
-                  ) {
+                  if (item.quantity > 1) {
 
                     return this.cartService
-                      .removeCartItem(
-                        cartItemId
+                      .updateCartItem(
+                        item.id!,
+                        item.quantity - 1
+                      )
+                      .pipe(
+
+                        switchMap(() =>
+                          of(loadCart())
+                        )
+
                       );
 
                   }
 
 
-                  // ===================================
-                  // UPDATE QUANTITY
-                  // ===================================
+                  // -----------------------------------
+                  // QUANTITY = 1
+                  // DELETE ITEM
+                  // -----------------------------------
 
                   return this.cartService
-                    .updateCartItem(
+                    .removeCartItem(item.id!)
+                    .pipe(
 
-                      cartItemId,
-
-                      newQuantity
+                      switchMap(() =>
+                        of(loadCart())
+                      )
 
                     );
 
@@ -392,24 +543,29 @@ export class CartEffects {
                 catchError(error => {
 
                   console.error(
-                    'Failed to decrease cart quantity:',
+                    'DECREASE QUANTITY ERROR:',
                     error
                   );
 
-                  return of(null);
+                  return of(
+                    loadCartFailure({
+                      error:
+                        error.message ??
+                        'Failed to decrease quantity'
+                    })
+                  );
 
                 })
 
-              )
+              );
+
+          })
 
         )
 
-      ),
+      )
 
-    {
-      dispatch: false
-    }
-
+    )
   );
 
 
@@ -417,44 +573,54 @@ export class CartEffects {
   // REMOVE FROM CART
   // =====================================================
 
-  removeFromCart$ = createEffect(
+  removeFromCart$ = createEffect(() =>
+    this.actions$.pipe(
 
-    () =>
+      ofType(removeFromCart),
 
-      this.actions$.pipe(
+      // IMPORTANT:
+      // Action property is cartItemId, NOT id
+      switchMap(({ cartItemId }) =>
 
-        ofType(removeFromCart),
+        this.cartService
+          .removeCartItem(cartItemId)
+          .pipe(
 
-        concatMap(
-          ({ cartItemId }) =>
+            tap(() => {
 
-            this.cartService
-              .removeCartItem(
+              console.log(
+                'CART ITEM REMOVED:',
                 cartItemId
-              )
-              .pipe(
+              );
 
-                catchError(error => {
+            }),
 
-                  console.error(
-                    'Failed to remove cart item:',
-                    error
-                  );
+            switchMap(() =>
+              of(loadCart())
+            ),
 
-                  return of(null);
+            catchError(error => {
 
+              console.error(
+                'REMOVE FROM CART ERROR:',
+                error
+              );
+
+              return of(
+                loadCartFailure({
+                  error:
+                    error.message ??
+                    'Failed to remove cart item'
                 })
+              );
 
-              )
+            })
 
-        )
+          )
 
-      ),
+      )
 
-    {
-      dispatch: false
-    }
-
+    )
   );
 
 
@@ -462,75 +628,130 @@ export class CartEffects {
   // CLEAR CART
   // =====================================================
 
-  clearCart$ = createEffect(
+// =====================================================
+// CLEAR CART
+// =====================================================
 
-    () =>
+  clearCart$ = createEffect(() =>
+    this.actions$.pipe(
 
-      this.actions$.pipe(
+      ofType(clearCart),
 
-        ofType(clearCart),
+      switchMap(() =>
+        this.store.select(selectCurrentUser).pipe(
 
-        concatMap(() =>
+          take(1),
 
-          this.cartService
-            .getCart()
-            .pipe(
+          switchMap(user => {
 
-              switchMap(items => {
+            // -----------------------------------------
+            // NO USER
+            // -----------------------------------------
 
-                // =====================================
-                // CART ALREADY EMPTY
-                // =====================================
+            if (!user) {
 
-                if (
-                  items.length === 0
-                ) {
+              return of(
+                loadCartSuccess({
+                  items: []
+                })
+              );
 
-                  return of(null);
-
-                }
+            }
 
 
-                // =====================================
-                // DELETE ALL ITEMS
-                // =====================================
+            // -----------------------------------------
+            // GET CURRENT USER'S CART
+            // -----------------------------------------
 
-                return forkJoin(
+            return this.cartService
+              .getCart(user.id)
+              .pipe(
 
-                  items.map(item =>
+                switchMap(cartItems => {
 
-                    this.cartService
-                      .removeCartItem(
+                  // -----------------------------------
+                  // CART ALREADY EMPTY
+                  // -----------------------------------
+
+                  if (cartItems.length === 0) {
+
+                    return of(
+                      loadCartSuccess({
+                        items: []
+                      })
+                    );
+
+                  }
+
+
+                  console.log(
+                    'CLEARING CART FROM BACKEND:',
+                    cartItems
+                  );
+
+
+                  // -----------------------------------
+                  // DELETE ALL CART ITEMS
+                  // -----------------------------------
+
+                  return forkJoin(
+                    cartItems.map(item =>
+                      this.cartService.removeCartItem(
                         item.id!
                       )
+                    )
+                  ).pipe(
 
-                  )
+                    tap(() => {
 
-                );
+                      console.log(
+                        'ALL CART ITEMS DELETED FROM BACKEND'
+                      );
 
-              }),
+                    }),
 
-              catchError(error => {
+                    // ---------------------------------
+                    // DO NOT CALL loadCart()
+                    // ---------------------------------
+                    //
+                    // Directly update NgRx state.
+                    //
+                    // ---------------------------------
 
-                console.error(
-                  'Failed to clear cart:',
-                  error
-                );
+                    map(() =>
+                      loadCartSuccess({
+                        items: []
+                      })
+                    )
 
-                return of(null);
+                  );
 
-              })
+                }),
 
-            )
+                catchError(error => {
+
+                  console.error(
+                    'CLEAR CART ERROR:',
+                    error
+                  );
+
+                  return of(
+                    loadCartFailure({
+                      error:
+                        error.message ??
+                        'Failed to clear cart'
+                    })
+                  );
+
+                })
+
+              );
+
+          })
 
         )
+      )
 
-      ),
-
-    {
-      dispatch: false
-    }
-
+    )
   );
-
 }

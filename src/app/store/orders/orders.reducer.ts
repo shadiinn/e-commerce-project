@@ -12,7 +12,8 @@ import {
   loadOrderByIdFailure,
   cancelOrder,
   cancelOrderSuccess,
-  cancelOrderFailure
+  cancelOrderFailure,
+  resetOrders
 } from './orders.actions';
 
 import {
@@ -20,105 +21,238 @@ import {
   initialOrdersState
 } from './orders.state';
 
+
 export const ordersReducer = createReducer(
 
   initialOrdersState,
 
-  on(loadOrders, state => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
 
-  on(loadOrdersSuccess, (state, { orders }) => ({
-    ...state,
-    orders,
-    loading: false,
-    error: null
-  })),
+  // =====================================================
+  // LOAD ORDERS
+  // =====================================================
 
-  on(loadOrdersFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  })),
+  on(
+    loadOrders,
+    state => ({
+      ...state,
+      loading: true,
+      error: null
+    })
+  ),
 
-  on(placeOrder, state => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
 
-  on(placeOrderSuccess, (state, { order }) => ({
-    ...state,
-    orders: [...state.orders, order],
-    lastCreatedOrder: order,
-    loading: false,
-    error: null
-  })),
+  // =====================================================
+  // LOAD ORDERS SUCCESS
+  // =====================================================
 
-  on(placeOrderFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  })),
+  on(
+    loadOrdersSuccess,
+    (state, { orders }) => ({
+      ...state,
+      orders,
+      loading: false,
+      error: null
+    })
+  ),
 
-  on(loadOrderById, state => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
 
-  on(loadOrderByIdSuccess, (state, { order }) => ({
-    ...state,
-    orders: state.orders.some(
-      existingOrder => existingOrder.id === order.id
-    )
-      ? state.orders.map(existingOrder =>
+  // =====================================================
+  // LOAD ORDERS FAILURE
+  // =====================================================
+
+  on(
+    loadOrdersFailure,
+    (state, { error }) => ({
+      ...state,
+      loading: false,
+      error
+    })
+  ),
+
+
+  // =====================================================
+  // PLACE ORDER
+  // =====================================================
+
+  on(
+    placeOrder,
+    state => ({
+      ...state,
+      loading: true,
+      error: null
+    })
+  ),
+
+
+  // =====================================================
+  // PLACE ORDER SUCCESS
+  // =====================================================
+
+  on(
+    placeOrderSuccess,
+    (state, { order }) => ({
+      ...state,
+
+      orders: [
+        ...state.orders,
+        order
+      ],
+
+      lastCreatedOrder: order,
+
+      loading: false,
+
+      error: null
+    })
+  ),
+
+
+  // =====================================================
+  // PLACE ORDER FAILURE
+  // =====================================================
+
+  on(
+    placeOrderFailure,
+    (state, { error }) => ({
+      ...state,
+      loading: false,
+      error
+    })
+  ),
+
+
+  // =====================================================
+  // LOAD ORDER BY ID
+  // =====================================================
+
+  on(
+    loadOrderById,
+    state => ({
+      ...state,
+      loading: true,
+      error: null
+    })
+  ),
+
+
+  // =====================================================
+  // LOAD ORDER BY ID SUCCESS
+  // =====================================================
+
+  on(
+    loadOrderByIdSuccess,
+    (state, { order }) => ({
+      ...state,
+
+      orders: state.orders.some(
+        existingOrder =>
+          existingOrder.id === order.id
+      )
+
+        ? state.orders.map(
+            existingOrder =>
+              existingOrder.id === order.id
+                ? order
+                : existingOrder
+          )
+
+        : [
+            ...state.orders,
+            order
+          ],
+
+      lastCreatedOrder: order,
+
+      loading: false,
+
+      error: null
+    })
+  ),
+
+
+  // =====================================================
+  // LOAD ORDER BY ID FAILURE
+  // =====================================================
+
+  on(
+    loadOrderByIdFailure,
+    (state, { error }) => ({
+      ...state,
+      loading: false,
+      error
+    })
+  ),
+
+
+  // =====================================================
+  // CANCEL ORDER
+  // =====================================================
+
+  on(
+    cancelOrder,
+    state => ({
+      ...state,
+      loading: true,
+      error: null
+    })
+  ),
+
+
+  // =====================================================
+  // CANCEL ORDER SUCCESS
+  // =====================================================
+
+  on(
+    cancelOrderSuccess,
+    (state, { order }) => ({
+      ...state,
+
+      orders: state.orders.map(
+        existingOrder =>
           existingOrder.id === order.id
             ? order
             : existingOrder
-        )
-      : [...state.orders, order],
+      ),
 
-    lastCreatedOrder: order,
-    loading: false,
-    error: null
-  })),
+      lastCreatedOrder:
+        state.lastCreatedOrder?.id === order.id
+          ? order
+          : state.lastCreatedOrder,
 
-  on(loadOrderByIdFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  })),
+      loading: false,
 
-  on(cancelOrder, state => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
+      error: null
+    })
+  ),
 
-  on(cancelOrderSuccess, (state, { order }) => ({
-    ...state,
 
-    orders: state.orders.map(existingOrder =>
-      existingOrder.id === order.id
-        ? order
-        : existingOrder
-    ),
+  // =====================================================
+  // CANCEL ORDER FAILURE
+  // =====================================================
 
-    lastCreatedOrder:
-      state.lastCreatedOrder?.id === order.id
-        ? order
-        : state.lastCreatedOrder,
+  on(
+    cancelOrderFailure,
+    (state, { error }) => ({
+      ...state,
+      loading: false,
+      error
+    })
+  ),
 
-    loading: false,
-    error: null
-  })),
 
-  on(cancelOrderFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  }))
+  // =====================================================
+  // RESET ORDERS AFTER LOGOUT
+  // =====================================================
+
+  on(
+    resetOrders,
+    state => ({
+      ...state,
+      orders: [],
+      lastCreatedOrder: null,
+      loading: false,
+      error: null
+    })
+  )
+
 );

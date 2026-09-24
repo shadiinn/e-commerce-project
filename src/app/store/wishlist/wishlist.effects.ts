@@ -15,24 +15,35 @@ import {
   forkJoin,
   map,
   of,
-  switchMap
+  switchMap,
+  take,
+  tap
 } from 'rxjs';
-
-import {
-  loadProductsSuccess
-} from '../products/products.actions';
 
 import {
   loadWishlist,
   loadWishlistSuccess,
   loadWishlistFailure,
   toggleWishlist,
-  clearWishlist
+  clearWishlist,
+  resetWishlist
 } from './wishlist.actions';
 
 import { WishlistService } from '../../core/services/wishlist.service';
 
 import { WishlistItem } from '../../core/models/wishlist.model';
+
+import { Store } from '@ngrx/store';
+
+import {
+  selectCurrentUser
+} from '../auth/auth.selectors';
+
+import {
+  loginSuccess,
+  logout,
+  restoreAuthSuccess
+} from '../auth/auth.actions';
 
 
 @Injectable()
@@ -44,235 +55,373 @@ export class WishlistEffects {
   private wishlistService =
     inject(WishlistService);
 
+  private store =
+    inject(Store);
+
 
   // =====================================================
-  // LOAD WISHLIST AFTER PRODUCTS LOAD
+  // LOAD WISHLIST AFTER LOGIN / AUTH RESTORE
   // =====================================================
 
-  loadWishlistAfterProducts$ =
-    createEffect(() =>
+  loadWishlistAfterAuth$ = createEffect(() =>
 
-      this.actions$.pipe(
+    this.actions$.pipe(
 
-        ofType(
-          loadProductsSuccess
-        ),
+      ofType(
+        loginSuccess,
+        restoreAuthSuccess
+      ),
 
-        map(() =>
-          loadWishlist()
-        )
-
+      map(() =>
+        loadWishlist()
       )
 
-    );
+    )
+
+  );
 
 
   // =====================================================
-  // LOAD WISHLIST
+  // RESET WISHLIST AFTER LOGOUT
   // =====================================================
 
-  loadWishlist$ =
-    createEffect(() =>
+  resetWishlistOnLogout$ = createEffect(() =>
 
-      this.actions$.pipe(
+    this.actions$.pipe(
 
-        ofType(
-          loadWishlist
-        ),
+      ofType(logout),
 
-        switchMap(() =>
+      map(() =>
+        resetWishlist()
+      )
 
-          this.wishlistService
-            .getWishlist()
-            .pipe(
+    )
 
-              map(items =>
-                loadWishlistSuccess({
-                  items
-                })
-              ),
+  );
 
-              catchError(error =>
 
-                of(
-                  loadWishlistFailure({
-                    error:
-                      error.message ??
-                      'Failed to load wishlist'
+  // =====================================================
+  // LOAD CURRENT USER'S WISHLIST
+  // =====================================================
+
+  loadWishlist$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        loadWishlist
+      ),
+
+      switchMap(() =>
+
+        this.store
+          .select(selectCurrentUser)
+          .pipe(
+
+            // Get current user once
+            take(1),
+
+            switchMap(user => {
+
+              // -----------------------------------------
+              // NO USER
+              // -----------------------------------------
+
+              if (!user) {
+
+                return of(
+                  loadWishlistSuccess({
+                    items: []
                   })
-                )
+                );
 
-              )
+              }
 
-            )
 
-        )
+              // -----------------------------------------
+              // LOAD USER'S WISHLIST
+              // -----------------------------------------
+
+              return this.wishlistService
+                .getWishlist(user.id)
+                .pipe(
+
+                  map(items =>
+                    loadWishlistSuccess({
+                      items
+                    })
+                  ),
+
+                  catchError(error =>
+                    of(
+                      loadWishlistFailure({
+                        error:
+                          error.message ??
+                          'Failed to load wishlist'
+                      })
+                    )
+                  )
+
+                );
+
+            })
+
+          )
 
       )
 
-    );
+    )
+
+  );
 
 
   // =====================================================
   // TOGGLE WISHLIST
   // =====================================================
 
-  toggleWishlist$ =
-    createEffect(() =>
+  toggleWishlist$ = createEffect(() =>
 
-      this.actions$.pipe(
+    this.actions$.pipe(
 
-        ofType(
-          toggleWishlist
-        ),
+      ofType(
+        toggleWishlist
+      ),
 
-        concatMap(
-          ({ product }) => {
+      concatMap(
+        ({ product }) =>
 
-            return this.wishlistService
-              .getWishlist()
-              .pipe(
-
-                switchMap(items => {
-
-                  const existingItem =
-                    items.find(
-                      item =>
-                        item.productId ===
-                        product.id
-                    );
-
-
-                  // =====================================
-                  // REMOVE
-                  // =====================================
-
-                  if (existingItem) {
-
-                    return this.wishlistService
-                      .removeWishlistItem(
-                        existingItem.id
-                      );
-
-                  }
-
-
-                  // =====================================
-                  // ADD
-                  // =====================================
-
-                  const wishlistItem:
-                    WishlistItem = {
-
-                    id: product.id,
-
-                    productId:
-                      product.id
-
-                  };
-
-
-                  return this.wishlistService
-                    .addWishlistItem(
-                      wishlistItem
-                    );
-
-                }),
-
-                map(() =>
-                  loadWishlist()
-                ),
-
-                catchError(error => {
-
-                  console.error(
-                    'Failed to update wishlist:',
-                    error
-                  );
-
-                  return of(
-                    loadWishlist()
-                  );
-
-                })
-
-              );
-
-          }
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // CLEAR WISHLIST
-  // =====================================================
-
-  clearWishlist$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(
-          clearWishlist
-        ),
-
-        concatMap(() =>
-
-          this.wishlistService
-            .getWishlist()
+          this.store
+            .select(selectCurrentUser)
             .pipe(
 
-              switchMap(items => {
+              // Get user once
+              take(1),
 
-                if (
-                  items.length === 0
-                ) {
+              switchMap(user => {
+
+                // ---------------------------------------
+                // USER NOT AUTHENTICATED
+                // ---------------------------------------
+
+                if (!user) {
+
+                  console.error(
+                    'Cannot update wishlist: user is not authenticated.'
+                  );
 
                   return of(null);
 
                 }
 
 
-                return forkJoin(
+                // ---------------------------------------
+                // GET CURRENT USER'S WISHLIST
+                // ---------------------------------------
 
-                  items.map(item =>
-                    this.wishlistService
-                      .removeWishlistItem(
-                        item.id
-                      )
-                  )
+                return this.wishlistService
+                  .getWishlist(user.id)
+                  .pipe(
 
-                );
+                    switchMap(items => {
 
-              }),
+                      // ---------------------------------
+                      // FIND PRODUCT
+                      // ---------------------------------
 
-              map(() =>
-                loadWishlist()
-              ),
+                      const existingItem =
+                        items.find(
+                          item =>
+                            item.productId ===
+                            product.id
+                        );
 
-              catchError(error => {
 
-                console.error(
-                  'Failed to clear wishlist:',
-                  error
-                );
+                      // ---------------------------------
+                      // REMOVE
+                      // ---------------------------------
 
-                return of(
-                  loadWishlist()
-                );
+                      if (existingItem) {
+
+                        return this.wishlistService
+                          .removeWishlistItem(
+                            existingItem.id
+                          );
+
+                      }
+
+
+                      // ---------------------------------
+                      // ADD
+                      // ---------------------------------
+
+                      const wishlistItem:
+                        WishlistItem = {
+
+                        id: product.id,
+
+                        userId: user.id,
+
+                        productId:
+                          product.id
+
+                      };
+
+
+                      return this.wishlistService
+                        .addWishlistItem(
+                          wishlistItem
+                        );
+
+                    }),
+
+                    // -----------------------------------
+                    // RELOAD AFTER SUCCESS
+                    // -----------------------------------
+
+                    tap(() => {
+
+                      this.store.dispatch(
+                        loadWishlist()
+                      );
+
+                    }),
+
+                    catchError(error => {
+
+                      console.error(
+                        'Failed to update wishlist:',
+                        error
+                      );
+
+                      return of(null);
+
+                    })
+
+                  );
 
               })
 
             )
 
-        )
+      )
+
+    ),
+
+    {
+      dispatch: false
+    }
+
+  );
+
+
+  // =====================================================
+  // CLEAR WISHLIST
+  // =====================================================
+
+  clearWishlist$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        clearWishlist
+      ),
+
+      concatMap(() =>
+
+        this.store
+          .select(selectCurrentUser)
+          .pipe(
+
+            take(1),
+
+            switchMap(user => {
+
+              // -----------------------------------------
+              // NO USER
+              // -----------------------------------------
+
+              if (!user) {
+
+                return of(null);
+
+              }
+
+
+              // -----------------------------------------
+              // GET USER'S WISHLIST
+              // -----------------------------------------
+
+              return this.wishlistService
+                .getWishlist(user.id)
+                .pipe(
+
+                  switchMap(items => {
+
+                    // -------------------------------
+                    // ALREADY EMPTY
+                    // -------------------------------
+
+                    if (items.length === 0) {
+
+                      return of(null);
+
+                    }
+
+
+                    // -------------------------------
+                    // DELETE ALL ITEMS
+                    // -------------------------------
+
+                    return forkJoin(
+
+                      items.map(item =>
+                        this.wishlistService
+                          .removeWishlistItem(
+                            item.id
+                          )
+                      )
+
+                    );
+
+                  }),
+
+                  // -------------------------------
+                  // RELOAD AFTER SUCCESS
+                  // -------------------------------
+
+                  tap(() => {
+
+                    this.store.dispatch(
+                      loadWishlist()
+                    );
+
+                  }),
+
+                  catchError(error => {
+
+                    console.error(
+                      'Failed to clear wishlist:',
+                      error
+                    );
+
+                    return of(null);
+
+                  })
+
+                );
+
+            })
+
+          )
 
       )
 
-    );
+    ),
+
+    {
+      dispatch: false
+    }
+
+  );
 
 }

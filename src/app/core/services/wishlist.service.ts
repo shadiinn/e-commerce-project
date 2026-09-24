@@ -16,13 +16,15 @@ export class WishlistService {
 
 
   // =====================================================
-  // GET WISHLIST
+  // GET CURRENT USER'S WISHLIST
   // =====================================================
 
-  getWishlist(): Observable<WishlistItem[]> {
+  getWishlist(
+    userId: string
+  ): Observable<WishlistItem[]> {
 
     return this.http.get<WishlistItem[]>(
-      this.API_URL
+      `${this.API_URL}?userId=${userId}`
     );
 
   }

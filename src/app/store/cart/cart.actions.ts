@@ -110,5 +110,8 @@ export const loadCartFailure = createAction(
   props<{
     error: string;
   }>()
-
+  
+);
+export const resetCart = createAction(
+  '[Cart] Reset Cart'
 );

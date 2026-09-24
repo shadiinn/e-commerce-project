@@ -5,7 +5,8 @@ import {
   loadWishlistSuccess,
   loadWishlistFailure,
   toggleWishlist,
-  clearWishlist
+  clearWishlist,
+  resetWishlist
 } from './wishlist.actions';
 
 import {
@@ -68,50 +69,7 @@ export const wishlistReducer = createReducer(
 
   on(
     toggleWishlist,
-    (state, { product }) => {
-
-      const existingItem =
-        state.items.find(
-          item =>
-            item.productId === product.id
-        );
-
-
-      // REMOVE
-
-      if (existingItem) {
-
-        return {
-          ...state,
-
-          items:
-            state.items.filter(
-              item =>
-                item.productId !== product.id
-            )
-        };
-
-      }
-
-
-      // ADD
-
-      const newItem = {
-        id: product.id,
-        productId: product.id
-      };
-
-
-      return {
-        ...state,
-
-        items: [
-          ...state.items,
-          newItem
-        ]
-      };
-
-    }
+    state => state
   ),
 
 
@@ -124,6 +82,21 @@ export const wishlistReducer = createReducer(
     state => ({
       ...state,
       items: []
+    })
+  ),
+
+
+  // =====================================================
+  // RESET WISHLIST
+  // =====================================================
+
+  on(
+    resetWishlist,
+    state => ({
+      ...state,
+      items: [],
+      loading: false,
+      error: null
     })
   )
 

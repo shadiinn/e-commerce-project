@@ -1,48 +1,82 @@
 import { CheckoutItem } from './checkout.model';
 
 export interface OrderItem {
+
   productId: string;
+
   name: string;
+
   image: string;
+
   size: string;
+
   color: string;
+
   quantity: number;
+
   price: number;
+
   total: number;
+
 }
+
 
 export interface ShippingAddress {
+
   firstName: string;
+
   lastName: string;
+
   address: string;
+
   apartment?: string;
+
   city: string;
+
   state: string;
+
   postalCode: string;
+
   country: string;
+
   phone: string;
+
   email: string;
+
 }
+
 
 export interface CreateOrderRequest {
+
   items: CheckoutItem[];
+
   shippingAddress: ShippingAddress;
+
   paymentMethod: 'cod' | 'online';
+
 }
 
+
 export interface Order {
+
   id: string;
+
   orderNumber: string;
+
+  userId: string; // NEW
 
   items: OrderItem[];
 
   subtotal: number;
+
   shipping: number;
+
   total: number;
 
   shippingAddress: ShippingAddress;
 
   paymentMethod: 'cod' | 'online';
+
   paymentStatus: 'pending' | 'paid' | 'failed';
 
   orderStatus:
@@ -53,4 +87,5 @@ export interface Order {
     | 'cancelled';
 
   createdAt: string;
+
 }
