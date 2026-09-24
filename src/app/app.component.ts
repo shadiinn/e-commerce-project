@@ -4,6 +4,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { Store } from '@ngrx/store';
 import { loadProducts } from './store/products/products.actions';
+import { restoreAuth } from './store/auth/auth.actions';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,8 @@ export class AppComponent implements OnInit{
     this.store.dispatch(
       loadProducts()
     );
-
+    this.store.dispatch(
+      restoreAuth()
+    );
   }
 }

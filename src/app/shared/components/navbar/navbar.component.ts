@@ -4,6 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectCartItemCount } from '../../../store/cart/cart.selectors';
 import { selectWishlistCount } from '../../../store/wishlist/wishlist.selectors';
+import { selectCurrentUser, selectIsAuthenticated } from '../../../store/auth/auth.selectors';
+import { logout } from '../../../store/auth/auth.actions';
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -21,10 +23,22 @@ export class NavbarComponent {
   // Mobile menu state
   isMenuOpen = signal(false);
 
+  isAccountMenuOpen = signal(false);
+
   // Search state
   searchTerm = signal('');
-  cartItemCount$ = this.store.select(selectCartItemCount);
-  wishlistCount$ = this.store.select(selectWishlistCount);
+
+  cartItemCount$ = 
+    this.store.select(selectCartItemCount);
+
+  wishlistCount$ = 
+    this.store.select(selectWishlistCount);
+
+  isAuthenticated$ =
+    this.store.select(selectIsAuthenticated);
+
+  currentUser$ =
+    this.store.select(selectCurrentUser);
 
   // ================================
   // MOBILE MENU
@@ -61,4 +75,21 @@ export class NavbarComponent {
     this.closeMenu();
   }
 
+  toggleAccountMenu(): void {
+    this.isAccountMenuOpen.update(
+      value => !value
+    );
+  }
+
+  closeAccountMenu(): void {
+    this.isAccountMenuOpen.set(false);
+  }
+
+  logout(): void {
+    this.store.dispatch(logout());
+
+    this.closeAccountMenu();
+
+    this.router.navigate(['/']);
+  }
 }

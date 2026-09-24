@@ -1,0 +1,155 @@
+<div class="min-h-screen bg-brand-background px-6 py-16">
+
+  <div class="mx-auto max-w-md">
+
+    <!-- Header -->
+
+    <div class="mb-10 text-center">
+
+      <a
+        routerLink="/"
+        class="text-2xl font-semibold tracking-[0.25em] text-brand-text"
+      >
+        SA
+      </a>
+
+      <h1
+        class="mt-8 text-3xl font-medium tracking-tight text-brand-text"
+      >
+        Welcome back
+      </h1>
+
+      <p class="mt-3 text-sm text-brand-muted">
+        Sign in to your account
+      </p>
+
+    </div>
+
+
+    <!-- Error -->
+
+    @if (error$ | async; as error) {
+
+      <div
+        class="mb-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ error }}
+      </div>
+
+    }
+
+
+    <!-- Form -->
+
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="submit()"
+      class="space-y-6"
+    >
+
+      <!-- Email -->
+
+      <div>
+
+        <label
+          for="email"
+          class="mb-2 block text-xs font-medium uppercase tracking-[0.15em] text-brand-text"
+        >
+          Email
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          class="w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition focus:border-brand-text"
+        >
+
+        @if (
+          loginForm.controls.email.touched &&
+          loginForm.controls.email.invalid
+        ) {
+
+          <p class="mt-2 text-xs text-red-600">
+            Please enter a valid email address.
+          </p>
+
+        }
+
+      </div>
+
+
+      <!-- Password -->
+
+      <div>
+
+        <label
+          for="password"
+          class="mb-2 block text-xs font-medium uppercase tracking-[0.15em] text-brand-text"
+        >
+          Password
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          class="w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition focus:border-brand-text"
+        >
+
+        @if (
+          loginForm.controls.password.touched &&
+          loginForm.controls.password.invalid
+        ) {
+
+          <p class="mt-2 text-xs text-red-600">
+            Password must be at least 6 characters.
+          </p>
+
+        }
+
+      </div>
+
+
+      <!-- Submit -->
+
+      <button
+        type="submit"
+        [disabled]="loading$ | async"
+        class="w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.18em] text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+      >
+
+        @if (loading$ | async) {
+          Signing in...
+        } @else {
+          Sign In
+        }
+
+      </button>
+
+    </form>
+
+
+    <!-- Register -->
+
+    <div class="mt-8 text-center">
+
+      <p class="text-sm text-brand-muted">
+        Don't have an account?
+
+        <a
+          routerLink="/register"
+          class="ml-1 text-brand-text underline underline-offset-4"
+        >
+          Create account
+        </a>
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>

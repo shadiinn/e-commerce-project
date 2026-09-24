@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
      {
@@ -55,6 +56,7 @@ export const routes: Routes = [
   },
   {
     path: 'checkout',
+    canActivate:[authGuard],
     loadComponent: () =>
       import('./features/checkout/checkout.component')
         .then(m => m.CheckoutComponent)
@@ -67,8 +69,22 @@ export const routes: Routes = [
   },
   {
     path: 'orders',
+    canActivate:[authGuard],
     loadComponent: () =>
       import('./features/orders/orders.component')
         .then(m => m.OrdersComponent)
-  }
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login/login.component')
+        .then(m => m.LoginComponent)
+  },
+
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/auth/register/register.component')
+        .then(m => m.RegisterComponent)
+  },
 ];

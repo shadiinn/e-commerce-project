@@ -1,0 +1,192 @@
+<div class="min-h-screen bg-brand-background px-6 py-16">
+
+  <div class="mx-auto max-w-md">
+
+    <!-- Header -->
+
+    <div class="mb-10 text-center">
+
+      <a
+        routerLink="/"
+        class="text-2xl font-semibold tracking-[0.25em] text-brand-text"
+      >
+        SA
+      </a>
+
+      <h1
+        class="mt-8 text-3xl font-medium tracking-tight text-brand-text"
+      >
+        Create Account
+      </h1>
+
+      <p class="mt-3 text-sm text-brand-muted">
+        Create your SA account
+      </p>
+
+    </div>
+
+
+    <!-- Error -->
+
+    @if (error$ | async; as error) {
+
+      <div
+        class="mb-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ error }}
+      </div>
+
+    }
+
+
+    <!-- Form -->
+
+    <form
+      [formGroup]="registerForm"
+      (ngSubmit)="submit()"
+      class="space-y-6"
+    >
+
+      <!-- Name -->
+
+      <div class="grid gap-5 sm:grid-cols-2">
+
+        <div>
+
+          <label
+            class="mb-2 block text-xs font-medium uppercase tracking-[0.15em]"
+          >
+            First Name
+          </label>
+
+          <input
+            type="text"
+            formControlName="firstName"
+            placeholder="First name"
+            class="w-full border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label
+            class="mb-2 block text-xs font-medium uppercase tracking-[0.15em]"
+          >
+            Last Name
+          </label>
+
+          <input
+            type="text"
+            formControlName="lastName"
+            placeholder="Last name"
+            class="w-full border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-text"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- Email -->
+
+      <div>
+
+        <label
+          class="mb-2 block text-xs font-medium uppercase tracking-[0.15em]"
+        >
+          Email
+        </label>
+
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          class="w-full border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-text"
+        >
+
+      </div>
+
+
+      <!-- Phone -->
+
+      <div>
+
+        <label
+          class="mb-2 block text-xs font-medium uppercase tracking-[0.15em]"
+        >
+          Phone
+        </label>
+
+        <input
+          type="tel"
+          formControlName="phone"
+          placeholder="10 digit phone number"
+          class="w-full border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-text"
+        >
+
+      </div>
+
+
+      <!-- Password -->
+
+      <div>
+
+        <label
+          class="mb-2 block text-xs font-medium uppercase tracking-[0.15em]"
+        >
+          Password
+        </label>
+
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="At least 6 characters"
+          class="w-full border border-brand-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-text"
+        >
+
+      </div>
+
+
+      <!-- Submit -->
+
+      <button
+        type="submit"
+        [disabled]="loading$ | async"
+        class="w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.18em] text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+      >
+
+        @if (loading$ | async) {
+          Creating account...
+        } @else {
+          Create Account
+        }
+
+      </button>
+
+    </form>
+
+
+    <!-- Login -->
+
+    <div class="mt-8 text-center">
+
+      <p class="text-sm text-brand-muted">
+
+        Already have an account?
+
+        <a
+          routerLink="/login"
+          class="ml-1 text-brand-text underline underline-offset-4"
+        >
+          Sign in
+        </a>
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>

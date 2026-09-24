@@ -14,6 +14,8 @@ import { WishlistEffects } from './store/wishlist/wishlist.effects';
 import { checkoutReducer } from './store/checkout/checkout.reducer';
 import { ordersReducer } from './store/orders/orders.reducer';
 import { OrdersEffects } from './store/orders/orders.effects';
+import { authReducer } from './store/auth/auth.reducer';
+import { AuthEffects } from './store/auth/auth.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,8 +27,9 @@ export const appConfig: ApplicationConfig = {
       cart: cartReducer,
       wishlist: wishlistReducer,
       checkout: checkoutReducer,
-      orders: ordersReducer
+      orders: ordersReducer,
+      auth: authReducer
     }),
-    provideEffects(ProductsEffects,CartEffects,WishlistEffects,OrdersEffects)
+    provideEffects(ProductsEffects,CartEffects,WishlistEffects,OrdersEffects,AuthEffects)
   ]
 };
