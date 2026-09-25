@@ -132,7 +132,7 @@
 
                       @for (
                         item of order.items.slice(0, 2);
-                        track item.productId + item.size + item.color
+                        track item.productId + item.size
                       ) {
 
                         <div class="flex items-center gap-4">
@@ -164,12 +164,6 @@
                               class="mt-1 text-xs text-brand-muted"
                             >
                               Size: {{ item.size }}
-
-                              <span class="mx-1">
-                                ·
-                              </span>
-
-                              Color: {{ item.color }}
 
                               <span class="mx-1">
                                 ·

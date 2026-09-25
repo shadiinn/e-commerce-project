@@ -1,5 +1,6 @@
 import { CheckoutItem } from './checkout.model';
 
+
 export interface OrderItem {
 
   productId: string;
@@ -9,8 +10,6 @@ export interface OrderItem {
   image: string;
 
   size: string;
-
-  color: string;
 
   quantity: number;
 
@@ -63,7 +62,7 @@ export interface Order {
 
   orderNumber: string;
 
-  userId: string; // NEW
+  userId: string;
 
   items: OrderItem[];
 
@@ -77,7 +76,10 @@ export interface Order {
 
   paymentMethod: 'cod' | 'online';
 
-  paymentStatus: 'pending' | 'paid' | 'failed';
+  paymentStatus:
+    'pending'
+    | 'paid'
+    | 'failed';
 
   orderStatus:
     | 'pending'

@@ -8,11 +8,15 @@
 
     <div class="border-b border-brand-border pb-6">
 
-      <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
+      <p
+        class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+      >
         Complete Your Purchase
       </p>
 
-      <h1 class="mt-3 text-3xl font-light tracking-tight text-brand-text">
+      <h1
+        class="mt-3 text-3xl font-light tracking-tight text-brand-text"
+      >
         Checkout
       </h1>
 
@@ -217,9 +221,11 @@
                 class="text-xs text-brand-muted"
               >
                 Apartment, Suite, etc.
+
                 <span class="text-brand-muted">
                   (optional)
                 </span>
+
               </label>
 
               <input
@@ -343,15 +349,21 @@
             class="mt-6 border border-brand-text bg-brand-surface p-5"
           >
 
-            <div class="flex items-start justify-between gap-4">
+            <div
+              class="flex items-start justify-between gap-4"
+            >
 
               <div>
 
-                <p class="text-sm font-medium text-brand-text">
+                <p
+                  class="text-sm font-medium text-brand-text"
+                >
                   Standard Delivery
                 </p>
 
-                <p class="mt-1 text-xs text-brand-muted">
+                <p
+                  class="mt-1 text-xs text-brand-muted"
+                >
                   Delivered within 3–7 business days
                 </p>
 
@@ -402,11 +414,15 @@
 
               <div>
 
-                <p class="text-sm font-medium text-brand-text">
+                <p
+                  class="text-sm font-medium text-brand-text"
+                >
                   Cash on Delivery
                 </p>
 
-                <p class="mt-1 text-xs leading-5 text-brand-muted">
+                <p
+                  class="mt-1 text-xs leading-5 text-brand-muted"
+                >
                   Pay when your order is delivered.
                 </p>
 
@@ -430,11 +446,15 @@
 
               <div>
 
-                <p class="text-sm font-medium text-brand-text">
+                <p
+                  class="text-sm font-medium text-brand-text"
+                >
                   Online Payment
                 </p>
 
-                <p class="mt-1 text-xs leading-5 text-brand-muted">
+                <p
+                  class="mt-1 text-xs leading-5 text-brand-muted"
+                >
                   Payment gateway integration will be added later.
                 </p>
 
@@ -477,7 +497,7 @@
 
             @for (
               item of items;
-              track item.productId + item.size + item.color
+              track item.productId + item.size
             ) {
 
               <div class="flex gap-4">
@@ -513,13 +533,15 @@
                     {{ item.product.name }}
                   </p>
 
-                  <p class="mt-1 text-xs text-brand-muted">
-                    {{ item.size }}
-                    ·
-                    {{ item.color }}
+                  <p
+                    class="mt-1 text-xs text-brand-muted"
+                  >
+                    Size: {{ item.size }}
                   </p>
 
-                  <p class="mt-2 text-xs text-brand-muted">
+                  <p
+                    class="mt-2 text-xs text-brand-muted"
+                  >
                     ₹{{ item.product.price }}
                     ×
                     {{ item.quantity }}
@@ -593,7 +615,9 @@
           class="mt-6 border-t border-brand-border pt-6"
         >
 
-          <div class="flex items-center justify-between">
+          <div
+            class="flex items-center justify-between"
+          >
 
             <span
               class="text-sm font-medium text-brand-text"

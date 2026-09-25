@@ -23,57 +23,113 @@ export const selectCartItems = createSelector(
   state => state.items
 );
 
+
 export const selectActiveCartItems = createSelector(
   selectCartState,
   selectIsAuthenticated,
+
   (state, isAuthenticated) => {
+
     if (isAuthenticated) {
+
       return state.items;
+
     }
+
     return state.guestItems;
+
   }
 );
 
+
 export const selectCartItemsWithProducts =
   createSelector(
+
     selectActiveCartItems,
+
     selectProductEntities,
+
     (items, products) =>
-      items.map(item => {
-          const product =products[item.productId];
+
+      items
+        .map(item => {
+
+          const product =
+            products[item.productId];
+
           if (!product) {
+
             return null;
+
           }
+
           return {
+
             ...item,
+
             product
+
           };
+
         })
         .filter(
           item => item !== null
         )
+
   );
+
 
 export const selectCartItemCount =
   createSelector(
+
     selectActiveCartItems,
-    items =>items.reduce((total, item) =>
-          total + item.quantity,0
+
+    items =>
+
+      items.reduce(
+
+        (total, item) =>
+          total + item.quantity,
+
+        0
+
       )
+
   );
+
 
 export const selectCartSubtotal =
   createSelector(
+
     selectActiveCartItems,
+
     selectProductEntities,
-    (items, products) =>items.reduce((total, item) => {
-          const product =products[item.productId];
+
+    (items, products) =>
+
+      items.reduce(
+
+        (total, item) => {
+
+          const product =
+            products[item.productId];
+
           if (!product) {
+
             return total;
+
           }
+
           return (
-            total + product.price * item.quantity
+            total +
+            product.price *
+            item.quantity
           );
-        },0
+
+        },
+
+        0
+
       )
+
   );

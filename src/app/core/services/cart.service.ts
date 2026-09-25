@@ -9,7 +9,8 @@ import { CartItem } from '../models/cart.model';
 })
 export class CartService {
 
-  private http = inject(HttpClient);
+  private http =
+    inject(HttpClient);
 
   private readonly API_URL =
     'http://localhost:3000/cart';
@@ -19,7 +20,9 @@ export class CartService {
   // GET CURRENT USER'S CART
   // =====================================================
 
-  getCart(userId: string): Observable<CartItem[]> {
+  getCart(
+    userId: string
+  ): Observable<CartItem[]> {
 
     return this.http.get<CartItem[]>(
       `${this.API_URL}?userId=${userId}`

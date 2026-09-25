@@ -1,4 +1,5 @@
 export interface CartItem {
+
   id?: string;
 
   userId: string;
@@ -7,8 +8,6 @@ export interface CartItem {
 
   size: string;
 
-  color: string;
-
   quantity: number;
-  
+
 }

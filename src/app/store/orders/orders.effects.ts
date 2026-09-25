@@ -322,9 +322,6 @@ export class OrdersEffects {
                               size:
                                 item.size,
 
-                              color:
-                                item.color,
-
                               quantity:
                                 item.quantity,
 

@@ -123,14 +123,6 @@ export class ProductDetailsComponent
 
 
   // =====================================================
-  // SELECTED COLOR
-  // =====================================================
-
-  selectedColor =
-    signal<string | null>(null);
-
-
-  // =====================================================
   // INITIALIZATION
   // =====================================================
 
@@ -218,21 +210,6 @@ export class ProductDetailsComponent
 
 
   // =====================================================
-  // SELECT COLOR
-  // =====================================================
-
-  selectColor(
-    color: string
-  ): void {
-
-    this.selectedColor.set(
-      color
-    );
-
-  }
-
-
-  // =====================================================
   // ADD TO CART
   // =====================================================
 
@@ -243,15 +220,12 @@ export class ProductDetailsComponent
     const size =
       this.selectedSize();
 
-    const color =
-      this.selectedColor();
-
 
     // ---------------------------------------------------
-    // VALIDATE SIZE AND COLOR
+    // VALIDATE SIZE
     // ---------------------------------------------------
 
-    if (!size || !color) {
+    if (!size) {
       return;
     }
 
@@ -276,9 +250,7 @@ export class ProductDetailsComponent
 
               product,
 
-              size,
-
-              color
+              size
 
             })
           );
@@ -298,9 +270,7 @@ export class ProductDetailsComponent
             productId:
               product.id,
 
-            size,
-
-            color
+            size
 
           })
         );
@@ -321,15 +291,12 @@ export class ProductDetailsComponent
     const size =
       this.selectedSize();
 
-    const color =
-      this.selectedColor();
-
 
     // ---------------------------------------------------
-    // SIZE AND COLOR ARE REQUIRED
+    // SIZE IS REQUIRED
     // ---------------------------------------------------
 
-    if (!size || !color) {
+    if (!size) {
       return;
     }
 
@@ -351,9 +318,8 @@ export class ProductDetailsComponent
 
             size,
 
-            color,
-
             quantity: 1
+
           }
 
         ]

@@ -308,9 +308,6 @@ export class CartComponent {
             size:
               item.size,
 
-            color:
-              item.color,
-
             quantity:
               item.quantity
 

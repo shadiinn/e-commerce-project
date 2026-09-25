@@ -164,11 +164,6 @@ export class CheckoutComponent {
     console.log('PLACE ORDER CLICKED');
     console.log('================================');
 
-
-    // -------------------------------------------------
-    // CHECK FORM
-    // -------------------------------------------------
-
     if (this.checkoutForm.invalid) {
 
       console.log(
@@ -184,11 +179,6 @@ export class CheckoutComponent {
       'CHECKOUT FORM IS VALID'
     );
 
-
-    // -------------------------------------------------
-    // CHECK RAW CHECKOUT STATE
-    // -------------------------------------------------
-
     this.checkoutItemsRaw$
       .pipe(take(1))
       .subscribe(items => {
@@ -200,11 +190,6 @@ export class CheckoutComponent {
 
       });
 
-
-    // -------------------------------------------------
-    // CHECK CHECKOUT ITEMS WITH PRODUCTS
-    // -------------------------------------------------
-
     this.checkoutItems$
       .pipe(take(1))
       .subscribe(items => {
@@ -213,7 +198,6 @@ export class CheckoutComponent {
           'CHECKOUT ITEMS WITH PRODUCTS:',
           items
         );
-
 
         if (!items.length) {
 
@@ -224,14 +208,8 @@ export class CheckoutComponent {
           return;
         }
 
-
         const formValue =
           this.checkoutForm.getRawValue();
-
-
-        // =================================================
-        // CREATE ORDER REQUEST
-        // =================================================
 
         const request: CreateOrderRequest = {
 
@@ -243,14 +221,10 @@ export class CheckoutComponent {
             size:
               item.size,
 
-            color:
-              item.color,
-
             quantity:
               item.quantity
 
           })),
-
 
           shippingAddress: {
 
@@ -286,22 +260,16 @@ export class CheckoutComponent {
 
           },
 
-
           paymentMethod:
-            formValue.paymentMethod as 'cod' | 'online'
+            formValue.paymentMethod as
+              'cod' | 'online'
 
         };
-
 
         console.log(
           'ORDER REQUEST:',
           request
         );
-
-
-        // =================================================
-        // DISPATCH ORDER
-        // =================================================
 
         this.store.dispatch(
           placeOrder({
@@ -309,16 +277,12 @@ export class CheckoutComponent {
           })
         );
 
-
         console.log(
           'PLACE ORDER DISPATCHED'
         );
 
       });
-
   }
-
-
   // =====================================================
   // CANCEL CHECKOUT
   // =====================================================

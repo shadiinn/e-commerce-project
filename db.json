@@ -41,7 +41,15 @@
       "id": "xOmVGr7ax0U"
     }
   ],
-  "cart": [],
+  "cart": [
+    {
+      "id": "znoYjBhuefM",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p002",
+      "size": "S",
+      "quantity": 1
+    }
+  ],
   "wishlists": [],
   "orders": [
     {

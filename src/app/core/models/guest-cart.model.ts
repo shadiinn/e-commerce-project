@@ -6,8 +6,6 @@ export interface GuestCartItem {
 
   size: string;
 
-  color: string;
-
   quantity: number;
 
 }

@@ -8,6 +8,7 @@ export class GuestCartService {
 
   private readonly STORAGE_KEY = 'sa_guest_cart';
 
+
   // =====================================================
   // GET GUEST CART
   // =====================================================
@@ -23,7 +24,9 @@ export class GuestCartService {
 
     try {
 
-      return JSON.parse(storedCart) as GuestCartItem[];
+      return JSON.parse(
+        storedCart
+      ) as GuestCartItem[];
 
     } catch (error) {
 
@@ -35,6 +38,7 @@ export class GuestCartService {
       return [];
 
     }
+
   }
 
 
@@ -62,7 +66,8 @@ export class GuestCartService {
     item: GuestCartItem
   ): void {
 
-    const cart = this.getCart();
+    const cart =
+      this.getCart();
 
     const existingItem =
       cart.find(
@@ -77,7 +82,8 @@ export class GuestCartService {
 
     if (existingItem) {
 
-      existingItem.quantity += item.quantity;
+      existingItem.quantity +=
+        item.quantity;
 
     }
 
@@ -107,7 +113,8 @@ export class GuestCartService {
     quantity: number
   ): void {
 
-    const cart = this.getCart();
+    const cart =
+      this.getCart();
 
     const item =
       cart.find(
@@ -132,7 +139,9 @@ export class GuestCartService {
             cartItem.id !== cartItemId
         );
 
-      this.saveCart(updatedCart);
+      this.saveCart(
+        updatedCart
+      );
 
       return;
 
@@ -143,9 +152,12 @@ export class GuestCartService {
     // UPDATE QUANTITY
     // ---------------------------------------------------
 
-    item.quantity = quantity;
+    item.quantity =
+      quantity;
 
-    this.saveCart(cart);
+    this.saveCart(
+      cart
+    );
 
   }
 
@@ -158,7 +170,8 @@ export class GuestCartService {
     cartItemId: string
   ): void {
 
-    const cart = this.getCart();
+    const cart =
+      this.getCart();
 
     const updatedCart =
       cart.filter(
@@ -166,7 +179,9 @@ export class GuestCartService {
           item.id !== cartItemId
       );
 
-    this.saveCart(updatedCart);
+    this.saveCart(
+      updatedCart
+    );
 
   }
 

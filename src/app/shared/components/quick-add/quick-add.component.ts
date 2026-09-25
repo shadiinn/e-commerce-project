@@ -71,9 +71,6 @@ export class QuickAddComponent {
   selectedSize =
     signal<string | null>(null);
 
-  selectedColor =
-    signal<string | null>(null);
-
 
   // =====================================================
   // SELECT SIZE
@@ -91,21 +88,6 @@ export class QuickAddComponent {
 
 
   // =====================================================
-  // SELECT COLOR
-  // =====================================================
-
-  selectColor(
-    color: string
-  ): void {
-
-    this.selectedColor.set(
-      color
-    );
-
-  }
-
-
-  // =====================================================
   // ADD TO CART
   // =====================================================
 
@@ -114,15 +96,12 @@ export class QuickAddComponent {
     const size =
       this.selectedSize();
 
-    const color =
-      this.selectedColor();
-
 
     // ---------------------------------------------------
-    // VALIDATE SIZE AND COLOR
+    // VALIDATE SIZE
     // ---------------------------------------------------
 
-    if (!size || !color) {
+    if (!size) {
       return;
     }
 
@@ -148,9 +127,7 @@ export class QuickAddComponent {
               product:
                 this.product(),
 
-              size,
-
-              color
+              size
 
             })
           );
@@ -170,9 +147,7 @@ export class QuickAddComponent {
               productId:
                 this.product().id,
 
-              size,
-
-              color
+              size
 
             })
           );
