@@ -11,6 +11,7 @@ import {
 
 import {
   catchError,
+  concat,
   concatMap,
   forkJoin,
   map,
@@ -26,24 +27,44 @@ import {
   loadWishlistFailure,
   toggleWishlist,
   clearWishlist,
-  resetWishlist
+  resetWishlist,
+
+  // Guest wishlist
+  loadGuestWishlist,
+  loadGuestWishlistSuccess,
+  addGuestWishlistItem,
+  removeGuestWishlistItem,
+  clearGuestWishlist,
+  mergeGuestWishlist,
+  mergeGuestWishlistFailure,
+  mergeGuestWishlistSuccess
+
 } from './wishlist.actions';
 
-import { WishlistService } from '../../core/services/wishlist.service';
+import {
+  WishlistService
+} from '../../core/services/wishlist.service';
 
-import { WishlistItem } from '../../core/models/wishlist.model';
+import {
+  WishlistItem
+} from '../../core/models/wishlist.model';
 
-import { Store } from '@ngrx/store';
+import {
+  Store
+} from '@ngrx/store';
 
 import {
   selectCurrentUser
 } from '../auth/auth.selectors';
 
 import {
-  loginSuccess,
   logout,
   restoreAuthSuccess
 } from '../auth/auth.actions';
+
+import {
+  GuestWishlistService
+} from '../../core/services/guest-wishlist.service';
 
 
 @Injectable()
@@ -58,9 +79,12 @@ export class WishlistEffects {
   private store =
     inject(Store);
 
+  private guestWishlistService =
+    inject(GuestWishlistService);
+
 
   // =====================================================
-  // LOAD WISHLIST AFTER LOGIN / AUTH RESTORE
+  // LOAD WISHLIST AFTER AUTH RESTORE
   // =====================================================
 
   loadWishlistAfterAuth$ = createEffect(() =>
@@ -68,7 +92,6 @@ export class WishlistEffects {
     this.actions$.pipe(
 
       ofType(
-        loginSuccess,
         restoreAuthSuccess
       ),
 
@@ -89,7 +112,9 @@ export class WishlistEffects {
 
     this.actions$.pipe(
 
-      ofType(logout),
+      ofType(
+        logout
+      ),
 
       map(() =>
         resetWishlist()
@@ -118,7 +143,6 @@ export class WishlistEffects {
           .select(selectCurrentUser)
           .pipe(
 
-            // Get current user once
             take(1),
 
             switchMap(user => {
@@ -187,135 +211,580 @@ export class WishlistEffects {
         toggleWishlist
       ),
 
-      concatMap(
-        ({ product }) =>
+      concatMap(({ product }) =>
 
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
+        this.store
+          .select(selectCurrentUser)
+          .pipe(
 
-              // Get user once
-              take(1),
+            take(1),
 
-              switchMap(user => {
+            switchMap(user => {
 
-                // ---------------------------------------
-                // USER NOT AUTHENTICATED
-                // ---------------------------------------
+              // =================================================
+              // GUEST USER
+              // =================================================
 
-                if (!user) {
+              if (!user) {
 
-                  console.error(
-                    'Cannot update wishlist: user is not authenticated.'
+                const guestWishlist =
+                  this.guestWishlistService
+                    .getWishlist();
+
+                const isAlreadyInWishlist =
+                  guestWishlist.includes(
+                    product.id
                   );
 
-                  return of(null);
+
+                // -----------------------------------------------
+                // REMOVE FROM GUEST WISHLIST
+                // -----------------------------------------------
+
+                if (isAlreadyInWishlist) {
+
+                  return of(
+                    removeGuestWishlistItem({
+                      productId: product.id
+                    })
+                  );
 
                 }
 
 
-                // ---------------------------------------
-                // GET CURRENT USER'S WISHLIST
-                // ---------------------------------------
+                // -----------------------------------------------
+                // ADD TO GUEST WISHLIST
+                // -----------------------------------------------
 
-                return this.wishlistService
-                  .getWishlist(user.id)
-                  .pipe(
+                return of(
+                  addGuestWishlistItem({
+                    productId: product.id
+                  })
+                );
 
-                    switchMap(items => {
-
-                      // ---------------------------------
-                      // FIND PRODUCT
-                      // ---------------------------------
-
-                      const existingItem =
-                        items.find(
-                          item =>
-                            item.productId ===
-                            product.id
-                        );
+              }
 
 
-                      // ---------------------------------
-                      // REMOVE
-                      // ---------------------------------
+              // =================================================
+              // AUTHENTICATED USER
+              // =================================================
 
-                      if (existingItem) {
+              return this.wishlistService
+                .getWishlist(user.id)
+                .pipe(
 
-                        return this.wishlistService
-                          .removeWishlistItem(
-                            existingItem.id
-                          );
+                  switchMap(items => {
 
-                      }
+                    // -------------------------------------------
+                    // FIND EXISTING ITEM
+                    // -------------------------------------------
 
-
-                      // ---------------------------------
-                      // ADD
-                      // ---------------------------------
-
-                      const wishlistItem:
-                        WishlistItem = {
-
-                        id: product.id,
-
-                        userId: user.id,
-
-                        productId:
+                    const existingItem =
+                      items.find(
+                        item =>
+                          item.productId ===
                           product.id
+                      );
 
-                      };
 
+                    // -------------------------------------------
+                    // REMOVE
+                    // -------------------------------------------
+
+                    if (existingItem) {
 
                       return this.wishlistService
-                        .addWishlistItem(
-                          wishlistItem
+                        .removeWishlistItem(
+                          existingItem.id
+                        )
+                        .pipe(
+
+                          map(() =>
+                            loadWishlist()
+                          )
+
                         );
 
-                    }),
+                    }
 
-                    // -----------------------------------
-                    // RELOAD AFTER SUCCESS
-                    // -----------------------------------
 
-                    tap(() => {
+                    // -------------------------------------------
+                    // ADD
+                    // -------------------------------------------
 
-                      this.store.dispatch(
-                        loadWishlist()
+                    const wishlistItem:
+                      WishlistItem = {
+
+                      id:
+                        product.id,
+
+                      userId:
+                        user.id,
+
+                      productId:
+                        product.id
+
+                    };
+
+
+                    return this.wishlistService
+                      .addWishlistItem(
+                        wishlistItem
+                      )
+                      .pipe(
+
+                        map(() =>
+                          loadWishlist()
+                        )
+
                       );
 
-                    }),
+                  }),
 
-                    catchError(error => {
+                  catchError(error => {
 
-                      console.error(
-                        'Failed to update wishlist:',
-                        error
-                      );
+                    console.error(
+                      'Failed to update wishlist:',
+                      error
+                    );
 
-                      return of(null);
+                    return of(
+                      loadWishlistFailure({
+                        error:
+                          error.message ??
+                          'Failed to update wishlist'
+                      })
+                    );
 
-                    })
+                  })
 
-                  );
+                );
 
-              })
+            })
 
-            )
+          )
 
       )
 
-    ),
-
-    {
-      dispatch: false
-    }
+    )
 
   );
 
 
   // =====================================================
-  // CLEAR WISHLIST
+  // LOAD GUEST WISHLIST
+  // =====================================================
+
+  loadGuestWishlist$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        loadGuestWishlist
+      ),
+
+      map(() => {
+
+        const items =
+          this.guestWishlistService
+            .getWishlist();
+
+        return loadGuestWishlistSuccess({
+          items
+        });
+
+      })
+
+    )
+
+  );
+
+
+  // =====================================================
+  // ADD GUEST WISHLIST ITEM
+  // =====================================================
+
+  addGuestWishlistItem$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        addGuestWishlistItem
+      ),
+
+      tap(({ productId }) => {
+
+        this.guestWishlistService
+          .addItem(productId);
+
+      }),
+
+      map(() =>
+        loadGuestWishlist()
+      )
+
+    )
+
+  );
+
+
+  // =====================================================
+  // REMOVE GUEST WISHLIST ITEM
+  // =====================================================
+
+  removeGuestWishlistItem$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        removeGuestWishlistItem
+      ),
+
+      tap(({ productId }) => {
+
+        this.guestWishlistService
+          .removeItem(productId);
+
+      }),
+
+      map(() =>
+        loadGuestWishlist()
+      )
+
+    )
+
+  );
+
+
+  // =====================================================
+  // CLEAR GUEST WISHLIST
+  // =====================================================
+
+  clearGuestWishlist$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        clearGuestWishlist
+      ),
+
+      tap(() => {
+
+        this.guestWishlistService
+          .clearWishlist();
+
+      }),
+
+      map(() =>
+        loadGuestWishlist()
+      )
+
+    )
+
+  );
+
+
+  // =====================================================
+  // MERGE GUEST WISHLIST
+  // =====================================================
+
+  mergeGuestWishlist$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(
+        mergeGuestWishlist
+      ),
+
+      switchMap(({ returnUrl }) =>
+
+        this.store
+          .select(selectCurrentUser)
+          .pipe(
+
+            take(1),
+
+            switchMap(user => {
+
+              // =================================================
+              // USER MUST BE LOGGED IN
+              // =================================================
+
+              if (!user) {
+
+                return of(
+                  mergeGuestWishlistFailure({
+                    error:
+                      'Cannot merge wishlist without a logged-in user',
+                    returnUrl
+                  })
+                );
+
+              }
+
+
+              // =================================================
+              // GET GUEST WISHLIST
+              // =================================================
+
+              const guestItems =
+                this.guestWishlistService
+                  .getWishlist();
+
+
+              // =================================================
+              // NOTHING TO MERGE
+              // =================================================
+
+              if (guestItems.length === 0) {
+
+                return this.wishlistService
+                  .getWishlist(user.id)
+                  .pipe(
+
+                    switchMap(items =>
+
+                      concat(
+
+                        // First update NgRx state
+                        of(
+                          loadWishlistSuccess({
+                            items
+                          })
+                        ),
+
+                        // Then continue login flow
+                        of(
+                          mergeGuestWishlistSuccess({
+                            returnUrl
+                          })
+                        )
+
+                      )
+
+                    ),
+
+                    catchError(error =>
+
+                      of(
+                        mergeGuestWishlistFailure({
+                          error:
+                            error.message ??
+                            'Failed to load wishlist',
+                          returnUrl
+                        })
+                      )
+
+                    )
+
+                  );
+
+              }
+
+
+              // =================================================
+              // GET USER'S EXISTING WISHLIST
+              // =================================================
+
+              return this.wishlistService
+                .getWishlist(user.id)
+                .pipe(
+
+                  switchMap(userWishlist => {
+
+                    // -------------------------------------------
+                    // FIND EXISTING PRODUCT IDS
+                    // -------------------------------------------
+
+                    const existingProductIds =
+                      new Set(
+                        userWishlist.map(
+                          item =>
+                            item.productId
+                        )
+                      );
+
+
+                    // -------------------------------------------
+                    // FIND PRODUCTS TO ADD
+                    // -------------------------------------------
+
+                    const productsToAdd =
+                      guestItems.filter(
+                        productId =>
+                          !existingProductIds.has(
+                            productId
+                          )
+                      );
+
+
+                    // =================================================
+                    // NOTHING NEW TO ADD
+                    // =================================================
+
+                    if (productsToAdd.length === 0) {
+
+                      this.guestWishlistService
+                        .clearWishlist();
+
+                      return this.wishlistService
+                        .getWishlist(user.id)
+                        .pipe(
+
+                          switchMap(items =>
+
+                            concat(
+
+                              // Update NgRx state first
+                              of(
+                                loadWishlistSuccess({
+                                  items
+                                })
+                              ),
+
+                              // Then continue login flow
+                              of(
+                                mergeGuestWishlistSuccess({
+                                  returnUrl
+                                })
+                              )
+
+                            )
+
+                          )
+
+                        );
+
+                    }
+
+
+                    // =================================================
+                    // CREATE WISHLIST ITEMS
+                    // =================================================
+
+                    const requests =
+                      productsToAdd.map(
+                        productId => {
+
+                          const wishlistItem:
+                            WishlistItem = {
+
+                            id:
+                              productId,
+
+                            userId:
+                              user.id,
+
+                            productId
+
+                          };
+
+
+                          return this.wishlistService
+                            .addWishlistItem(
+                              wishlistItem
+                            );
+
+                        }
+                      );
+
+
+                    // =================================================
+                    // ADD ALL ITEMS
+                    // =================================================
+
+                    return forkJoin(
+                      requests
+                    ).pipe(
+
+                      tap(() => {
+
+                        console.log(
+                          'GUEST WISHLIST MERGED SUCCESSFULLY'
+                        );
+
+                        this.guestWishlistService
+                          .clearWishlist();
+
+                      }),
+
+
+                      // =================================================
+                      // RELOAD BACKEND WISHLIST
+                      // =================================================
+
+                      switchMap(() =>
+
+                        this.wishlistService
+                          .getWishlist(
+                            user.id
+                          )
+
+                      ),
+
+
+                      // =================================================
+                      // UPDATE STORE FIRST
+                      // THEN SIGNAL MERGE SUCCESS
+                      // =================================================
+
+                      switchMap(items =>
+
+                        concat(
+
+                          of(
+                            loadWishlistSuccess({
+                              items
+                            })
+                          ),
+
+                          of(
+                            mergeGuestWishlistSuccess({
+                              returnUrl
+                            })
+                          )
+
+                        )
+
+                      )
+
+                    );
+
+                  }),
+
+                  catchError(error => {
+
+                    console.error(
+                      'Failed to merge guest wishlist:',
+                      error
+                    );
+
+                    return of(
+                      mergeGuestWishlistFailure({
+                        error:
+                          error.message ??
+                          'Failed to merge guest wishlist',
+                        returnUrl
+                      })
+                    );
+
+                  })
+
+                );
+
+            })
+
+          )
+
+      )
+
+    )
+
+  );
+
+
+  // =====================================================
+  // CLEAR AUTHENTICATED WISHLIST
   // =====================================================
 
   clearWishlist$ = createEffect(() =>
@@ -357,9 +826,9 @@ export class WishlistEffects {
 
                   switchMap(items => {
 
-                    // -------------------------------
+                    // ---------------------------------
                     // ALREADY EMPTY
-                    // -------------------------------
+                    // ---------------------------------
 
                     if (items.length === 0) {
 
@@ -368,26 +837,29 @@ export class WishlistEffects {
                     }
 
 
-                    // -------------------------------
+                    // ---------------------------------
                     // DELETE ALL ITEMS
-                    // -------------------------------
+                    // ---------------------------------
 
                     return forkJoin(
 
                       items.map(item =>
+
                         this.wishlistService
                           .removeWishlistItem(
                             item.id
                           )
+
                       )
 
                     );
 
                   }),
 
-                  // -------------------------------
+
+                  // ---------------------------------
                   // RELOAD AFTER SUCCESS
-                  // -------------------------------
+                  // ---------------------------------
 
                   tap(() => {
 
@@ -396,6 +868,7 @@ export class WishlistEffects {
                     );
 
                   }),
+
 
                   catchError(error => {
 

@@ -57,3 +57,8 @@ export const restoreAuthSuccess = createAction(
   '[Auth] Restore Auth Success',
   props<{ user: AuthUser | null }>()
 );
+
+export const loginDataMergeComplete = createAction(
+  '[Auth] Login Data Merge Complete',
+  props<{ returnUrl?: string }>()
+);

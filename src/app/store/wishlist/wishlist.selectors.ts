@@ -9,6 +9,10 @@ import {
   selectProductEntities
 } from '../products/products.selectors';
 
+import {
+  selectIsAuthenticated
+} from '../auth/auth.selectors';
+
 
 // =====================================================
 // WISHLIST STATE
@@ -21,7 +25,7 @@ export const selectWishlistState =
 
 
 // =====================================================
-// WISHLIST ITEMS
+// AUTHENTICATED WISHLIST ITEMS
 // =====================================================
 
 export const selectWishlistItems =
@@ -32,7 +36,18 @@ export const selectWishlistItems =
 
 
 // =====================================================
-// WISHLIST ITEMS WITH PRODUCTS
+// GUEST WISHLIST ITEMS
+// =====================================================
+
+export const selectGuestWishlistItems =
+  createSelector(
+    selectWishlistState,
+    state => state.guestItems
+  );
+
+
+// =====================================================
+// AUTHENTICATED WISHLIST WITH PRODUCTS
 // =====================================================
 
 export const selectWishlistItemsWithProducts =
@@ -67,13 +82,85 @@ export const selectWishlistItemsWithProducts =
 
 
 // =====================================================
+// GUEST WISHLIST WITH PRODUCTS
+// =====================================================
+
+export const selectGuestWishlistItemsWithProducts =
+  createSelector(
+    selectGuestWishlistItems,
+    selectProductEntities,
+
+    (items, products) => {
+
+      return items
+        .map(productId => {
+
+          const product =
+            products[productId];
+
+          if (!product) {
+            return null;
+          }
+
+          return {
+            productId,
+            product
+          };
+
+        })
+        .filter(
+          item => item !== null
+        );
+
+    }
+  );
+
+
+// =====================================================
+// ACTIVE WISHLIST WITH PRODUCTS
+// =====================================================
+
+export const selectActiveWishlistItemsWithProducts =
+  createSelector(
+    selectIsAuthenticated,
+    selectWishlistItemsWithProducts,
+    selectGuestWishlistItemsWithProducts,
+
+    (
+      isAuthenticated,
+      authenticatedItems,
+      guestItems
+    ) => {
+
+      return isAuthenticated
+        ? authenticatedItems
+        : guestItems;
+
+    }
+  );
+
+
+// =====================================================
 // WISHLIST COUNT
 // =====================================================
 
 export const selectWishlistCount =
   createSelector(
+    selectIsAuthenticated,
     selectWishlistItems,
-    items => items.length
+    selectGuestWishlistItems,
+
+    (
+      isAuthenticated,
+      authenticatedItems,
+      guestItems
+    ) => {
+
+      return isAuthenticated
+        ? authenticatedItems.length
+        : guestItems.length;
+
+    }
   );
 
 
@@ -83,14 +170,32 @@ export const selectWishlistCount =
 
 export const selectIsProductInWishlist =
   (productId: string) =>
-    createSelector(
-      selectWishlistItems,
 
-      items =>
-        items.some(
-          item =>
-            item.productId === productId
-        )
+    createSelector(
+      selectIsAuthenticated,
+      selectWishlistItems,
+      selectGuestWishlistItems,
+
+      (
+        isAuthenticated,
+        authenticatedItems,
+        guestItems
+      ) => {
+
+        if (isAuthenticated) {
+
+          return authenticatedItems.some(
+            item =>
+              item.productId === productId
+          );
+
+        }
+
+        return guestItems.includes(
+          productId
+        );
+
+      }
     );
 
 

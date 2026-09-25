@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import {
-  selectWishlistItemsWithProducts,
+  selectActiveWishlistItemsWithProducts,
   selectWishlistCount
 } from '../../store/wishlist/wishlist.selectors';
 
@@ -33,7 +33,7 @@ export class WishlistComponent {
 
   wishlistItems$ =
     this.store.select(
-      selectWishlistItemsWithProducts
+      selectActiveWishlistItemsWithProducts
     );
 
 

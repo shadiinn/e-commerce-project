@@ -6,7 +6,13 @@ import {
   loadWishlistFailure,
   toggleWishlist,
   clearWishlist,
-  resetWishlist
+  resetWishlist,
+
+  loadGuestWishlistSuccess,
+  addGuestWishlistItem,
+  removeGuestWishlistItem,
+  clearGuestWishlist
+
 } from './wishlist.actions';
 
 import {
@@ -26,6 +32,7 @@ export const wishlistReducer = createReducer(
 
   on(
     loadWishlist,
+
     state => ({
       ...state,
       loading: true,
@@ -40,6 +47,7 @@ export const wishlistReducer = createReducer(
 
   on(
     loadWishlistSuccess,
+
     (state, { items }) => ({
       ...state,
       items,
@@ -55,6 +63,7 @@ export const wishlistReducer = createReducer(
 
   on(
     loadWishlistFailure,
+
     (state, { error }) => ({
       ...state,
       loading: false,
@@ -69,16 +78,18 @@ export const wishlistReducer = createReducer(
 
   on(
     toggleWishlist,
+
     state => state
   ),
 
 
   // =====================================================
-  // CLEAR WISHLIST
+  // CLEAR AUTHENTICATED WISHLIST
   // =====================================================
 
   on(
     clearWishlist,
+
     state => ({
       ...state,
       items: []
@@ -92,11 +103,87 @@ export const wishlistReducer = createReducer(
 
   on(
     resetWishlist,
+
     state => ({
       ...state,
       items: [],
       loading: false,
       error: null
+    })
+  ),
+
+
+  // =====================================================
+  // LOAD GUEST WISHLIST SUCCESS
+  // =====================================================
+
+  on(
+    loadGuestWishlistSuccess,
+
+    (state, { items }) => ({
+      ...state,
+      guestItems: items,
+      error: null
+    })
+  ),
+
+
+  // =====================================================
+  // ADD GUEST WISHLIST ITEM
+  // =====================================================
+
+  on(
+    addGuestWishlistItem,
+
+    (state, { productId }) => {
+
+      // Prevent duplicate products
+      if (state.guestItems.includes(productId)) {
+        return state;
+      }
+
+      return {
+        ...state,
+
+        guestItems: [
+          ...state.guestItems,
+          productId
+        ]
+      };
+
+    }
+  ),
+
+
+  // =====================================================
+  // REMOVE GUEST WISHLIST ITEM
+  // =====================================================
+
+  on(
+    removeGuestWishlistItem,
+
+    (state, { productId }) => ({
+      ...state,
+
+      guestItems:
+        state.guestItems.filter(
+          id => id !== productId
+        )
+    })
+  ),
+
+
+  // =====================================================
+  // CLEAR GUEST WISHLIST
+  // =====================================================
+
+  on(
+    clearGuestWishlist,
+
+    state => ({
+      ...state,
+
+      guestItems: []
     })
   )
 

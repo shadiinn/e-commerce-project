@@ -42,7 +42,18 @@
     }
   ],
   "cart": [],
-  "wishlists": [],
+  "wishlists": [
+    {
+      "id": "-F6L07FZHuM",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p002"
+    },
+    {
+      "id": "xwzT6TBdTaM",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p001"
+    }
+  ],
   "orders": [
     {
       "id": "2AlOYHcQb8A",

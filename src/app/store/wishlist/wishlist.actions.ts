@@ -72,3 +72,54 @@ export const resetWishlist =
   createAction(
     '[Wishlist] Reset Wishlist'
   );
+
+  // =====================================================
+// GUEST WISHLIST
+// =====================================================
+
+export const loadGuestWishlist = createAction(
+  '[Wishlist] Load Guest Wishlist'
+);
+
+export const loadGuestWishlistSuccess = createAction(
+  '[Wishlist] Load Guest Wishlist Success',
+  props<{
+    items: string[];
+  }>()
+);
+
+export const addGuestWishlistItem = createAction(
+  '[Wishlist] Add Guest Wishlist Item',
+  props<{
+    productId: string;
+  }>()
+);
+
+export const removeGuestWishlistItem = createAction(
+  '[Wishlist] Remove Guest Wishlist Item',
+  props<{
+    productId: string;
+  }>()
+);
+
+export const clearGuestWishlist = createAction(
+  '[Wishlist] Clear Guest Wishlist'
+);
+
+export const mergeGuestWishlist = createAction(
+  '[Wishlist] Merge Guest Wishlist',
+  props<{ returnUrl?: string }>()
+);
+
+export const mergeGuestWishlistSuccess = createAction(
+  '[Wishlist] Merge Guest Wishlist Success',
+  props<{ returnUrl?: string }>()
+);
+
+export const mergeGuestWishlistFailure = createAction(
+  '[Wishlist] Merge Guest Wishlist Failure',
+  props<{
+    error: string;
+    returnUrl?: string;
+  }>()
+);
