@@ -1,0 +1,127 @@
+:host {
+  display: block;
+}
+
+
+/* ========================================================= */
+/* PANEL SLIDE */
+/* ========================================================= */
+
+.auth-form-panel,
+.auth-image-panel {
+  transition:
+    transform 700ms cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+
+/* ========================================================= */
+/* LOGIN STATE */
+/* ========================================================= */
+
+/*
+  Login:
+  FORM  = left
+  IMAGE = right
+*/
+
+.auth-form-panel {
+  transform: translateX(0);
+}
+
+.auth-image-panel {
+  transform: translateX(0);
+}
+
+
+/* ========================================================= */
+/* REGISTER STATE */
+/* ========================================================= */
+
+/*
+  Register:
+  IMAGE = left
+  FORM  = right
+*/
+
+.auth-stage.register-mode .auth-form-panel {
+  transform: translateX(100%);
+}
+
+.auth-stage.register-mode .auth-image-panel {
+  transform: translateX(-100%);
+}
+
+
+/* ========================================================= */
+/* FORM SWITCHING */
+/* ========================================================= */
+
+.login-form,
+.register-form {
+  transition:
+    opacity 350ms ease,
+    transform 500ms cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+
+/* ---------------- LOGIN ---------------- */
+
+.login-form {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.register-form {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -45%);
+}
+
+
+/* ---------------- REGISTER ---------------- */
+
+.auth-stage.register-mode .login-form {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -55%);
+}
+
+.auth-stage.register-mode .register-form {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+
+/* ========================================================= */
+/* MOBILE */
+/* ========================================================= */
+
+@media (max-width: 767px) {
+
+  /*
+    Mobile layout is stacked,
+    so horizontal sliding is disabled.
+  */
+
+  .auth-form-panel,
+  .auth-image-panel {
+    transform: translateX(0) !important;
+  }
+
+}
+
+
+/* ========================================================= */
+/* REDUCED MOTION */
+/* ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+}

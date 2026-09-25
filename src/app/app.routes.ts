@@ -82,21 +82,21 @@ export const routes: Routes = [
       import('./features/order-details/order-details.component')
         .then(m => m.OrderDetailsComponent)
   },
-  {
-    path: 'login',
-    canActivate:[guestGuard],
-    loadComponent: () =>
-      import('./features/auth/login/login.component')
-        .then(m => m.LoginComponent)
-  },
+{
+  path: 'login',
+  loadComponent: () =>
+    import  ('./features/auth/auth.component') 
+      .then(m => m.AuthComponent),
+  canActivate: [guestGuard]
+},
 
-  {
-    path: 'register',
-    canActivate:[guestGuard],
-    loadComponent: () =>
-      import('./features/auth/register/register.component')
-        .then(m => m.RegisterComponent)
-  },
+{
+  path: 'register',
+  loadComponent: () =>
+    import('./features/auth/auth.component')
+      .then(m => m.AuthComponent),
+  canActivate: [guestGuard]
+},
   {
     path: 'account',
     canActivate: [authGuard],

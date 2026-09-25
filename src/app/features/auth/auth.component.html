@@ -1,0 +1,1166 @@
+<div
+  class="
+    min-h-screen
+    w-full
+    bg-[#eeeeec]
+    flex
+    items-center
+    justify-center
+    overflow-hidden
+  "
+>
+
+  <!-- ===================================================== -->
+  <!-- AUTH CONTAINER -->
+  <!-- ===================================================== -->
+
+  <div
+    class="
+      auth-container
+      relative
+      w-full
+      h-screen
+
+      md:h-[min(720px,calc(100vh-64px))]
+      md:max-w-[1180px]
+
+      bg-white
+      overflow-hidden
+
+      md:rounded-sm
+      md:shadow-[0_20px_70px_rgba(0,0,0,0.08)]
+    "
+  >
+
+    <!-- ================================================= -->
+    <!-- ANIMATION STAGE -->
+    <!-- ================================================= -->
+
+    <div
+      class="auth-stage absolute inset-0"
+      [class.register-mode]="isRegisterMode()"
+    >
+
+      <!-- ================================================= -->
+      <!-- FORM PANEL -->
+      <!-- ================================================= -->
+
+      <section
+        class="
+          auth-form-panel
+
+          absolute
+          left-0
+          bottom-0
+
+          w-full
+          h-[68%]
+
+          bg-white
+          z-10
+
+          overflow-y-auto
+
+          md:top-0
+          md:bottom-auto
+          md:w-1/2
+          md:h-full
+          md:overflow-hidden
+        "
+      >
+
+        <div
+          class="
+            relative
+            w-full
+            h-full
+
+            px-7
+            py-8
+
+            md:px-[clamp(45px,7vw,90px)]
+            md:py-10
+          "
+        >
+
+          <!-- ================================================= -->
+          <!-- LOGO -->
+          <!-- ================================================= -->
+
+          <div
+            class="
+              text-[16px]
+              md:text-[18px]
+              font-semibold
+              tracking-[0.3em]
+              text-[#151515]
+            "
+          >
+            SA
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- LOGIN -->
+          <!-- ================================================= -->
+
+          <div
+            class="
+              login-form
+
+              absolute
+              top-1/2
+              left-1/2
+
+              w-[calc(100%-56px)]
+              max-w-[390px]
+
+              -translate-x-1/2
+
+              transition-all
+              duration-500
+              ease-out
+            "
+          >
+
+            <div class="mb-8">
+
+              <p
+                class="
+                  mb-2
+                  text-[9px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#77736e]
+                "
+              >
+                Welcome back
+              </p>
+
+              <h1
+                class="
+                  text-[26px]
+                  md:text-[29px]
+                  leading-[1.1]
+                  font-medium
+                  tracking-[-0.03em]
+                  text-[#151515]
+                "
+              >
+                Sign in to your
+                <span class="italic">
+                  account.
+                </span>
+              </h1>
+
+              <p
+                class="
+                  hidden
+                  md:block
+                  mt-4
+                  max-w-[330px]
+                  text-[12px]
+                  leading-relaxed
+                  text-[#77736e]
+                "
+              >
+                Continue your journey with timeless pieces
+                designed for modern gentlemen.
+              </p>
+
+            </div>
+
+
+            <!-- Error -->
+
+            @if (error$ | async; as error) {
+
+              <div
+                class="
+                  mb-5
+                  border
+                  border-red-200
+                  bg-red-50
+                  px-3
+                  py-2.5
+                  text-[11px]
+                  text-red-700
+                "
+              >
+                {{ error }}
+              </div>
+
+            }
+
+
+            <!-- Login Form -->
+
+            <form
+              [formGroup]="loginForm"
+              (ngSubmit)="submitLogin()"
+              class="flex flex-col"
+            >
+
+              <!-- Email -->
+
+              <div class="mb-5">
+
+                <label
+                  for="login-email"
+                  class="
+                    mb-2
+                    block
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.15em]
+                    text-[#151515]
+                  "
+                >
+                  Email
+                </label>
+
+                <input
+                  id="login-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Enter your email"
+                  autocomplete="email"
+                  class="
+                    w-full
+                    border-0
+                    border-b
+                    border-[#d8d3cd]
+                    bg-transparent
+
+                    px-0
+                    py-2.5
+
+                    text-[12px]
+                    text-[#151515]
+
+                    outline-none
+
+                    placeholder:text-[#aaa6a1]
+                    focus:border-[#151515]
+
+                    transition-colors
+                    duration-200
+                  "
+                >
+
+                @if (
+                  loginForm.get('email')?.touched &&
+                  loginForm.get('email')?.invalid
+                ) {
+
+                  <small
+                    class="
+                      mt-1.5
+                      block
+                      text-[10px]
+                      text-red-600
+                    "
+                  >
+                    Please enter a valid email address.
+                  </small>
+
+                }
+
+              </div>
+
+
+              <!-- Password -->
+
+              <div class="mb-7">
+
+                <div
+                  class="
+                    mb-2
+                    flex
+                    items-center
+                    justify-between
+                  "
+                >
+
+                  <label
+                    for="login-password"
+                    class="
+                      text-[9px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.15em]
+                      text-[#151515]
+                    "
+                  >
+                    Password
+                  </label>
+
+                  <button
+                    type="button"
+                    class="
+                      text-[9px]
+                      text-[#77736e]
+                      transition-colors
+                      hover:text-[#151515]
+                    "
+                  >
+                    Forgot password?
+                  </button>
+
+                </div>
+
+                <input
+                  id="login-password"
+                  type="password"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  class="
+                    w-full
+                    border-0
+                    border-b
+                    border-[#d8d3cd]
+                    bg-transparent
+
+                    px-0
+                    py-2.5
+
+                    text-[12px]
+                    text-[#151515]
+
+                    outline-none
+
+                    placeholder:text-[#aaa6a1]
+                    focus:border-[#151515]
+
+                    transition-colors
+                    duration-200
+                  "
+                >
+
+                @if (
+                  loginForm.get('password')?.touched &&
+                  loginForm.get('password')?.invalid
+                ) {
+
+                  <small
+                    class="
+                      mt-1.5
+                      block
+                      text-[10px]
+                      text-red-600
+                    "
+                  >
+                    Password must contain at least 6 characters.
+                  </small>
+
+                }
+
+              </div>
+
+
+              <!-- Sign In -->
+
+              <button
+                type="submit"
+                [disabled]="loading$ | async"
+                class="
+                  w-full
+
+                  border
+                  border-[#151515]
+                  bg-[#151515]
+
+                  px-5
+                  py-3
+
+                  text-[9px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.2em]
+                  text-white
+
+                  transition-all
+                  duration-200
+
+                  hover:bg-white
+                  hover:text-[#151515]
+
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+
+                @if (loading$ | async) {
+                  Signing in...
+                } @else {
+                  Sign In
+                }
+
+              </button>
+
+            </form>
+
+
+            <!-- Sign Up -->
+
+            <div
+              class="
+                mt-7
+                flex
+                items-center
+                justify-center
+                gap-1.5
+                text-[10px]
+                text-[#77736e]
+              "
+            >
+
+              <span>
+                Don't have an account?
+              </span>
+
+              <button
+                type="button"
+                (click)="showRegister()"
+                class="
+                  text-[#151515]
+                  underline
+                  underline-offset-2
+                  transition-opacity
+                  hover:opacity-50
+                "
+              >
+                Sign up
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- REGISTER -->
+          <!-- ================================================= -->
+
+          <div
+            class="
+              register-form
+
+              absolute
+              top-1/2
+              left-1/2
+
+              w-[calc(100%-56px)]
+              max-w-[390px]
+
+              -translate-x-1/2
+
+              transition-all
+              duration-500
+              ease-out
+            "
+          >
+
+            <div class="mb-7">
+
+              <p
+                class="
+                  mb-2
+                  text-[9px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#77736e]
+                "
+              >
+                Join SA
+              </p>
+
+              <h1
+                class="
+                  text-[26px]
+                  md:text-[29px]
+                  leading-[1.1]
+                  font-medium
+                  tracking-[-0.03em]
+                  text-[#151515]
+                "
+              >
+                Create your
+                <span class="italic">
+                  account.
+                </span>
+              </h1>
+
+              <p
+                class="
+                  hidden
+                  md:block
+                  mt-4
+                  max-w-[330px]
+                  text-[12px]
+                  leading-relaxed
+                  text-[#77736e]
+                "
+              >
+                Join SA and discover understated pieces
+                inspired by timeless menswear.
+              </p>
+
+            </div>
+
+
+            @if (error$ | async; as error) {
+
+              <div
+                class="
+                  mb-5
+                  border
+                  border-red-200
+                  bg-red-50
+                  px-3
+                  py-2.5
+                  text-[11px]
+                  text-red-700
+                "
+              >
+                {{ error }}
+              </div>
+
+            }
+
+
+            <!-- Register Form -->
+
+            <form
+              [formGroup]="registerForm"
+              (ngSubmit)="submitRegister()"
+              class="flex flex-col"
+            >
+
+              <!-- Names -->
+
+              <div
+                class="
+                  mb-5
+                  grid
+                  grid-cols-1
+                  gap-5
+                  sm:grid-cols-2
+                "
+              >
+
+                <div>
+
+                  <label
+                    for="first-name"
+                    class="
+                      mb-2
+                      block
+                      text-[9px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.15em]
+                      text-[#151515]
+                    "
+                  >
+                    First Name
+                  </label>
+
+                  <input
+                    id="first-name"
+                    type="text"
+                    formControlName="firstName"
+                    placeholder="First name"
+                    autocomplete="given-name"
+                    class="
+                      w-full
+                      border-0
+                      border-b
+                      border-[#d8d3cd]
+                      bg-transparent
+                      px-0
+                      py-2.5
+                      text-[12px]
+                      text-[#151515]
+                      outline-none
+                      placeholder:text-[#aaa6a1]
+                      focus:border-[#151515]
+                    "
+                  >
+
+                  @if (
+                    registerForm.get('firstName')?.touched &&
+                    registerForm.get('firstName')?.invalid
+                  ) {
+
+                    <small
+                      class="mt-1 block text-[10px] text-red-600"
+                    >
+                      First name is required.
+                    </small>
+
+                  }
+
+                </div>
+
+
+                <div>
+
+                  <label
+                    for="last-name"
+                    class="
+                      mb-2
+                      block
+                      text-[9px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.15em]
+                      text-[#151515]
+                    "
+                  >
+                    Last Name
+                  </label>
+
+                  <input
+                    id="last-name"
+                    type="text"
+                    formControlName="lastName"
+                    placeholder="Last name"
+                    autocomplete="family-name"
+                    class="
+                      w-full
+                      border-0
+                      border-b
+                      border-[#d8d3cd]
+                      bg-transparent
+                      px-0
+                      py-2.5
+                      text-[12px]
+                      text-[#151515]
+                      outline-none
+                      placeholder:text-[#aaa6a1]
+                      focus:border-[#151515]
+                    "
+                  >
+
+                  @if (
+                    registerForm.get('lastName')?.touched &&
+                    registerForm.get('lastName')?.invalid
+                  ) {
+
+                    <small
+                      class="mt-1 block text-[10px] text-red-600"
+                    >
+                      Last name is required.
+                    </small>
+
+                  }
+
+                </div>
+
+              </div>
+
+
+              <!-- Email -->
+
+              <div class="mb-5">
+
+                <label
+                  for="register-email"
+                  class="
+                    mb-2
+                    block
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.15em]
+                    text-[#151515]
+                  "
+                >
+                  Email
+                </label>
+
+                <input
+                  id="register-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Enter your email"
+                  autocomplete="email"
+                  class="
+                    w-full
+                    border-0
+                    border-b
+                    border-[#d8d3cd]
+                    bg-transparent
+                    px-0
+                    py-2.5
+                    text-[12px]
+                    text-[#151515]
+                    outline-none
+                    placeholder:text-[#aaa6a1]
+                    focus:border-[#151515]
+                  "
+                >
+
+                @if (
+                  registerForm.get('email')?.touched &&
+                  registerForm.get('email')?.invalid
+                ) {
+
+                  <small
+                    class="mt-1 block text-[10px] text-red-600"
+                  >
+                    Please enter a valid email address.
+                  </small>
+
+                }
+
+              </div>
+
+
+              <!-- Phone -->
+
+              <div class="mb-5">
+
+                <label
+                  for="phone"
+                  class="
+                    mb-2
+                    block
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.15em]
+                    text-[#151515]
+                  "
+                >
+                  Phone
+                </label>
+
+                <input
+                  id="phone"
+                  type="tel"
+                  formControlName="phone"
+                  placeholder="9876543210"
+                  autocomplete="tel"
+                  class="
+                    w-full
+                    border-0
+                    border-b
+                    border-[#d8d3cd]
+                    bg-transparent
+                    px-0
+                    py-2.5
+                    text-[12px]
+                    text-[#151515]
+                    outline-none
+                    placeholder:text-[#aaa6a1]
+                    focus:border-[#151515]
+                  "
+                >
+
+                @if (
+                  registerForm.get('phone')?.touched &&
+                  registerForm.get('phone')?.invalid
+                ) {
+
+                  <small
+                    class="mt-1 block text-[10px] text-red-600"
+                  >
+                    Please enter a valid 10-digit phone number.
+                  </small>
+
+                }
+
+              </div>
+
+
+              <!-- Password -->
+
+              <div class="mb-6">
+
+                <label
+                  for="register-password"
+                  class="
+                    mb-2
+                    block
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.15em]
+                    text-[#151515]
+                  "
+                >
+                  Password
+                </label>
+
+                <input
+                  id="register-password"
+                  type="password"
+                  formControlName="password"
+                  placeholder="Create a password"
+                  autocomplete="new-password"
+                  class="
+                    w-full
+                    border-0
+                    border-b
+                    border-[#d8d3cd]
+                    bg-transparent
+                    px-0
+                    py-2.5
+                    text-[12px]
+                    text-[#151515]
+                    outline-none
+                    placeholder:text-[#aaa6a1]
+                    focus:border-[#151515]
+                  "
+                >
+
+                @if (
+                  registerForm.get('password')?.touched &&
+                  registerForm.get('password')?.invalid
+                ) {
+
+                  <small
+                    class="mt-1 block text-[10px] text-red-600"
+                  >
+                    Password must contain at least 6 characters.
+                  </small>
+
+                }
+
+              </div>
+
+
+              <!-- Create Account -->
+
+              <button
+                type="submit"
+                [disabled]="loading$ | async"
+                class="
+                  w-full
+                  border
+                  border-[#151515]
+                  bg-[#151515]
+                  px-5
+                  py-3
+                  text-[9px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.2em]
+                  text-white
+                  transition-all
+                  duration-200
+                  hover:bg-white
+                  hover:text-[#151515]
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+
+                @if (loading$ | async) {
+                  Creating Account...
+                } @else {
+                  Create Account
+                }
+
+              </button>
+
+            </form>
+
+
+            <!-- Sign In -->
+
+            <div
+              class="
+                mt-6
+                flex
+                items-center
+                justify-center
+                gap-1.5
+                text-[10px]
+                text-[#77736e]
+              "
+            >
+
+              <span>
+                Already have an account?
+              </span>
+
+              <button
+                type="button"
+                (click)="showLogin()"
+                class="
+                  text-[#151515]
+                  underline
+                  underline-offset-2
+                  transition-opacity
+                  hover:opacity-50
+                "
+              >
+                Sign in
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================== -->
+      <!-- IMAGE PANEL -->
+      <!-- ===================================================== -->
+
+      <section
+        class="
+          auth-image-panel
+
+          absolute
+          top-0
+          right-0
+
+          w-1/2
+          h-full
+
+          overflow-hidden
+          z-20
+
+          transition-transform
+          duration-700
+          ease-[cubic-bezier(0.77,0,0.18,1)]
+        "
+      >
+
+        <!-- Image -->
+
+        <img
+          src="assets/images/auth-fashion.jpg"
+          alt="SA luxury menswear"
+          class="
+            w-full
+            h-full
+            object-cover
+            object-center
+
+            transition-transform
+            duration-700
+            ease-[cubic-bezier(0.77,0,0.18,1)]
+          "
+        >
+
+
+        <!-- Overlay -->
+
+        <div
+          class="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black/55
+            via-black/5
+            to-transparent
+          "
+        ></div>
+
+
+        <!-- Brand -->
+
+        <div
+          class="
+            absolute
+            top-5
+            right-6
+            z-10
+            text-right
+            text-white
+          "
+        >
+
+          <div
+            class="
+              text-[15px]
+              font-semibold
+              tracking-[0.3em]
+            "
+          >
+            SA
+          </div>
+
+          <div
+            class="
+              mt-0.5
+              text-[7px]
+              tracking-[0.22em]
+              opacity-70
+            "
+          >
+            EST. 2026
+          </div>
+
+        </div>
+
+
+        <!-- Editorial Content -->
+
+        <div
+          class="
+            absolute
+            left-6
+            right-6
+            bottom-5
+            z-10
+            text-white
+
+            md:left-8
+            md:right-8
+            md:bottom-8
+          "
+        >
+
+          @if (!isRegisterMode()) {
+
+            <p
+              class="
+                mb-2
+                text-[8px]
+                font-semibold
+                uppercase
+                tracking-[0.22em]
+                opacity-75
+              "
+            >
+              THE SA COLLECTION
+            </p>
+
+            <h2
+              class="
+                text-[21px]
+                md:text-[30px]
+                leading-[1.05]
+                font-light
+                tracking-[-0.025em]
+              "
+            >
+              Timeless
+              <br>
+
+              <span class="italic">
+                by nature.
+              </span>
+            </h2>
+
+            <p
+              class="
+                hidden
+                md:block
+                mt-3
+                max-w-[300px]
+                text-[10px]
+                leading-relaxed
+                opacity-70
+              "
+            >
+              Quiet luxury. Refined silhouettes.
+              Designed for everyday elegance.
+            </p>
+
+          } @else {
+
+            <p
+              class="
+                mb-2
+                text-[8px]
+                font-semibold
+                uppercase
+                tracking-[0.22em]
+                opacity-75
+              "
+            >
+              WELCOME TO SA
+            </p>
+
+            <h2
+              class="
+                text-[21px]
+                md:text-[30px]
+                leading-[1.05]
+                font-light
+                tracking-[-0.025em]
+              "
+            >
+              Dress with
+              <br>
+
+              <span class="italic">
+                intention.
+              </span>
+            </h2>
+
+            <p
+              class="
+                hidden
+                md:block
+                mt-3
+                max-w-[300px]
+                text-[10px]
+                leading-relaxed
+                opacity-70
+              "
+            >
+              Understated essentials inspired by
+              classic menswear and modern old-money style.
+            </p>
+
+          }
+
+        </div>
+
+
+        <!-- Bottom -->
+
+        <div
+          class="
+            hidden
+            md:flex
+            absolute
+            left-8
+            right-8
+            bottom-8
+            z-10
+
+            items-center
+            justify-between
+
+            text-[8px]
+            font-semibold
+            uppercase
+            tracking-[0.18em]
+            text-white
+            opacity-70
+          "
+        >
+
+          <span>
+            MEN'S COLLECTION
+          </span>
+
+          <span>
+            SA / 2026
+          </span>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+</div>

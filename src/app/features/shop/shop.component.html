@@ -1,81 +1,132 @@
 <section class="min-h-screen bg-brand-background">
 
   <!-- ========================================================= -->
-  <!-- HEADER -->
+  <!-- SHOP INTRO -->
   <!-- ========================================================= -->
 
-  <div class="border-b border-brand-border">
+  <section class="border-b border-brand-border bg-brand-surface">
 
-    <div class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+    <div class="mx-auto max-w-[1440px] px-6 pb-14 pt-16 lg:px-10 lg:pb-20 lg:pt-20">
 
-      <div class="max-w-2xl">
+      <!-- TOP LABEL -->
 
-        <p class="mb-4 text-xs font-medium uppercase tracking-[0.25em] text-brand-muted">
+      <div class="flex items-start justify-between">
+
+        <p
+          class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
+        >
           The Collection
         </p>
 
-        <h1 class="text-4xl font-light tracking-tight text-brand-text sm:text-5xl">
-          Shop
-        </h1>
-
-        <p class="mt-5 max-w-xl text-sm leading-7 text-brand-muted sm:text-base">
-          Timeless pieces designed with a focus on quality, simplicity,
-          and effortless everyday style.
-        </p>
+        <span
+          class="hidden text-[10px] uppercase tracking-[0.15em] text-brand-muted sm:block"
+        >
+          01 / Shop
+        </span>
 
       </div>
 
 
-      <!-- CATEGORIES -->
-      <div class="mt-12 overflow-x-auto">
+      <!-- TITLE -->
 
-        <div class="flex min-w-max items-center gap-8">
+      <div class="mt-16 max-w-5xl lg:mt-24">
 
-          <!-- ALL -->
-          <button
-            type="button"
-            (click)="selectAllCategories()"
-            class="relative pb-3 text-sm"
-            [class.text-brand-text]="selectedCategories().length === 0"
-            [class.text-brand-muted]="selectedCategories().length !== 0"
+        <h1
+          class="text-6xl font-light leading-[0.9] tracking-[-0.055em] text-brand-text sm:text-7xl lg:text-[9rem]"
+        >
+          Shop
+        </h1>
+
+
+        <div
+          class="mt-8 flex max-w-2xl flex-col gap-5 sm:flex-row sm:items-start sm:gap-10"
+        >
+
+          <span
+            class="hidden h-px w-16 bg-brand-text sm:mt-3 sm:block"
+          ></span>
+
+          <p
+            class="max-w-xl text-sm leading-7 text-brand-muted sm:text-base"
           >
-            All
+            Timeless pieces designed with a focus on quality,
+            simplicity, and effortless everyday style.
+          </p>
 
-            @if (selectedCategories().length === 0) {
-              <span class="absolute bottom-0 left-0 h-px w-full bg-brand-text"></span>
-            }
-          </button>
+        </div>
+
+      </div>
 
 
-          <!-- CATEGORY LINKS -->
-          @for (category of categories; track category.slug) {
+      <!-- ======================================================= -->
+      <!-- CATEGORY NAVIGATION -->
+      <!-- ======================================================= -->
+
+      <div class="mt-16 border-t border-brand-border pt-5">
+
+        <div class="flex justify-center overflow-x-auto">
+
+          <div class="flex min-w-max items-center justify-center gap-7 px-6">
+
+            <!-- ALL -->
 
             <button
               type="button"
-              (click)="selectHeaderCategory(category.slug)"
-              class="relative pb-3 text-sm"
-              [class.text-brand-text]="
-                selectedCategories().length === 1 &&
-                selectedCategories()[0] === category.slug
-              "
-              [class.text-brand-muted]="!(
-                selectedCategories().length === 1 &&
-                selectedCategories()[0] === category.slug
-              )"
+              (click)="selectAllCategories()"
+              class="group relative pb-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-200"
+              [class.text-brand-text]="selectedCategories().length === 0"
+              [class.text-brand-muted]="selectedCategories().length !== 0"
             >
 
-              {{ category.name }}
+              All
 
-              @if (
-                selectedCategories().length === 1 &&
-                selectedCategories()[0] === category.slug
-              ) {
-                <span class="absolute bottom-0 left-0 h-px w-full bg-brand-text"></span>
+              @if (selectedCategories().length === 0) {
+
+                <span
+                  class="absolute bottom-0 left-0 h-px w-full bg-brand-text"
+                ></span>
+
               }
 
             </button>
 
-          }
+
+            <!-- CATEGORIES -->
+
+            @for (category of categories; track category.slug) {
+
+              <button
+                type="button"
+                (click)="selectHeaderCategory(category.slug)"
+                class="group relative pb-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-200"
+                [class.text-brand-text]="
+                  selectedCategories().length === 1 &&
+                  selectedCategories()[0] === category.slug
+                "
+                [class.text-brand-muted]="!(
+                  selectedCategories().length === 1 &&
+                  selectedCategories()[0] === category.slug
+                )"
+              >
+
+                {{ category.name }}
+
+                @if (
+                  selectedCategories().length === 1 &&
+                  selectedCategories()[0] === category.slug
+                ) {
+
+                  <span
+                    class="absolute bottom-0 left-0 h-px w-full bg-brand-text"
+                  ></span>
+
+                }
+
+              </button>
+
+            }
+
+          </div>
 
         </div>
 
@@ -83,197 +134,215 @@
 
     </div>
 
-  </div>
+  </section>
+
 
 
   <!-- ========================================================= -->
   <!-- SHOP CONTENT -->
   <!-- ========================================================= -->
 
-  <div class="mx-auto max-w-7xl px-6 py-10 lg:px-8">
+  <section class="bg-brand-surface-light">
 
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-8 lg:px-10 lg:py-10"
+    >
 
-    <!-- TOOLBAR -->
-    <div class="flex items-center justify-between border-b border-brand-border pb-6">
+      <!-- ======================================================= -->
+      <!-- TOOLBAR -->
+      <!-- ======================================================= -->
 
-      <!-- FILTER -->
-      <button
-        type="button"
-        (click)="openFilters()"
-        class="inline-flex items-center gap-2 border border-brand-border px-5 py-2.5 text-sm text-brand-text hover:bg-brand-surface"
+      <div
+        class="flex items-center justify-between border-b border-brand-border pb-5"
       >
 
-        Filter
+        <!-- FILTER AREA -->
 
-        @if (
-          selectedCategories().length ||
-          selectedSizes().length ||
-          minPrice() > 0 ||
-          maxPrice() < 10000 ||
-          inStockOnly()
-        ) {
-
-          <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-text px-1.5 text-[10px] text-white">
-            {{
-              selectedCategories().length +
-              selectedSizes().length +
-              (minPrice() > 0 ? 1 : 0) +
-              (maxPrice() < 10000 ? 1 : 0) +
-              (inStockOnly() ? 1 : 0)
-            }}
-          </span>
-
-        }
-
-      </button>
-
-
-      <!-- PRODUCT COUNT -->
-      <p class="hidden text-sm text-brand-muted sm:block">
-
-        @if (loading$ | async) {
-          Loading products...
-        } @else {
-          {{ filteredProducts().length }}
-          {{ filteredProducts().length === 1 ? 'Product' : 'Products' }}
-        }
-
-      </p>
-
-
-      <!-- SORT -->
-      <select
-        [value]="sortBy()"
-        (change)="sortBy.set($any($event.target).value)"
-        class="border border-brand-border bg-transparent px-4 py-2.5 text-sm text-brand-text outline-none"
-      >
-
-        <option value="featured">Featured</option>
-        <option value="newest">Newest</option>
-        <option value="price-low">Price: Low to High</option>
-        <option value="price-high">Price: High to Low</option>
-
-      </select>
-
-    </div>
-
-
-    <!-- ========================================================= -->
-    <!-- LOADING -->
-    <!-- ========================================================= -->
-
-    @if (loading$ | async) {
-
-      <div class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-
-        @for (item of [1,2,3,4,5,6,7,8]; track item) {
-
-          <div>
-
-            <div class="aspect-[3/4] animate-pulse bg-brand-surface"></div>
-
-            <div class="pt-4">
-
-              <div class="h-4 w-3/4 animate-pulse bg-brand-surface"></div>
-
-              <div class="mt-2 h-3 w-1/3 animate-pulse bg-brand-surface"></div>
-
-              <div class="mt-4 h-4 w-1/4 animate-pulse bg-brand-surface"></div>
-
-            </div>
-
-          </div>
-
-        }
-
-      </div>
-
-    }
-
-
-    <!-- ========================================================= -->
-    <!-- ERROR -->
-    <!-- ========================================================= -->
-
-    @else if (error$ | async) {
-
-      <div class="flex min-h-[400px] items-center justify-center">
-
-        <div class="max-w-md text-center">
-
-          <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
-            Something went wrong
-          </p>
-
-          <h2 class="mt-4 text-2xl font-light text-brand-text">
-            Unable to load products
-          </h2>
-
-          <p class="mt-3 text-sm text-brand-muted">
-            {{ error$ | async }}
-          </p>
+        <div class="w-[96px] shrink-0 overflow-visible">
 
           <button
             type="button"
-            (click)="reloadProducts()"
-            class="mt-8 border border-brand-text px-6 py-3 text-sm text-brand-text hover:bg-brand-text hover:text-white"
+            (click)="openFilters()"
+            class="group flex items-center gap-3 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
           >
-            Try Again
+
+            <!-- LEFT LINE -->
+
+            <span
+              class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+            ></span>
+
+
+            <!-- FILTER TEXT -->
+
+            Filter
+
+
+            <!-- RIGHT LINE -->
+
+            <span
+              class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+            ></span>
+
           </button>
+
+        </div>
+
+
+
+        <!-- PRODUCT COUNT -->
+
+        <p
+          class="hidden text-[9px] uppercase tracking-[0.18em] text-brand-muted sm:block"
+        >
+
+          @if (loading$ | async) {
+
+            Loading products...
+
+          } @else {
+
+            {{ filteredProducts().length }}
+
+            {{
+              filteredProducts().length === 1
+                ? 'Product'
+                : 'Products'
+            }}
+
+          }
+
+        </p>
+
+
+
+        <!-- SORT -->
+
+        <div class="flex items-center gap-2">
+
+          <span
+            class="hidden text-[9px] uppercase tracking-[0.18em] text-brand-muted sm:block"
+          >
+            Sort
+          </span>
+
+          <select
+            [value]="sortBy()"
+            (change)="sortBy.set($any($event.target).value)"
+            class="cursor-pointer border-0 bg-transparent py-1 pl-1 pr-6 text-[10px] uppercase tracking-[0.1em] text-brand-text outline-none focus:ring-0"
+          >
+
+            <option value="featured">
+              Featured
+            </option>
+
+            <option value="newest">
+              Newest
+            </option>
+
+            <option value="price-low">
+              Price: Low to High
+            </option>
+
+            <option value="price-high">
+              Price: High to Low
+            </option>
+
+          </select>
 
         </div>
 
       </div>
 
-    }
 
 
-    <!-- ========================================================= -->
-    <!-- PRODUCTS -->
-    <!-- ========================================================= -->
+      <!-- ========================================================= -->
+      <!-- LOADING -->
+      <!-- ========================================================= -->
 
-    @else {
+      @if (loading$ | async) {
 
-      @if (filteredProducts().length) {
+        <div
+          class="grid grid-cols-2 gap-x-3 gap-y-10 pt-8 sm:gap-x-5 sm:gap-y-14 lg:grid-cols-3 xl:grid-cols-4"
+        >
 
-        <div class="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          @for (item of [1,2,3,4,5,6,7,8]; track item) {
 
-          @for (product of sortedProducts(); track product.id) {
+            <div>
 
-            <app-product-card
-              [product]="product"
-            />
+              <!-- IMAGE -->
+
+              <div
+                class="aspect-[3/4] animate-pulse bg-brand-surface"
+              ></div>
+
+
+              <!-- INFORMATION -->
+
+              <div class="pt-4">
+
+                <div
+                  class="h-3 w-3/4 animate-pulse bg-brand-surface"
+                ></div>
+
+                <div
+                  class="mt-2 h-2.5 w-1/3 animate-pulse bg-brand-surface"
+                ></div>
+
+                <div
+                  class="mt-4 h-3 w-1/4 animate-pulse bg-brand-surface"
+                ></div>
+
+              </div>
+
+            </div>
 
           }
 
         </div>
 
-      } @else {
+      }
 
-        <!-- EMPTY STATE -->
 
-        <div class="flex min-h-[400px] items-center justify-center">
+      <!-- ========================================================= -->
+      <!-- ERROR -->
+      <!-- ========================================================= -->
+
+      @else if (error$ | async) {
+
+        <div
+          class="flex min-h-[550px] items-center justify-center"
+        >
 
           <div class="max-w-md text-center">
 
-            <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
-              No results
+            <p
+              class="text-[9px] uppercase tracking-[0.22em] text-brand-muted"
+            >
+              Something went wrong
             </p>
 
-            <h2 class="mt-4 text-2xl font-light text-brand-text">
-              Nothing matches your filters
+
+            <h2
+              class="mt-5 text-3xl font-light tracking-tight text-brand-text"
+            >
+              Unable to load products
             </h2>
 
-            <p class="mt-3 text-sm text-brand-muted">
-              Try adjusting your filters or browse the complete collection.
+
+            <p
+              class="mt-4 text-sm leading-6 text-brand-muted"
+            >
+              {{ error$ | async }}
             </p>
+
 
             <button
               type="button"
-              (click)="clearAllFilters()"
-              class="mt-8 border border-brand-text px-6 py-3 text-sm text-brand-text hover:bg-brand-text hover:text-white"
+              (click)="reloadProducts()"
+              class="mt-8 bg-brand-text px-7 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-80"
             >
-              Clear Filters
+              Try Again
             </button>
 
           </div>
@@ -282,9 +351,89 @@
 
       }
 
-    }
 
-  </div>
+      <!-- ========================================================= -->
+      <!-- PRODUCTS -->
+      <!-- ========================================================= -->
+
+      @else {
+
+        @if (filteredProducts().length) {
+
+          <div
+            class="grid grid-cols-2 gap-x-3 gap-y-12 pt-8 sm:gap-x-5 sm:gap-y-16 lg:grid-cols-3 xl:grid-cols-4"
+          >
+
+            @for (
+              product of sortedProducts();
+              track product.id
+            ) {
+
+              <app-product-card
+                [product]="product"
+              />
+
+            }
+
+          </div>
+
+        }
+
+
+        <!-- ===================================================== -->
+        <!-- EMPTY STATE -->
+        <!-- ===================================================== -->
+
+        @else {
+
+          <div
+            class="flex min-h-[550px] items-center justify-center"
+          >
+
+            <div class="max-w-md text-center">
+
+              <p
+                class="text-[9px] uppercase tracking-[0.22em] text-brand-muted"
+              >
+                No Results
+              </p>
+
+
+              <h2
+                class="mt-5 text-3xl font-light tracking-tight text-brand-text"
+              >
+                Nothing matches your filters
+              </h2>
+
+
+              <p
+                class="mt-4 text-sm leading-6 text-brand-muted"
+              >
+                Try adjusting your filters or browse the complete
+                collection.
+              </p>
+
+
+              <button
+                type="button"
+                (click)="clearAllFilters()"
+                class="mt-8 border border-brand-text bg-transparent px-7 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:bg-brand-text hover:text-white"
+              >
+                Clear Filters
+              </button>
+
+            </div>
+
+          </div>
+
+        }
+
+      }
+
+    </div>
+
+  </section>
+
 
 
   <!-- ========================================================= -->
@@ -294,11 +443,12 @@
   @if (isFilterOpen()) {
 
     <div
-      class="fixed inset-0 z-40 bg-black/30"
+      class="fixed inset-0 z-40 bg-black/25 backdrop-blur-[2px]"
       (click)="closeFilters()"
     ></div>
 
   }
+
 
 
   <!-- ========================================================= -->
@@ -306,24 +456,41 @@
   <!-- ========================================================= -->
 
   <aside
-    class="fixed left-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300"
+    class="fixed left-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-brand-surface-light shadow-soft transition-transform duration-500 ease-[cubic-bezier(0.77,0,0.18,1)]"
     [class.translate-x-0]="isFilterOpen()"
     [class.-translate-x-full]="!isFilterOpen()"
   >
 
 
+    <!-- ======================================================= -->
     <!-- FILTER HEADER -->
+    <!-- ======================================================= -->
 
-    <div class="flex items-center justify-between border-b border-gray-300 px-6 py-6">
+    <div
+      class="flex items-center justify-between border-b border-brand-border px-6 py-6"
+    >
 
-      <h2 class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text">
-        Filter
-      </h2>
+      <div>
+
+        <p
+          class="text-[9px] uppercase tracking-[0.2em] text-brand-muted"
+        >
+          Refine
+        </p>
+
+        <h2
+          class="mt-1 text-sm font-medium uppercase tracking-[0.14em] text-brand-text"
+        >
+          Filter
+        </h2>
+
+      </div>
+
 
       <button
         type="button"
         (click)="closeFilters()"
-        class="text-2xl font-light text-brand-text"
+        class="text-2xl font-light leading-none text-brand-text transition-opacity hover:opacity-50"
         aria-label="Close filters"
       >
         ×
@@ -332,7 +499,10 @@
     </div>
 
 
-    <!-- FILTER SECTIONS -->
+
+    <!-- ======================================================= -->
+    <!-- FILTER CONTENT -->
+    <!-- ======================================================= -->
 
     <div class="flex-1 overflow-y-auto">
 
@@ -341,15 +511,17 @@
       <!-- CATEGORIES -->
       <!-- ===================================================== -->
 
-      <div class="border-b border-gray-300">
+      <div class="border-b border-brand-border">
 
         <button
           type="button"
           (click)="toggleFilter('categories')"
-          class="flex w-full items-center justify-between px-6 py-8 text-left"
+          class="flex w-full items-center justify-between px-6 py-7 text-left"
         >
 
-          <span class="text-sm uppercase tracking-wide text-brand-text">
+          <span
+            class="text-[10px] font-medium uppercase tracking-[0.16em] text-brand-text"
+          >
             Categories
           </span>
 
@@ -365,23 +537,29 @@
 
         @if (activeFilter() === 'categories') {
 
-          <div class="px-6 pb-8">
+          <div class="px-6 pb-7">
 
-            @for (category of categories; track category.slug) {
+            @for (
+              category of categories;
+              track category.slug
+            ) {
 
               <label
-                class="flex cursor-pointer items-center justify-between border-b border-gray-100 py-3 text-sm"
+                class="flex cursor-pointer items-center justify-between border-b border-brand-border py-3 text-xs last:border-0"
               >
 
                 <span class="text-brand-text">
                   {{ category.name }}
                 </span>
 
+
                 <input
                   type="checkbox"
-                  [checked]="tempCategories().includes(category.slug)"
+                  [checked]="
+                    tempCategories().includes(category.slug)
+                  "
                   (change)="toggleCategory(category.slug)"
-                  class="h-4 w-4 accent-black"
+                  class="h-4 w-4 cursor-pointer accent-black"
                 />
 
               </label>
@@ -395,19 +573,22 @@
       </div>
 
 
+
       <!-- ===================================================== -->
       <!-- SIZE -->
       <!-- ===================================================== -->
 
-      <div class="border-b border-gray-300">
+      <div class="border-b border-brand-border">
 
         <button
           type="button"
           (click)="toggleFilter('size')"
-          class="flex w-full items-center justify-between px-6 py-8 text-left"
+          class="flex w-full items-center justify-between px-6 py-7 text-left"
         >
 
-          <span class="text-sm uppercase tracking-wide text-brand-text">
+          <span
+            class="text-[10px] font-medium uppercase tracking-[0.16em] text-brand-text"
+          >
             Size
           </span>
 
@@ -423,30 +604,46 @@
 
         @if (activeFilter() === 'size') {
 
-          <div class="space-y-7 px-6 pb-8">
+          <div class="space-y-7 px-6 pb-7">
 
 
             <!-- CLOTHING SIZES -->
 
             <div>
 
-              <p class="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-brand-muted">
+              <p
+                class="mb-4 text-[9px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+              >
                 Clothing Sizes
               </p>
 
+
               <div class="flex flex-wrap gap-2">
 
-                @for (size of availableSizes.slice(0, 4); track size) {
+                @for (
+                  size of availableSizes.slice(0, 4);
+                  track size
+                ) {
 
                   <button
                     type="button"
                     (click)="toggleSize(size)"
-                    class="min-w-12 border px-4 py-2 text-sm transition-colors"
-                    [class.border-brand-text]="tempSizes().includes(size)"
-                    [class.bg-brand-text]="tempSizes().includes(size)"
-                    [class.text-white]="tempSizes().includes(size)"
-                    [class.border-gray-300]="!tempSizes().includes(size)"
-                    [class.text-brand-text]="!tempSizes().includes(size)"
+                    class="min-w-12 border px-4 py-2.5 text-xs transition-colors duration-200"
+                    [class.border-brand-text]="
+                      tempSizes().includes(size)
+                    "
+                    [class.bg-brand-text]="
+                      tempSizes().includes(size)
+                    "
+                    [class.text-white]="
+                      tempSizes().includes(size)
+                    "
+                    [class.border-brand-border]="
+                      !tempSizes().includes(size)
+                    "
+                    [class.text-brand-text]="
+                      !tempSizes().includes(size)
+                    "
                   >
                     {{ size }}
                   </button>
@@ -458,27 +655,44 @@
             </div>
 
 
+
             <!-- TROUSER SIZES -->
 
             <div>
 
-              <p class="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-brand-muted">
+              <p
+                class="mb-4 text-[9px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+              >
                 Trouser Sizes
               </p>
 
+
               <div class="flex flex-wrap gap-2">
 
-                @for (size of availableSizes.slice(4); track size) {
+                @for (
+                  size of availableSizes.slice(4);
+                  track size
+                ) {
 
                   <button
                     type="button"
                     (click)="toggleSize(size)"
-                    class="min-w-12 border px-4 py-2 text-sm transition-colors"
-                    [class.border-brand-text]="tempSizes().includes(size)"
-                    [class.bg-brand-text]="tempSizes().includes(size)"
-                    [class.text-white]="tempSizes().includes(size)"
-                    [class.border-gray-300]="!tempSizes().includes(size)"
-                    [class.text-brand-text]="!tempSizes().includes(size)"
+                    class="min-w-12 border px-4 py-2.5 text-xs transition-colors duration-200"
+                    [class.border-brand-text]="
+                      tempSizes().includes(size)
+                    "
+                    [class.bg-brand-text]="
+                      tempSizes().includes(size)
+                    "
+                    [class.text-white]="
+                      tempSizes().includes(size)
+                    "
+                    [class.border-brand-border]="
+                      !tempSizes().includes(size)
+                    "
+                    [class.text-brand-text]="
+                      !tempSizes().includes(size)
+                    "
                   >
                     {{ size }}
                   </button>
@@ -495,25 +709,31 @@
 
       </div>
 
+
+
       <!-- ===================================================== -->
       <!-- AVAILABILITY -->
       <!-- ===================================================== -->
 
-      <div class="border-b border-gray-300">
+      <div class="border-b border-brand-border">
 
         <button
           type="button"
           (click)="toggleFilter('availability')"
-          class="flex w-full items-center justify-between px-6 py-8 text-left"
+          class="flex w-full items-center justify-between px-6 py-7 text-left"
         >
 
-          <span class="text-sm uppercase tracking-wide text-brand-text">
+          <span
+            class="text-[10px] font-medium uppercase tracking-[0.16em] text-brand-text"
+          >
             Availability
           </span>
 
           <span
             class="text-lg font-light transition-transform duration-200"
-            [class.rotate-180]="activeFilter() === 'availability'"
+            [class.rotate-180]="
+              activeFilter() === 'availability'
+            "
           >
             ⌄
           </span>
@@ -523,27 +743,36 @@
 
         @if (activeFilter() === 'availability') {
 
-          <div class="px-6 pb-8">
+          <div class="px-6 pb-7">
 
-            <label class="flex cursor-pointer items-center justify-between">
+            <label
+              class="flex cursor-pointer items-center justify-between"
+            >
 
               <div>
 
-                <p class="text-sm text-brand-text">
+                <p class="text-xs text-brand-text">
                   In Stock
                 </p>
 
-                <p class="mt-1 text-xs text-brand-muted">
+                <p
+                  class="mt-1 text-[11px] leading-5 text-brand-muted"
+                >
                   Show only products currently in stock
                 </p>
 
               </div>
 
+
               <input
                 type="checkbox"
                 [checked]="tempInStockOnly()"
-                (change)="tempInStockOnly.set($any($event.target).checked)"
-                class="h-4 w-4 accent-black"
+                (change)="
+                  tempInStockOnly.set(
+                    $any($event.target).checked
+                  )
+                "
+                class="h-4 w-4 cursor-pointer accent-black"
               />
 
             </label>
@@ -555,19 +784,22 @@
       </div>
 
 
+
       <!-- ===================================================== -->
       <!-- PRICE -->
       <!-- ===================================================== -->
 
-      <div class="border-b border-gray-300">
+      <div class="border-b border-brand-border">
 
         <button
           type="button"
           (click)="toggleFilter('price')"
-          class="flex w-full items-center justify-between px-6 py-8 text-left"
+          class="flex w-full items-center justify-between px-6 py-7 text-left"
         >
 
-          <span class="text-sm uppercase tracking-wide text-brand-text">
+          <span
+            class="text-[10px] font-medium uppercase tracking-[0.16em] text-brand-text"
+          >
             Price
           </span>
 
@@ -583,35 +815,53 @@
 
         @if (activeFilter() === 'price') {
 
-          <div class="grid grid-cols-2 gap-5 px-6 pb-8">
+          <div class="grid grid-cols-2 gap-5 px-6 pb-7">
+
+
+            <!-- MINIMUM -->
 
             <div>
 
-              <label class="mb-2 block text-xs uppercase tracking-wide text-brand-muted">
+              <label
+                class="mb-2 block text-[9px] uppercase tracking-[0.15em] text-brand-muted"
+              >
                 Minimum
               </label>
 
               <input
                 type="number"
                 [value]="tempMinPrice()"
-                (input)="tempMinPrice.set(+$any($event.target).value)"
-                class="w-full border-b border-gray-400 bg-transparent px-1 py-3 text-sm text-brand-text outline-none"
+                (input)="
+                  tempMinPrice.set(
+                    +$any($event.target).value
+                  )
+                "
+                class="w-full border-b border-brand-border bg-transparent px-1 py-3 text-xs text-brand-text outline-none transition-colors focus:border-brand-text"
               />
 
             </div>
 
 
+
+            <!-- MAXIMUM -->
+
             <div>
 
-              <label class="mb-2 block text-xs uppercase tracking-wide text-brand-muted">
+              <label
+                class="mb-2 block text-[9px] uppercase tracking-[0.15em] text-brand-muted"
+              >
                 Maximum
               </label>
 
               <input
                 type="number"
                 [value]="tempMaxPrice()"
-                (input)="tempMaxPrice.set(+$any($event.target).value)"
-                class="w-full border-b border-gray-400 bg-transparent px-1 py-3 text-sm text-brand-text outline-none"
+                (input)="
+                  tempMaxPrice.set(
+                    +$any($event.target).value
+                  )
+                "
+                class="w-full border-b border-brand-border bg-transparent px-1 py-3 text-xs text-brand-text outline-none transition-colors focus:border-brand-text"
               />
 
             </div>
@@ -623,25 +873,30 @@
       </div>
 
 
+
       <!-- ===================================================== -->
       <!-- OLD MONEY ESSENTIALS -->
       <!-- ===================================================== -->
 
-      <div class="border-b border-gray-300">
+      <div class="border-b border-brand-border">
 
         <button
           type="button"
           (click)="toggleFilter('essentials')"
-          class="flex w-full items-center justify-between px-6 py-8 text-left"
+          class="flex w-full items-center justify-between px-6 py-7 text-left"
         >
 
-          <span class="text-sm uppercase tracking-wide text-brand-text">
+          <span
+            class="text-[10px] font-medium uppercase tracking-[0.16em] text-brand-text"
+          >
             Old Money Essentials
           </span>
 
           <span
             class="text-lg font-light transition-transform duration-200"
-            [class.rotate-180]="activeFilter() === 'essentials'"
+            [class.rotate-180]="
+              activeFilter() === 'essentials'
+            "
           >
             ⌄
           </span>
@@ -651,10 +906,13 @@
 
         @if (activeFilter() === 'essentials') {
 
-          <div class="px-6 pb-8">
+          <div class="px-6 pb-7">
 
-            <p class="text-sm leading-6 text-brand-muted">
-              Timeless pieces selected for a refined and understated wardrobe.
+            <p
+              class="text-xs leading-6 text-brand-muted"
+            >
+              Timeless pieces selected for a refined and
+              understated wardrobe.
             </p>
 
           </div>
@@ -666,26 +924,34 @@
     </div>
 
 
-    <!-- ===================================================== -->
-    <!-- FILTER FOOTER -->
-    <!-- ===================================================== -->
 
-    <div class="border-t border-gray-300 bg-white p-6">
+    <!-- ======================================================= -->
+    <!-- FILTER FOOTER -->
+    <!-- ======================================================= -->
+
+    <div
+      class="border-t border-brand-border bg-brand-surface-light p-6"
+    >
 
       <div class="flex gap-3">
+
+        <!-- RESET -->
 
         <button
           type="button"
           (click)="resetFilters()"
-          class="flex-1 border border-brand-border px-5 py-3 text-sm uppercase tracking-wide text-brand-text hover:bg-brand-surface"
+          class="flex-1 border border-brand-border px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:border-brand-text"
         >
           Reset
         </button>
 
+
+        <!-- APPLY -->
+
         <button
           type="button"
           (click)="applyFilters()"
-          class="flex-1 border border-brand-border px-5 py-3 text-sm uppercase tracking-wide text-brand-text hover:bg-brand-surface"
+          class="flex-1 bg-brand-text px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
         >
           Apply
         </button>

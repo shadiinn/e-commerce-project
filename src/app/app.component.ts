@@ -1,37 +1,67 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {
+  Component,
+  inject
+} from '@angular/core';
 
-import { NavbarComponent } from './shared/components/navbar/navbar.component';
-import { FooterComponent } from './shared/components/footer/footer.component';
+import {
+  Router,
+  RouterOutlet
+} from '@angular/router';
 
-import { Store } from '@ngrx/store';
+import {
+  NavbarComponent
+} from './shared/components/navbar/navbar.component';
 
-import { loadProducts } from './store/products/products.actions';
-import { restoreAuth } from './store/auth/auth.actions';
+import {
+  FooterComponent
+} from './shared/components/footer/footer.component';
 
-import { loadGuestCart } from './store/cart/cart.actions';
-import { loadGuestWishlist } from './store/wishlist/wishlist.actions';
+import {
+  Store
+} from '@ngrx/store';
+
+import {
+  loadProducts
+} from './store/products/products.actions';
+
+import {
+  restoreAuth
+} from './store/auth/auth.actions';
+
+import {
+  loadGuestCart
+} from './store/cart/cart.actions';
+
+import {
+  loadGuestWishlist
+} from './store/wishlist/wishlist.actions';
 
 
 @Component({
   selector: 'app-root',
+
   standalone: true,
+
   imports: [
     RouterOutlet,
     NavbarComponent,
     FooterComponent
   ],
+
   templateUrl: './app.component.html',
+
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
-  title = 'ecommerce-project';
+  private store =
+    inject(Store);
 
-  private store = inject(Store);
+  router =
+    inject(Router);
 
 
-  ngOnInit(): void {
+  constructor() {
 
     this.store.dispatch(
       loadProducts()
@@ -47,6 +77,16 @@ export class AppComponent implements OnInit {
 
     this.store.dispatch(
       loadGuestWishlist()
+    );
+
+  }
+
+
+  isAuthPage(): boolean {
+
+    return (
+      this.router.url === '/login' ||
+      this.router.url === '/register'
     );
 
   }
