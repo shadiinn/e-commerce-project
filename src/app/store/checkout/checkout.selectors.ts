@@ -9,20 +9,10 @@ import {
   selectProductEntities
 } from '../products/products.selectors';
 
-
-// =====================================================
-// CHECKOUT STATE
-// =====================================================
-
 export const selectCheckoutState =
   createFeatureSelector<CheckoutState>(
     'checkout'
   );
-
-
-// =====================================================
-// CHECKOUT MODE
-// =====================================================
 
 export const selectCheckoutMode =
   createSelector(
@@ -30,21 +20,11 @@ export const selectCheckoutMode =
     state => state.mode
   );
 
-
-// =====================================================
-// CHECKOUT ITEMS
-// =====================================================
-
 export const selectCheckoutItems =
   createSelector(
     selectCheckoutState,
     state => state.items
   );
-
-
-// =====================================================
-// CHECKOUT ITEMS WITH PRODUCTS
-// =====================================================
 
 export const selectCheckoutItemsWithProducts =
   createSelector(
@@ -53,33 +33,21 @@ export const selectCheckoutItemsWithProducts =
 
     (items, products) => {
 
-      return items
-        .map(item => {
-
-          const product =
-            products[item.productId];
-
+      return items.map(item => {
+          const product =products[item.productId];
           if (!product) {
             return null;
           }
-
           return {
             ...item,
             product
           };
-
         })
         .filter(
           item => item !== null
         );
-
     }
   );
-
-
-// =====================================================
-// CHECKOUT SUBTOTAL
-// =====================================================
 
 export const selectCheckoutSubtotal =
   createSelector(
@@ -88,23 +56,14 @@ export const selectCheckoutSubtotal =
 
     (items, products) => {
 
-      return items.reduce(
-        (total, item) => {
-
-          const product =
-            products[item.productId];
-
+      return items.reduce((total, item) => {
+          const product =products[item.productId];
           if (!product) {
             return total;
           }
-
-          return total +
-            product.price * item.quantity;
-
-        },
-        0
+          return total + product.price * item.quantity;
+        },0
       );
-
     }
   );
 

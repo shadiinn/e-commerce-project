@@ -3,9 +3,6 @@ import { createAction, props } from '@ngrx/store';
 import { User } from '../../core/models/user.model';
 import { AuthUser } from '../../core/models/auth-user.model';
 
-
-// Login
-
 export const login = createAction(
   '[Auth] Login',
   props<{
@@ -30,9 +27,6 @@ export const loginFailure = createAction(
   }>()
 );
 
-
-// Register
-
 export const register = createAction(
   '[Auth] Register',
   props<{
@@ -50,9 +44,6 @@ export const registerFailure = createAction(
     error: string;
   }>()
 );
-
-
-// Logout
 
 export const logout = createAction(
   '[Auth] Logout'

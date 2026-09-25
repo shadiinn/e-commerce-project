@@ -12,11 +12,15 @@ import {
 } from '@angular/router';
 
 import { AsyncPipe } from '@angular/common';
+
 import { Store } from '@ngrx/store';
 
 import { Product } from '../../core/models/product.model';
 
-import { addToCart } from '../../store/cart/cart.actions';
+import {
+  addToCart,
+  addGuestCartItem
+} from '../../store/cart/cart.actions';
 
 import {
   startCheckout
@@ -34,42 +38,101 @@ import {
   selectProductById
 } from '../../store/products/products.selectors';
 
-import { Observable } from 'rxjs';
+import {
+  selectIsAuthenticated
+} from '../../store/auth/auth.selectors';
+
+import {
+  Observable,
+  take
+} from 'rxjs';
+
 
 @Component({
   selector: 'app-product-details',
+
   standalone: true,
+
   imports: [
     RouterLink,
     AsyncPipe
   ],
+
   templateUrl: './product-details.component.html',
+
   styleUrl: './product-details.component.css'
 })
 export class ProductDetailsComponent
   implements OnInit {
 
+
+  // =====================================================
+  // DEPENDENCIES
+  // =====================================================
+
   private store = inject(Store);
+
   private route = inject(ActivatedRoute);
+
   private router = inject(Router);
+
+
+  // =====================================================
+  // PRODUCT
+  // =====================================================
 
   productId = '';
 
+  product$ =
+    this.store.select(
+      selectProductById('')
+    );
+
+
+  // =====================================================
+  // AUTHENTICATION
+  // =====================================================
+
+  isAuthenticated$ =
+    this.store.select(
+      selectIsAuthenticated
+    );
+
+
+  // =====================================================
+  // WISHLIST
+  // =====================================================
+
   isWishlisted$!: Observable<boolean>;
 
-  product$ = this.store.select(
-    selectProductById('')
-  );
 
-  // Currently selected image
-  selectedImage = signal('');
+  // =====================================================
+  // SELECTED IMAGE
+  // =====================================================
 
-  // Currently selected size
-  selectedSize = signal<string | null>(null);
+  selectedImage =
+    signal('');
 
-  // Currently selected color
-  selectedColor = signal<string | null>(null);
 
+  // =====================================================
+  // SELECTED SIZE
+  // =====================================================
+
+  selectedSize =
+    signal<string | null>(null);
+
+
+  // =====================================================
+  // SELECTED COLOR
+  // =====================================================
+
+  selectedColor =
+    signal<string | null>(null);
+
+
+  // =====================================================
+  // INITIALIZATION
+  // =====================================================
 
   ngOnInit(): void {
 
@@ -78,10 +141,22 @@ export class ProductDetailsComponent
       this.productId =
         params.get('id') ?? '';
 
+
+      // ---------------------------------------------------
+      // LOAD PRODUCT
+      // ---------------------------------------------------
+
       this.product$ =
         this.store.select(
-          selectProductById(this.productId)
+          selectProductById(
+            this.productId
+          )
         );
+
+
+      // ---------------------------------------------------
+      // LOAD WISHLIST STATUS
+      // ---------------------------------------------------
 
       this.isWishlisted$ =
         this.store.select(
@@ -91,7 +166,10 @@ export class ProductDetailsComponent
         );
 
 
-      // Get product once and set first image
+      // ---------------------------------------------------
+      // SET FIRST PRODUCT IMAGE
+      // ---------------------------------------------------
+
       this.product$.subscribe(product => {
 
         if (product) {
@@ -109,53 +187,58 @@ export class ProductDetailsComponent
   }
 
 
-  selectImage(image: string): void {
+  // =====================================================
+  // SELECT IMAGE
+  // =====================================================
 
-    this.selectedImage.set(image);
+  selectImage(
+    image: string
+  ): void {
 
-  }
-
-
-  selectSize(size: string): void {
-
-    this.selectedSize.set(size);
-
-  }
-
-
-  selectColor(color: string): void {
-
-    this.selectedColor.set(color);
-
-  }
-
-
-  addToCart(product: Product): void {
-
-    const size =
-      this.selectedSize();
-
-    const color =
-      this.selectedColor();
-
-
-    if (!size || !color) {
-      return;
-    }
-
-
-    this.store.dispatch(
-      addToCart({
-        product,
-        size,
-        color
-      })
+    this.selectedImage.set(
+      image
     );
 
   }
 
 
-  buyNow(product: Product): void {
+  // =====================================================
+  // SELECT SIZE
+  // =====================================================
+
+  selectSize(
+    size: string
+  ): void {
+
+    this.selectedSize.set(
+      size
+    );
+
+  }
+
+
+  // =====================================================
+  // SELECT COLOR
+  // =====================================================
+
+  selectColor(
+    color: string
+  ): void {
+
+    this.selectedColor.set(
+      color
+    );
+
+  }
+
+
+  // =====================================================
+  // ADD TO CART
+  // =====================================================
+
+  addToCart(
+    product: Product
+  ): void {
 
     const size =
       this.selectedSize();
@@ -164,30 +247,125 @@ export class ProductDetailsComponent
       this.selectedColor();
 
 
-    // Size and color are required
+    // ---------------------------------------------------
+    // VALIDATE SIZE AND COLOR
+    // ---------------------------------------------------
+
     if (!size || !color) {
       return;
     }
 
 
-    // Start checkout directly
+    // ---------------------------------------------------
+    // CHECK AUTHENTICATION
+    // ---------------------------------------------------
+
+    this.isAuthenticated$
+      .pipe(take(1))
+      .subscribe(isAuthenticated => {
+
+
+        // ===============================================
+        // LOGGED-IN USER
+        // ===============================================
+
+        if (isAuthenticated) {
+
+          this.store.dispatch(
+            addToCart({
+
+              product,
+
+              size,
+
+              color
+
+            })
+          );
+
+          return;
+
+        }
+
+
+        // ===============================================
+        // GUEST USER
+        // ===============================================
+
+        this.store.dispatch(
+          addGuestCartItem({
+
+            productId:
+              product.id,
+
+            size,
+
+            color
+
+          })
+        );
+
+      });
+
+  }
+
+
+  // =====================================================
+  // BUY NOW
+  // =====================================================
+
+  buyNow(
+    product: Product
+  ): void {
+
+    const size =
+      this.selectedSize();
+
+    const color =
+      this.selectedColor();
+
+
+    // ---------------------------------------------------
+    // SIZE AND COLOR ARE REQUIRED
+    // ---------------------------------------------------
+
+    if (!size || !color) {
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // START CHECKOUT
+    // ---------------------------------------------------
+
     this.store.dispatch(
       startCheckout({
+
         mode: 'buy-now',
 
         items: [
+
           {
-            productId: product.id,
+            productId:
+              product.id,
+
             size,
+
             color,
+
             quantity: 1
           }
+
         ]
+
       })
     );
 
 
-    // Navigate to checkout
+    // ---------------------------------------------------
+    // NAVIGATE TO CHECKOUT
+    // ---------------------------------------------------
+
     this.router.navigate([
       '/checkout'
     ]);
@@ -195,11 +373,19 @@ export class ProductDetailsComponent
   }
 
 
-  toggleWishlist(product: Product): void {
+  // =====================================================
+  // TOGGLE WISHLIST
+  // =====================================================
+
+  toggleWishlist(
+    product: Product
+  ): void {
 
     this.store.dispatch(
       toggleWishlist({
+
         product
+
       })
     );
 

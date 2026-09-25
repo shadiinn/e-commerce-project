@@ -9,7 +9,14 @@ import {
   loadCart,
   loadCartSuccess,
   loadCartFailure,
-  resetCart
+  resetCart,
+
+  loadGuestCartSuccess,
+  addGuestCartItem,
+  increaseGuestQuantity,
+  decreaseGuestQuantity,
+  removeGuestItem,
+  clearGuestCart
 } from './cart.actions';
 
 import {
@@ -20,12 +27,6 @@ import {
 export const cartReducer = createReducer(
 
   initialCartState,
-
-
-  // =====================================================
-  // LOAD CART
-  // =====================================================
-
   on(
     loadCart,
     state => ({
@@ -34,11 +35,6 @@ export const cartReducer = createReducer(
       error: null
     })
   ),
-
-
-  // =====================================================
-  // LOAD CART SUCCESS
-  // =====================================================
 
   on(
     loadCartSuccess,
@@ -50,11 +46,6 @@ export const cartReducer = createReducer(
     })
   ),
 
-
-  // =====================================================
-  // LOAD CART FAILURE
-  // =====================================================
-
   on(
     loadCartFailure,
     (state, { error }) => ({
@@ -64,93 +55,55 @@ export const cartReducer = createReducer(
     })
   ),
 
-
-  // =====================================================
-  // ADD TO CART
-  // =====================================================
-
-  /*
-   * Backend persistence is handled by CartEffects.
-   *
-   * The effect:
-   * 1. Gets the authenticated user
-   * 2. Gets that user's cart
-   * 3. Checks for the same product/size/color
-   * 4. Updates the existing item OR creates a new item
-   * 5. Reloads the user's cart
-   *
-   * Therefore the reducer does not modify the state here.
-   */
-
   on(
     addToCart,
     state => state
   ),
 
-
-  // =====================================================
-  // INCREASE QUANTITY
-  // =====================================================
-
   on(
     increaseQuantity,
     (state, { cartItemId }) => ({
       ...state,
-
       items: state.items.map(item =>
         item.id === cartItemId
           ? {
               ...item,
-              quantity: item.quantity + 1
+              quantity:item.quantity + 1
             }
           : item
       )
     })
   ),
 
-
-  // =====================================================
-  // DECREASE QUANTITY
-  // =====================================================
-
   on(
     decreaseQuantity,
     (state, { cartItemId }) => ({
       ...state,
-
-      items: state.items
-        .map(item =>
+      items: state.items.map(item =>
           item.id === cartItemId
             ? {
                 ...item,
-                quantity: item.quantity - 1
+                quantity:
+                  item.quantity - 1
               }
             : item
         )
-        .filter(item => item.quantity > 0)
+        .filter(
+          item => item.quantity > 0
+        )
+
     })
   ),
-
-
-  // =====================================================
-  // REMOVE FROM CART
-  // =====================================================
 
   on(
     removeFromCart,
     (state, { cartItemId }) => ({
       ...state,
-
       items: state.items.filter(
-        item => item.id !== cartItemId
+        item =>item.id !== cartItemId
       )
     })
   ),
-
-
-  // =====================================================
-  // CLEAR CART
-  // =====================================================
 
   on(
     clearCart,
@@ -170,5 +123,111 @@ export const cartReducer = createReducer(
       error: null
     })
   ),
+
+  // LOAD GUEST CART SUCCESS
+
+  on(
+    loadGuestCartSuccess,
+    (state, { items }) => ({
+      ...state,
+      guestItems: items,
+      error: null
+    })
+  ),
+
+  // ADD GUEST CART ITEM
+  on(
+    addGuestCartItem,
+    (state, { productId, size, color }) => {
+      const cartItemId =`${productId}-${size}-${color}`;
+      const existingItem =state.guestItems.find(
+          item => item.id === cartItemId
+        );
+
+      if (existingItem) {
+        return {
+          ...state,
+          guestItems:state.guestItems.map(item =>
+              item.id === cartItemId
+                ? {
+                    ...item,
+                    quantity:item.quantity + 1
+                  }
+                : item
+            )
+        };
+      }
+
+      // NEW ITEM
+
+      return {
+        ...state,
+        guestItems: [
+          ...state.guestItems,
+          {
+            id: cartItemId,
+            productId,
+            size,
+            color,
+            quantity: 1
+          }
+        ]
+      };
+    }
+  ),
+
+  on(
+    increaseGuestQuantity,
+    (state, { cartItemId }) => ({
+      ...state,
+      guestItems:
+        state.guestItems.map(item =>
+          item.id === cartItemId
+            ? {
+                ...item,
+                quantity:item.quantity + 1
+              }
+            : item
+        )
+    })
+  ),
+
+  on(
+    decreaseGuestQuantity,
+    (state, { cartItemId }) => ({
+      ...state,
+      guestItems:state.guestItems.map(item =>
+            item.id === cartItemId
+              ? {
+                  ...item,
+                  quantity:
+                    item.quantity - 1
+                }
+              : item
+          )
+          .filter(
+            item =>item.quantity > 0
+          )
+    })
+  ),
+
+  on(
+    removeGuestItem,
+    (state, { cartItemId }) => ({
+      ...state,
+      guestItems:state.guestItems.filter(
+          item =>item.id !== cartItemId
+        )
+    })
+  ),
+
+  on(
+    clearGuestCart,
+    state => ({
+      ...state,
+      guestItems: [],
+      error: null
+    })
+  )
 
 );

@@ -9,130 +9,71 @@ import {
   selectProductEntities
 } from '../products/products.selectors';
 
+import {
+  selectIsAuthenticated
+} from '../auth/auth.selectors';
 
-// =====================================================
-// CART STATE
-// =====================================================
 
 export const selectCartState =
   createFeatureSelector<CartState>('cart');
 
 
-// =====================================================
-// CART ITEMS
-// =====================================================
-
 export const selectCartItems = createSelector(
-
   selectCartState,
-
   state => state.items
-
 );
 
-
-// =====================================================
-// CART ITEMS WITH PRODUCTS
-// =====================================================
+export const selectActiveCartItems = createSelector(
+  selectCartState,
+  selectIsAuthenticated,
+  (state, isAuthenticated) => {
+    if (isAuthenticated) {
+      return state.items;
+    }
+    return state.guestItems;
+  }
+);
 
 export const selectCartItemsWithProducts =
   createSelector(
-
-    selectCartItems,
-
+    selectActiveCartItems,
     selectProductEntities,
-
     (items, products) =>
-
-      items
-
-        .map(item => {
-
-          const product =
-            products[item.productId];
-
+      items.map(item => {
+          const product =products[item.productId];
           if (!product) {
             return null;
           }
-
           return {
-
             ...item,
-
             product
-
           };
-
         })
-
         .filter(
-          (
-            item
-          ): item is typeof item & {
-            product: NonNullable<typeof item extends null ? never : any>
-          } =>
-            item !== null
+          item => item !== null
         )
-
   );
-
-
-// =====================================================
-// CART ITEM COUNT
-// =====================================================
 
 export const selectCartItemCount =
   createSelector(
-
-    selectCartItems,
-
-    items =>
-
-      items.reduce(
-
-        (total, item) =>
-          total + item.quantity,
-
-        0
-
+    selectActiveCartItems,
+    items =>items.reduce((total, item) =>
+          total + item.quantity,0
       )
-
   );
-
-
-// =====================================================
-// CART SUBTOTAL
-// =====================================================
 
 export const selectCartSubtotal =
   createSelector(
-
-    selectCartItems,
-
+    selectActiveCartItems,
     selectProductEntities,
-
-    (items, products) =>
-
-      items.reduce(
-
-        (total, item) => {
-
-          const product =
-            products[item.productId];
-
+    (items, products) =>items.reduce((total, item) => {
+          const product =products[item.productId];
           if (!product) {
             return total;
           }
-
           return (
-            total +
-            product.price * item.quantity
+            total + product.price * item.quantity
           );
-
-        },
-
-        0
-
+        },0
       )
-
   );

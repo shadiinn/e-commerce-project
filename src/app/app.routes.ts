@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
      {
@@ -75,7 +76,15 @@ export const routes: Routes = [
         .then(m => m.OrdersComponent)
   },
   {
+    path: 'orders/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/order-details/order-details.component')
+        .then(m => m.OrderDetailsComponent)
+  },
+  {
     path: 'login',
+    canActivate:[guestGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component')
         .then(m => m.LoginComponent)
@@ -83,6 +92,7 @@ export const routes: Routes = [
 
   {
     path: 'register',
+    canActivate:[guestGuard],
     loadComponent: () =>
       import('./features/auth/register/register.component')
         .then(m => m.RegisterComponent)

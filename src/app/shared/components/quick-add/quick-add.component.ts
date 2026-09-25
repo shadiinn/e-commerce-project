@@ -10,40 +10,82 @@ import { Store } from '@ngrx/store';
 
 import { Product } from '../../../core/models/product.model';
 
-import { addToCart } from '../../../store/cart/cart.actions';
+import {
+  addToCart,
+  addGuestCartItem
+} from '../../../store/cart/cart.actions';
+
+import {
+  selectIsAuthenticated
+} from '../../../store/auth/auth.selectors';
+
+import { take } from 'rxjs';
+
 
 @Component({
   selector: 'app-quick-add',
+
   standalone: true,
+
   imports: [],
+
   templateUrl: './quick-add.component.html',
+
   styleUrl: './quick-add.component.css'
 })
 export class QuickAddComponent {
 
   private store = inject(Store);
 
-  product = input.required<Product>();
 
-  close = output<void>();
+  // =====================================================
+  // PRODUCT
+  // =====================================================
+
+  product =
+    input.required<Product>();
+
+
+  // =====================================================
+  // CLOSE EVENT
+  // =====================================================
+
+  close =
+    output<void>();
+
+
+  // =====================================================
+  // AUTHENTICATION
+  // =====================================================
+
+  isAuthenticated$ =
+    this.store.select(
+      selectIsAuthenticated
+    );
 
 
   // =====================================================
   // LOCAL UI STATE
   // =====================================================
 
-  selectedSize = signal<string | null>(null);
+  selectedSize =
+    signal<string | null>(null);
 
-  selectedColor = signal<string | null>(null);
+  selectedColor =
+    signal<string | null>(null);
 
 
   // =====================================================
   // SELECT SIZE
   // =====================================================
 
-  selectSize(size: string): void {
+  selectSize(
+    size: string
+  ): void {
 
-    this.selectedSize.set(size);
+    this.selectedSize.set(
+      size
+    );
 
   }
 
@@ -52,9 +94,13 @@ export class QuickAddComponent {
   // SELECT COLOR
   // =====================================================
 
-  selectColor(color: string): void {
+  selectColor(
+    color: string
+  ): void {
 
-    this.selectedColor.set(color);
+    this.selectedColor.set(
+      color
+    );
 
   }
 
@@ -65,23 +111,82 @@ export class QuickAddComponent {
 
   addProductToCart(): void {
 
-    if (
-      !this.product ||
-      !this.selectedSize() ||
-      !this.selectedColor()
-    ) {
+    const size =
+      this.selectedSize();
+
+    const color =
+      this.selectedColor();
+
+
+    // ---------------------------------------------------
+    // VALIDATE SIZE AND COLOR
+    // ---------------------------------------------------
+
+    if (!size || !color) {
       return;
     }
 
-    this.store.dispatch(
-      addToCart({
-        product: this.product(),
-        size: this.selectedSize()!,
-        color: this.selectedColor()!
-      })
-    );
 
-    this.close.emit();
+    // ---------------------------------------------------
+    // CHECK AUTHENTICATION
+    // ---------------------------------------------------
+
+    this.isAuthenticated$
+      .pipe(take(1))
+      .subscribe(isAuthenticated => {
+
+
+        // ===============================================
+        // LOGGED-IN USER
+        // ===============================================
+
+        if (isAuthenticated) {
+
+          this.store.dispatch(
+            addToCart({
+
+              product:
+                this.product(),
+
+              size,
+
+              color
+
+            })
+          );
+
+        }
+
+
+        // ===============================================
+        // GUEST USER
+        // ===============================================
+
+        else {
+
+          this.store.dispatch(
+            addGuestCartItem({
+
+              productId:
+                this.product().id,
+
+              size,
+
+              color
+
+            })
+          );
+
+        }
+
+
+        // -------------------------------------------------
+        // CLOSE QUICK ADD
+        // -------------------------------------------------
+
+        this.close.emit();
+
+      });
 
   }
 

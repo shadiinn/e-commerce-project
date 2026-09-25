@@ -13,26 +13,54 @@ import {
   increaseQuantity,
   decreaseQuantity,
   removeFromCart,
-  clearCart
+  clearCart,
+
+  increaseGuestQuantity,
+  decreaseGuestQuantity,
+  removeGuestItem,
+  clearGuestCart
 } from '../../store/cart/cart.actions';
-import { startCheckout } from '../../store/checkout/checkout.actions';
+
+import {
+  selectIsAuthenticated
+} from '../../store/auth/auth.selectors';
+
+import {
+  startCheckout
+} from '../../store/checkout/checkout.actions';
+
 import { take } from 'rxjs';
 
 
 @Component({
   selector: 'app-cart',
+
   standalone: true,
+
   imports: [
     RouterLink,
     AsyncPipe
   ],
+
   templateUrl: './cart.component.html',
+
   styleUrl: './cart.component.css'
 })
 export class CartComponent {
 
   private store = inject(Store);
+
   private router = inject(Router);
+
+
+  // =====================================================
+  // AUTHENTICATION
+  // =====================================================
+
+  isAuthenticated$ =
+    this.store.select(
+      selectIsAuthenticated
+    );
 
 
   // =====================================================
@@ -73,11 +101,37 @@ export class CartComponent {
     cartItemId: string
   ): void {
 
-    this.store.dispatch(
-      increaseQuantity({
-        cartItemId
-      })
-    );
+    this.isAuthenticated$
+      .pipe(take(1))
+      .subscribe(isAuthenticated => {
+
+        // -------------------------------------------------
+        // LOGGED-IN USER
+        // -------------------------------------------------
+
+        if (isAuthenticated) {
+
+          this.store.dispatch(
+            increaseQuantity({
+              cartItemId
+            })
+          );
+
+          return;
+        }
+
+
+        // -------------------------------------------------
+        // GUEST USER
+        // -------------------------------------------------
+
+        this.store.dispatch(
+          increaseGuestQuantity({
+            cartItemId
+          })
+        );
+
+      });
 
   }
 
@@ -90,11 +144,37 @@ export class CartComponent {
     cartItemId: string
   ): void {
 
-    this.store.dispatch(
-      decreaseQuantity({
-        cartItemId
-      })
-    );
+    this.isAuthenticated$
+      .pipe(take(1))
+      .subscribe(isAuthenticated => {
+
+        // -------------------------------------------------
+        // LOGGED-IN USER
+        // -------------------------------------------------
+
+        if (isAuthenticated) {
+
+          this.store.dispatch(
+            decreaseQuantity({
+              cartItemId
+            })
+          );
+
+          return;
+        }
+
+
+        // -------------------------------------------------
+        // GUEST USER
+        // -------------------------------------------------
+
+        this.store.dispatch(
+          decreaseGuestQuantity({
+            cartItemId
+          })
+        );
+
+      });
 
   }
 
@@ -107,11 +187,37 @@ export class CartComponent {
     cartItemId: string
   ): void {
 
-    this.store.dispatch(
-      removeFromCart({
-        cartItemId
-      })
-    );
+    this.isAuthenticated$
+      .pipe(take(1))
+      .subscribe(isAuthenticated => {
+
+        // -------------------------------------------------
+        // LOGGED-IN USER
+        // -------------------------------------------------
+
+        if (isAuthenticated) {
+
+          this.store.dispatch(
+            removeFromCart({
+              cartItemId
+            })
+          );
+
+          return;
+        }
+
+
+        // -------------------------------------------------
+        // GUEST USER
+        // -------------------------------------------------
+
+        this.store.dispatch(
+          removeGuestItem({
+            cartItemId
+          })
+        );
+
+      });
 
   }
 
@@ -122,42 +228,132 @@ export class CartComponent {
 
   clearCart(): void {
 
-    this.store.dispatch(
-      clearCart()
-    );
+    this.isAuthenticated$
+      .pipe(take(1))
+      .subscribe(isAuthenticated => {
+
+        // -------------------------------------------------
+        // LOGGED-IN USER
+        // -------------------------------------------------
+
+        if (isAuthenticated) {
+
+          this.store.dispatch(
+            clearCart()
+          );
+
+          return;
+        }
+
+
+        // -------------------------------------------------
+        // GUEST USER
+        // -------------------------------------------------
+
+        this.store.dispatch(
+          clearGuestCart()
+        );
+
+      });
 
   }
 
+
+  // =====================================================
+  // PROCEED TO CHECKOUT
+  // =====================================================
+
   proceedToCheckout(): void {
 
-    console.log('PROCEED TO CHECKOUT CLICKED');
+    console.log(
+      'PROCEED TO CHECKOUT CLICKED'
+    );
+
 
     this.cartItems$
       .pipe(take(1))
       .subscribe(items => {
 
-        console.log('CART ITEMS:', items);
+        console.log(
+          'CART ITEMS:',
+          items
+        );
 
-        const checkoutItems = items.map(item => ({
-          productId: item.product.id,
-          size: item.size,
-          color: item.color,
-          quantity: item.quantity
-        }));
 
-        console.log('CHECKOUT ITEMS TO STORE:', checkoutItems);
+        // -------------------------------------------------
+        // EMPTY CART
+        // -------------------------------------------------
+
+        if (!items.length) {
+
+          console.log(
+            'CART IS EMPTY'
+          );
+
+          return;
+
+        }
+
+
+        // -------------------------------------------------
+        // CREATE CHECKOUT ITEMS
+        // -------------------------------------------------
+
+        const checkoutItems =
+          items.map(item => ({
+
+            productId:
+              item.product.id,
+
+            size:
+              item.size,
+
+            color:
+              item.color,
+
+            quantity:
+              item.quantity
+
+          }));
+
+
+        console.log(
+          'CHECKOUT ITEMS TO STORE:',
+          checkoutItems
+        );
+
+
+        // -------------------------------------------------
+        // START CHECKOUT
+        // -------------------------------------------------
 
         this.store.dispatch(
           startCheckout({
+
             mode: 'cart',
-            items: checkoutItems
+
+            items:
+              checkoutItems
+
           })
         );
 
-        console.log('START CHECKOUT DISPATCHED');
 
-        this.router.navigate(['/checkout']);
+        console.log(
+          'START CHECKOUT DISPATCHED'
+        );
+
+
+        // -------------------------------------------------
+        // NAVIGATE TO CHECKOUT
+        // -------------------------------------------------
+
+        this.router.navigate([
+          '/checkout'
+        ]);
+
       });
+
   }
 
 }

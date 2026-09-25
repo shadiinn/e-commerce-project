@@ -22,150 +22,173 @@ import {
   switchMap,
   tap
 } from 'rxjs';
+
 import { AuthStorageService } from '../../core/services/auth-storage.service';
 import { AuthUser } from '../../core/models/auth-user.model';
 import { Router } from '@angular/router';
 
+import {
+  mergeGuestCart,
+  mergeGuestCartSuccess
+} from '../cart/cart.actions';
+
 @Injectable()
 export class AuthEffects {
 
-    private actions$ = inject(Actions);
-    private router = inject(Router);
-    private authService = inject(AuthService);
-    private authStorage =inject(AuthStorageService);
+  private actions$ = inject(Actions);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private authStorage = inject(AuthStorageService);
 
+  // LOGIN
 
-    login$ = createEffect(() =>
+  login$ = createEffect(() =>
     this.actions$.pipe(
-
-        ofType(login),
-
-        switchMap(({ email, password, returnUrl }) =>
-        this.authService
-            .login(email, password)
-            .pipe(
-
+      ofType(login),
+      switchMap(({ email, password, returnUrl }) =>
+        this.authService.login(email, password).pipe(
             map(users => {
 
-                if (users.length === 0) {
+              // INVALID LOGIN
+
+              if (users.length === 0) {
+
                 return loginFailure({
-                    error: 'Invalid email or password'
+                  error: 'Invalid email or password'
                 });
-                }
 
-                const user = users[0];
+              }
 
-                const authUser: AuthUser = {
+              // GET USER
+
+              const user = users[0];
+
+              const authUser: AuthUser = {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
                 phone: user.phone
-                };
+              };
 
-                this.authStorage.saveUser(authUser);
+              // SAVE AUTH USER
 
-                return loginSuccess({
+              this.authStorage.saveUser(authUser);
+
+              // LOGIN SUCCESS
+
+              return loginSuccess({
                 user: authUser,
                 returnUrl
-                });
+              });
+
             }),
 
             catchError(error =>
-                of(
+              of(
                 loginFailure({
-                    error:
+                  error:
                     error.message ??
                     'Login failed'
                 })
-                )
+              )
             )
-
-            )
-        )
+          )
+      )
     )
-    );
+  );
 
-    register$ = createEffect(() =>
+  // REGISTER
+
+  register$ = createEffect(() =>
     this.actions$.pipe(
-        ofType(register),
-
-        switchMap(({ user }) =>
+      ofType(register),
+      switchMap(({ user }) =>
         this.authService.register(user).pipe(
-
             map(() =>
-            registerSuccess()
+              registerSuccess()
             ),
-
             catchError(error =>
-            of(
+              of(
                 registerFailure({
-                error: error.message ?? 'Registration failed'
+                  error:
+                    error.message ??
+                    'Registration failed'
                 })
+              )
             )
-            )
-
-        )
-        )
+          )
+      )
     )
-    );
-    restoreAuth$ = createEffect(() =>
+  );
+
+  // RESTORE AUTH
+
+  restoreAuth$ = createEffect(() =>
     this.actions$.pipe(
+      ofType(restoreAuth),
+      map(() => {
 
-        ofType(restoreAuth),
-
-        map(() => {
-
-        const user =
-            this.authStorage.getUser();
-
+        const user =this.authStorage.getUser();
         return restoreAuthSuccess({
-            user
+          user
         });
-
-        })
-
+      })
     )
-    );
+  );
 
-    logout$ = createEffect(
+  // LOGOUT
+
+  logout$ = createEffect(
     () =>
-        this.actions$.pipe(
+      this.actions$.pipe(
         ofType(logout),
         tap(() => {
-            this.authStorage.clearUser();
+          this.authStorage.clearUser();
         })
-        ),
+      ),
     { dispatch: false }
-    );
+  );
 
-    registerSuccessNavigation$ = createEffect(
+  // REGISTER SUCCESS NAVIGATION
+
+  registerSuccessNavigation$ = createEffect(
     () =>
-        this.actions$.pipe(
+      this.actions$.pipe(
         ofType(registerSuccess),
-
         tap(() => {
-            this.router.navigate(['/login']);
+          this.router.navigate(['/login']);
         })
-        ),
+      ),
     { dispatch: false }
-    );
+  );
 
-    loginSuccessNavigation$ = createEffect(
+  // LOGIN SUCCESS → MERGE GUEST CART
+
+  loginSuccessMergeCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loginSuccess),
+      map(({ returnUrl }) =>
+        mergeGuestCart({
+          returnUrl
+        })
+      )
+
+    )
+  );
+
+  // GUEST CART MERGE SUCCESS → NAVIGATE
+
+  mergeGuestCartSuccessNavigation$ = createEffect(
     () =>
-        this.actions$.pipe(
-
-        ofType(loginSuccess),
-
+      this.actions$.pipe(
+        ofType(mergeGuestCartSuccess),
         tap(({ returnUrl }) => {
-
-            this.router.navigateByUrl(
+          this.router.navigateByUrl(
             returnUrl || '/'
-            );
-
+          );
         })
-
-        ),
+      ),
     { dispatch: false }
-    );
+  );
 }

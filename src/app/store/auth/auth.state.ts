@@ -1,6 +1,5 @@
 import { AuthUser } from "../../core/models/auth-user.model";
 
-
 export interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;

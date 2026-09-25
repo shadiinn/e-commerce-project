@@ -1,356 +1,135 @@
-<section class="min-h-screen bg-brand-background">
+@if (order$ | async; as order) {
 
-  <div class="mx-auto max-w-4xl px-6 py-16 sm:py-20">
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 px-5 backdrop-blur-[2px]"
+  >
 
-    @if (order$ | async; as order) {
+    <div
+      class="w-full max-w-md border border-brand-border bg-[#F3F0EC] px-7 py-10 shadow-xl sm:px-10 sm:py-12"
+    >
 
-      <!-- Success Header -->
-      <div class="text-center">
+      <!-- Check -->
 
-        <div
-          class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-brand-border"
+      <div
+        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-brand-border"
+      >
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
         >
-          <span class="text-xl text-brand-text">
-            ✓
-          </span>
-        </div>
+          <path d="m5 12 4 4L19 6"></path>
+        </svg>
+
+      </div>
+
+
+      <!-- Heading -->
+
+      <div class="mt-7 text-center">
 
         <p
-          class="mt-6 text-xs uppercase tracking-[0.25em] text-brand-muted"
+          class="text-[10px] uppercase tracking-[0.25em] text-brand-muted"
         >
           Order Confirmed
         </p>
 
         <h1
-          class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
+          class="mt-4 text-2xl font-light tracking-tight text-brand-text sm:text-3xl"
         >
           Thank you for your order.
         </h1>
 
         <p
-          class="mx-auto mt-5 max-w-xl text-sm leading-6 text-brand-muted"
+          class="mt-4 text-sm leading-6 text-brand-muted"
         >
           Your order has been received and is being prepared.
-          We have sent your order details to
-          <span class="text-brand-text">
-            {{ order.shippingAddress.email }}
-          </span>.
         </p>
 
       </div>
 
 
-      <!-- Order Information -->
+      <!-- Order Number -->
+
       <div
-        class="mx-auto mt-12 max-w-2xl border-y border-brand-border"
+        class="mt-8 border-y border-brand-border py-5 text-center"
       >
 
-        <div class="grid grid-cols-2 divide-x divide-brand-border">
-
-          <div class="px-5 py-5 text-center sm:px-8">
-
-            <p
-              class="text-[10px] uppercase tracking-[0.2em] text-brand-muted"
-            >
-              Order Number
-            </p>
-
-            <p
-              class="mt-2 text-sm font-medium tracking-wide text-brand-text"
-            >
-              {{ order.orderNumber }}
-            </p>
-
-          </div>
-
-
-          <div class="px-5 py-5 text-center sm:px-8">
-
-            <p
-              class="text-[10px] uppercase tracking-[0.2em] text-brand-muted"
-            >
-              Payment
-            </p>
-
-            <p
-              class="mt-2 text-sm text-brand-text"
-            >
-              {{ order.paymentMethod === 'cod'
-                ? 'Cash on Delivery'
-                : 'Online Payment'
-              }}
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- Ordered Items -->
-      <div class="mx-auto mt-12 max-w-2xl">
-
-        <div class="flex items-center justify-between">
-
-          <h2
-            class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text"
-          >
-            Your Items
-          </h2>
-
-          <span
-            class="text-xs text-brand-muted"
-          >
-            {{ order.items.length }}
-            {{ order.items.length === 1 ? 'item' : 'items' }}
-          </span>
-
-        </div>
-
-
-        <div class="mt-5 divide-y divide-brand-border border-y border-brand-border">
-
-          @for (item of order.items; track item.productId + item.size + item.color) {
-
-            <div class="flex gap-4 py-5">
-
-              <!-- Product Image -->
-              <div
-                class="h-24 w-20 shrink-0 overflow-hidden bg-brand-surface"
-              >
-
-                <img
-                  [src]="item.image"
-                  [alt]="item.name"
-                  class="h-full w-full object-cover"
-                />
-
-              </div>
-
-
-              <!-- Product Information -->
-              <div class="min-w-0 flex-1">
-
-                <div class="flex items-start justify-between gap-4">
-
-                  <div>
-
-                    <h3
-                      class="text-sm font-medium text-brand-text"
-                    >
-                      {{ item.name }}
-                    </h3>
-
-                    <p
-                      class="mt-1 text-xs text-brand-muted"
-                    >
-                      Size: {{ item.size }}
-                      <span class="mx-1">·</span>
-                      Color: {{ item.color }}
-                    </p>
-
-                    <p
-                      class="mt-2 text-xs text-brand-muted"
-                    >
-                      Qty: {{ item.quantity }}
-                    </p>
-
-                  </div>
-
-
-                  <p
-                    class="shrink-0 text-sm font-medium text-brand-text"
-                  >
-                    ₹{{ item.total }}
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-      </div>
-
-
-      <!-- Order Summary -->
-      <div class="mx-auto mt-8 max-w-2xl">
-
-        <div class="border-b border-brand-border pb-5">
-
-          <div class="flex justify-between text-sm">
-
-            <span class="text-brand-muted">
-              Subtotal
-            </span>
-
-            <span class="text-brand-text">
-              ₹{{ order.subtotal }}
-            </span>
-
-          </div>
-
-
-          <div class="mt-3 flex justify-between text-sm">
-
-            <span class="text-brand-muted">
-              Shipping
-            </span>
-
-            <span class="text-brand-text">
-
-              @if (order.shipping === 0) {
-                Free
-              } @else {
-                ₹{{ order.shipping }}
-              }
-
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <div class="flex justify-between pt-5">
-
-          <span
-            class="text-sm font-medium text-brand-text"
-          >
-            Total
-          </span>
-
-          <span
-            class="text-lg font-medium text-brand-text"
-          >
-            ₹{{ order.total }}
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <!-- Shipping Information -->
-      <div class="mx-auto mt-12 max-w-2xl">
-
-        <h2
-          class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text"
+        <p
+          class="text-[10px] uppercase tracking-[0.2em] text-brand-muted"
         >
-          Shipping Details
-        </h2>
+          Order Number
+        </p>
 
-
-        <div
-          class="mt-5 border-y border-brand-border py-5 text-sm"
+        <p
+          class="mt-2 text-sm font-medium tracking-wide text-brand-text"
         >
-
-          <p class="text-brand-text">
-            {{ order.shippingAddress.firstName }}
-            {{ order.shippingAddress.lastName }}
-          </p>
-
-          <p class="mt-2 leading-6 text-brand-muted">
-
-            {{ order.shippingAddress.address }}
-
-            @if (order.shippingAddress.apartment) {
-              <br />
-              {{ order.shippingAddress.apartment }}
-            }
-
-            <br />
-
-            {{ order.shippingAddress.city }},
-            {{ order.shippingAddress.state }}
-            {{ order.shippingAddress.postalCode }}
-
-            <br />
-
-            {{ order.shippingAddress.country }}
-
-          </p>
-
-
-          <div class="mt-4 border-t border-brand-border pt-4">
-
-            <p class="text-xs text-brand-muted">
-              Email
-            </p>
-
-            <p class="mt-1 text-sm text-brand-text">
-              {{ order.shippingAddress.email }}
-            </p>
-
-            <p class="mt-3 text-xs text-brand-muted">
-              Phone
-            </p>
-
-            <p class="mt-1 text-sm text-brand-text">
-              {{ order.shippingAddress.phone }}
-            </p>
-
-          </div>
-
-        </div>
+          {{ order.orderNumber }}
+        </p>
 
       </div>
 
 
       <!-- Actions -->
-      <div
-        class="mt-12 flex flex-col justify-center gap-3 sm:flex-row"
-      >
+
+      <div class="mt-8">
+
+        <a
+          [routerLink]="[
+            '/orders',
+            order.id
+          ]"
+          class="flex w-full items-center justify-center bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+        >
+          View Order
+        </a>
+
 
         <a
           routerLink="/shop"
-          class="bg-brand-text px-8 py-4 text-center text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+          class="mt-3 flex w-full items-center justify-center border border-brand-border px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:border-brand-text"
         >
           Continue Shopping
         </a>
 
-        <a
-          routerLink="/"
-          class="border border-brand-border px-8 py-4 text-center text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:border-brand-text"
-        >
-          Back to Home
-        </a>
-
       </div>
 
-
-    } @else {
-
-      <!-- Loading / Empty State -->
-      <div
-        class="flex min-h-[60vh] items-center justify-center text-center"
-      >
-
-        <div>
-
-          <p
-            class="text-xs uppercase tracking-[0.25em] text-brand-muted"
-          >
-            Loading
-          </p>
-
-          <p
-            class="mt-4 text-sm text-brand-muted"
-          >
-            Loading your order details...
-          </p>
-
-        </div>
-
-      </div>
-
-    }
+    </div>
 
   </div>
 
-</section>
+} @else {
+
+  <!-- Loading -->
+
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-brand-background"
+  >
+
+    <div class="text-center">
+
+      <p
+        class="text-xs uppercase tracking-[0.25em] text-brand-muted"
+      >
+        Loading
+      </p>
+
+      <p
+        class="mt-4 text-sm text-brand-muted"
+      >
+        Preparing your order confirmation...
+      </p>
+
+    </div>
+
+  </div>
+
+}
