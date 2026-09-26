@@ -1,4 +1,7 @@
-import { createReducer, on } from '@ngrx/store';
+import {
+  createReducer,
+  on
+} from '@ngrx/store';
 
 import {
   startCheckout,
@@ -11,36 +14,48 @@ import {
 } from './checkout.state';
 
 
-export const checkoutReducer = createReducer(
+export const checkoutReducer =
+  createReducer(
 
-  initialCheckoutState,
-
-
-  // =====================================================
-  // START CHECKOUT
-  // =====================================================
-
-  on(
-    startCheckout,
-    (state, { mode, items }) => ({
-
-      ...state,
-
-      mode,
-
-      items
-
-    })
-  ),
+    initialCheckoutState,
 
 
-  // =====================================================
-  // CLEAR CHECKOUT
-  // =====================================================
+    // ===================================================
+    // START CHECKOUT
+    // ===================================================
 
-  on(
-    clearCheckout,
-    () => initialCheckoutState
-  )
+    on(
+      startCheckout,
 
-);
+      (
+        state,
+        {
+          mode,
+          items
+        }
+      ) => ({
+
+        ...state,
+
+        mode,
+
+        items
+
+      })
+
+    ),
+
+
+    // ===================================================
+    // CLEAR CHECKOUT
+    // ===================================================
+
+    on(
+      clearCheckout,
+
+      () =>
+        initialCheckoutState
+
+    )
+
+  );

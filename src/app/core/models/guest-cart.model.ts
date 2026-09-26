@@ -4,6 +4,8 @@ export interface GuestCartItem {
 
   productId: string;
 
+  variantId: string;
+
   size: string;
 
   quantity: number;

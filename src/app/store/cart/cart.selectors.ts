@@ -15,31 +15,38 @@ import {
 
 
 export const selectCartState =
-  createFeatureSelector<CartState>('cart');
+  createFeatureSelector<CartState>(
+    'cart'
+  );
 
 
-export const selectCartItems = createSelector(
-  selectCartState,
-  state => state.items
-);
+export const selectCartItems =
+  createSelector(
+    selectCartState,
+    state => state.items
+  );
 
 
-export const selectActiveCartItems = createSelector(
-  selectCartState,
-  selectIsAuthenticated,
+export const selectActiveCartItems =
+  createSelector(
 
-  (state, isAuthenticated) => {
+    selectCartState,
 
-    if (isAuthenticated) {
+    selectIsAuthenticated,
 
-      return state.items;
+    (state, isAuthenticated) => {
+
+      if (isAuthenticated) {
+
+        return state.items;
+
+      }
+
+      return state.guestItems;
 
     }
 
-    return state.guestItems;
-
-  }
-);
+  );
 
 
 export const selectCartItemsWithProducts =
@@ -52,6 +59,7 @@ export const selectCartItemsWithProducts =
     (items, products) =>
 
       items
+
         .map(item => {
 
           const product =
@@ -63,15 +71,33 @@ export const selectCartItemsWithProducts =
 
           }
 
+
+          const variant =
+            product.variants.find(
+              variant =>
+                variant.id ===
+                item.variantId
+            );
+
+          if (!variant) {
+
+            return null;
+
+          }
+
+
           return {
 
             ...item,
 
-            product
+            product,
+
+            variant
 
           };
 
         })
+
         .filter(
           item => item !== null
         )
@@ -121,9 +147,13 @@ export const selectCartSubtotal =
           }
 
           return (
+
             total +
+
             product.price *
+
             item.quantity
+
           );
 
         },

@@ -2,7 +2,8 @@ import {
   Component,
   inject,
   OnInit,
-  signal
+  signal,
+  computed
 } from '@angular/core';
 
 import {
@@ -15,7 +16,10 @@ import { AsyncPipe } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
-import { Product } from '../../core/models/product.model';
+import {
+  Product,
+  ProductVariant
+} from '../../core/models/product.model';
 
 import {
   addToCart,
@@ -115,11 +119,67 @@ export class ProductDetailsComponent
 
 
   // =====================================================
+  // SELECTED VARIANT
+  // =====================================================
+
+  selectedVariantId =
+    signal<string | null>(null);
+
+
+  // =====================================================
   // SELECTED SIZE
   // =====================================================
 
   selectedSize =
     signal<string | null>(null);
+
+
+  // =====================================================
+  // SELECTED VARIANT
+  // =====================================================
+
+  selectedVariant =
+    computed<ProductVariant | null>(() => {
+
+      const variantId =
+        this.selectedVariantId();
+
+      if (!variantId) {
+        return null;
+      }
+
+      return this.currentProduct?.variants.find(
+        variant =>
+          variant.id === variantId
+      ) ?? null;
+
+    });
+
+
+  // =====================================================
+  // AVAILABLE SIZES
+  // =====================================================
+
+  availableSizes =
+    computed(() => {
+
+      const variant =
+        this.selectedVariant();
+
+      if (!variant) {
+        return [];
+      }
+
+      return variant.sizes;
+
+    });
+
+
+  // =====================================================
+  // CURRENT PRODUCT
+  // =====================================================
+
+  private currentProduct: Product | null = null;
 
 
   // =====================================================
@@ -159,22 +219,99 @@ export class ProductDetailsComponent
 
 
       // ---------------------------------------------------
-      // SET FIRST PRODUCT IMAGE
+      // PRODUCT DATA
       // ---------------------------------------------------
 
       this.product$.subscribe(product => {
 
-        if (product) {
+        if (!product) {
+          return;
+        }
+
+        this.currentProduct =
+          product;
+
+
+        // -------------------------------------------------
+        // SELECT FIRST VARIANT
+        // -------------------------------------------------
+
+        const firstVariant =
+          product.variants[0];
+
+        if (!firstVariant) {
+          return;
+        }
+
+
+        this.selectedVariantId.set(
+          firstVariant.id
+        );
+
+
+        // -------------------------------------------------
+        // SELECT FIRST IMAGE
+        // -------------------------------------------------
+
+        const firstImage =
+          firstVariant.images[0];
+
+        if (firstImage) {
 
           this.selectedImage.set(
-            product.images[0]
+            firstImage
           );
 
         }
 
+
+        // -------------------------------------------------
+        // RESET SIZE
+        // -------------------------------------------------
+
+        this.selectedSize.set(null);
+
       });
 
     });
+
+  }
+
+
+  // =====================================================
+  // SELECT VARIANT
+  // =====================================================
+
+  selectVariant(
+    variant: ProductVariant
+  ): void {
+
+    this.selectedVariantId.set(
+      variant.id
+    );
+
+
+    // -----------------------------------------------------
+    // RESET SIZE WHEN COLOR CHANGES
+    // -----------------------------------------------------
+
+    this.selectedSize.set(null);
+
+
+    // -----------------------------------------------------
+    // CHANGE IMAGE TO FIRST VARIANT IMAGE
+    // -----------------------------------------------------
+
+    const firstImage =
+      variant.images[0];
+
+    if (firstImage) {
+
+      this.selectedImage.set(
+        firstImage
+      );
+
+    }
 
   }
 
@@ -202,9 +339,114 @@ export class ProductDetailsComponent
     size: string
   ): void {
 
+    const variant =
+      this.selectedVariant();
+
+    if (!variant) {
+      return;
+    }
+
+
+    const selectedSize =
+      variant.sizes.find(
+        item =>
+          item.size === size
+      );
+
+
+    // -----------------------------------------------------
+    // DO NOT SELECT OUT-OF-STOCK SIZE
+    // -----------------------------------------------------
+
+    if (
+      !selectedSize ||
+      selectedSize.stock <= 0
+    ) {
+
+      return;
+
+    }
+
+
     this.selectedSize.set(
       size
     );
+
+  }
+
+
+  // =====================================================
+  // SELECTED SIZE STOCK
+  // =====================================================
+
+  getSelectedSizeStock(): number {
+
+    const variant =
+      this.selectedVariant();
+
+    const size =
+      this.selectedSize();
+
+
+    if (!variant || !size) {
+      return 0;
+    }
+
+
+    return (
+      variant.sizes.find(
+        item =>
+          item.size === size
+      )?.stock ?? 0
+    );
+
+  }
+
+
+  // =====================================================
+  // TOTAL PRODUCT STOCK
+  // =====================================================
+
+  getTotalStock(
+    product: Product
+  ): number {
+
+    return product.variants.reduce(
+      (
+        total,
+        variant
+      ) => {
+
+        return total +
+          variant.sizes.reduce(
+            (
+              variantTotal,
+              size
+            ) => {
+
+              return variantTotal +
+                size.stock;
+
+            },
+            0
+          );
+
+      },
+      0
+    );
+
+  }
+
+
+  // =====================================================
+  // PRODUCT HAS STOCK
+  // =====================================================
+
+  hasStock(
+    product: Product
+  ): boolean {
+
+    return this.getTotalStock(product) > 0;
 
   }
 
@@ -217,8 +459,20 @@ export class ProductDetailsComponent
     product: Product
   ): void {
 
+    const variant =
+      this.selectedVariant();
+
     const size =
       this.selectedSize();
+
+
+    // ---------------------------------------------------
+    // VALIDATE VARIANT
+    // ---------------------------------------------------
+
+    if (!variant) {
+      return;
+    }
 
 
     // ---------------------------------------------------
@@ -226,6 +480,19 @@ export class ProductDetailsComponent
     // ---------------------------------------------------
 
     if (!size) {
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // VALIDATE STOCK
+    // ---------------------------------------------------
+
+    const selectedSizeStock =
+      this.getSelectedSizeStock();
+
+
+    if (selectedSizeStock <= 0) {
       return;
     }
 
@@ -250,6 +517,9 @@ export class ProductDetailsComponent
 
               product,
 
+              variantId:
+                variant.id,
+
               size
 
             })
@@ -270,6 +540,9 @@ export class ProductDetailsComponent
             productId:
               product.id,
 
+            variantId:
+              variant.id,
+
             size
 
           })
@@ -288,15 +561,40 @@ export class ProductDetailsComponent
     product: Product
   ): void {
 
+    const variant =
+      this.selectedVariant();
+
     const size =
       this.selectedSize();
 
 
     // ---------------------------------------------------
-    // SIZE IS REQUIRED
+    // VALIDATE VARIANT
+    // ---------------------------------------------------
+
+    if (!variant) {
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // VALIDATE SIZE
     // ---------------------------------------------------
 
     if (!size) {
+      return;
+    }
+
+
+    // ---------------------------------------------------
+    // VALIDATE STOCK
+    // ---------------------------------------------------
+
+    const selectedSizeStock =
+      this.getSelectedSizeStock();
+
+
+    if (selectedSizeStock <= 0) {
       return;
     }
 
@@ -315,6 +613,9 @@ export class ProductDetailsComponent
           {
             productId:
               product.id,
+
+            variantId:
+              variant.id,
 
             size,
 

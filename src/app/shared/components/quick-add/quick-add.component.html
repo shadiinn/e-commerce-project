@@ -35,8 +35,11 @@
           stroke-width="1.5"
           class="h-5 w-5"
         >
+
           <path d="M6 6l12 12"></path>
+
           <path d="M18 6L6 18"></path>
+
         </svg>
 
       </button>
@@ -46,16 +49,28 @@
       <!-- PRODUCT -->
       <!-- ================================================= -->
 
-      <div class="grid grid-cols-3 gap-5 p-6">
+      <div
+        class="grid grid-cols-3 gap-5 p-6"
+      >
 
-        <!-- Product Image -->
+        <!-- =============================================== -->
+        <!-- PRODUCT IMAGE -->
+        <!-- =============================================== -->
 
-        <div class="col-span-1 overflow-hidden bg-brand-surface">
+        <div
+          class="col-span-1 overflow-hidden bg-brand-surface"
+        >
 
-          <div class="aspect-[3/4]">
+          <div
+            class="aspect-[3/4]"
+          >
 
             <img
-              [src]="product().images[0]"
+              [src]="
+                selectedVariant()
+                  ? selectedVariant()!.images[0]
+                  : product().variants[0].images[0]
+              "
               [alt]="product().name"
               class="h-full w-full object-cover"
             />
@@ -65,9 +80,15 @@
         </div>
 
 
-        <!-- Product Information -->
+        <!-- =============================================== -->
+        <!-- PRODUCT INFORMATION -->
+        <!-- =============================================== -->
 
-        <div class="col-span-2">
+        <div
+          class="col-span-2"
+        >
+
+          <!-- CATEGORY -->
 
           <p
             class="text-[10px] uppercase tracking-[0.2em] text-brand-muted"
@@ -75,30 +96,114 @@
             {{ product().category }}
           </p>
 
+
+          <!-- PRODUCT NAME -->
+
           <h2
             class="mt-2 pr-8 text-lg font-medium text-brand-text"
           >
             {{ product().name }}
           </h2>
 
-          <p class="mt-2 text-sm text-brand-text">
+
+          <!-- PRICE -->
+
+          <p
+            class="mt-2 text-sm text-brand-text"
+          >
             ₹{{ product().price }}
           </p>
+
+
+          <!-- ============================================= -->
+          <!-- COLOR / VARIANT -->
+          <!-- ============================================= -->
+
+          <div
+            class="mt-6"
+          >
+
+            <div
+              class="flex items-center justify-between"
+            >
+
+              <p
+                class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
+              >
+                Color
+              </p>
+
+
+              @if (!selectedVariant()) {
+
+                <span
+                  class="text-[10px] text-brand-muted"
+                >
+                  Select a color
+                </span>
+
+              }
+
+            </div>
+
+
+            <!-- =========================================== -->
+            <!-- COLOR OPTIONS -->
+            <!-- =========================================== -->
+
+            <div
+              class="mt-3 flex flex-wrap gap-2"
+            >
+
+              @for (
+                variant of product().variants;
+                track variant.id
+              ) {
+
+                <button
+                  type="button"
+                  (click)="selectVariant(variant.id)"
+                  [class.bg-brand-text]="
+                    selectedVariantId() === variant.id
+                  "
+                  [class.text-white]="
+                    selectedVariantId() === variant.id
+                  "
+                  [class.border-brand-text]="
+                    selectedVariantId() === variant.id
+                  "
+                  class="border border-brand-border px-3 py-2 text-xs text-brand-text transition-colors duration-200 hover:border-brand-text"
+                >
+
+                  {{ variant.color }}
+
+                </button>
+
+              }
+
+            </div>
+
+          </div>
 
 
           <!-- ============================================= -->
           <!-- SIZE -->
           <!-- ============================================= -->
 
-          <div class="mt-6">
+          <div
+            class="mt-6"
+          >
 
-            <div class="flex items-center justify-between">
+            <div
+              class="flex items-center justify-between"
+            >
 
               <p
                 class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
               >
                 Size
               </p>
+
 
               @if (!selectedSize()) {
 
@@ -113,27 +218,66 @@
             </div>
 
 
-            <div class="mt-3 flex flex-wrap gap-2">
+            <!-- =========================================== -->
+            <!-- SIZE OPTIONS -->
+            <!-- =========================================== -->
+
+            <div
+              class="mt-3 flex flex-wrap gap-2"
+            >
 
               @for (
-                size of product().sizes;
-                track size
+                size of availableSizes();
+                track size.size
               ) {
 
                 <button
                   type="button"
-                  (click)="selectSize(size)"
-                  [class.bg-brand-text]="selectedSize() === size"
-                  [class.text-white]="selectedSize() === size"
-                  [class.border-brand-text]="selectedSize() === size"
-                  class="min-w-10 border border-brand-border px-3 py-2 text-xs text-brand-text transition-colors duration-200 hover:border-brand-text"
+                  (click)="selectSize(size.size)"
+                  [disabled]="size.stock === 0"
+                  [class.bg-brand-text]="
+                    selectedSize() === size.size
+                  "
+                  [class.text-white]="
+                    selectedSize() === size.size
+                  "
+                  [class.border-brand-text]="
+                    selectedSize() === size.size
+                  "
+                  [class.opacity-40]="
+                    size.stock === 0
+                  "
+                  [class.cursor-not-allowed]="
+                    size.stock === 0
+                  "
+                  class="min-w-10 border border-brand-border px-3 py-2 text-xs text-brand-text transition-colors duration-200 hover:border-brand-text disabled:hover:border-brand-border"
                 >
-                  {{ size }}
+
+                  {{ size.size }}
+
                 </button>
 
               }
 
             </div>
+
+
+            <!-- =========================================== -->
+            <!-- SELECTED SIZE STOCK -->
+            <!-- =========================================== -->
+
+            @if (
+              selectedSize() &&
+              getSelectedSizeStock() > 0
+            ) {
+
+              <p
+                class="mt-3 text-[10px] text-brand-muted"
+              >
+                {{ getSelectedSizeStock() }} available
+              </p>
+
+            }
 
           </div>
 
@@ -146,19 +290,23 @@
       <!-- ADD TO CART -->
       <!-- ================================================= -->
 
-      <div class="border-t border-brand-border p-6">
+      <div
+        class="border-t border-brand-border p-6"
+      >
 
         <button
           type="button"
           (click)="addProductToCart()"
           [disabled]="
+            !selectedVariant() ||
             !selectedSize() ||
-            product().stock === 0
+            getSelectedSizeStock() === 0 ||
+            !hasStock
           "
           class="w-full bg-brand-text px-6 py-4 text-[11px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-300 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
         >
 
-          @if (product().stock === 0) {
+          @if (!hasStock) {
 
             Out of Stock
 

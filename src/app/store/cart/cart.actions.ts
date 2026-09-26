@@ -16,8 +16,13 @@ export const addToCart = createAction(
   '[Cart] Add To Cart',
 
   props<{
+
     product: Product;
+
+    variantId: string;
+
     size: string;
+
   }>()
 
 );
@@ -28,7 +33,9 @@ export const increaseQuantity = createAction(
   '[Cart] Increase Quantity',
 
   props<{
+
     cartItemId: string;
+
   }>()
 
 );
@@ -39,7 +46,9 @@ export const decreaseQuantity = createAction(
   '[Cart] Decrease Quantity',
 
   props<{
+
     cartItemId: string;
+
   }>()
 
 );
@@ -50,7 +59,9 @@ export const removeFromCart = createAction(
   '[Cart] Remove From Cart',
 
   props<{
+
     cartItemId: string;
+
   }>()
 
 );
@@ -75,7 +86,9 @@ export const loadCartSuccess = createAction(
   '[Cart] Load Cart Success',
 
   props<{
+
     items: CartItem[];
+
   }>()
 
 );
@@ -86,7 +99,9 @@ export const loadCartFailure = createAction(
   '[Cart] Load Cart Failure',
 
   props<{
+
     error: string;
+
   }>()
 
 );
@@ -115,7 +130,9 @@ export const loadGuestCartSuccess = createAction(
   '[Cart] Load Guest Cart Success',
 
   props<{
+
     items: GuestCartItem[];
+
   }>()
 
 );
@@ -126,8 +143,13 @@ export const addGuestCartItem = createAction(
   '[Cart] Add Guest Cart Item',
 
   props<{
+
     productId: string;
+
+    variantId: string;
+
     size: string;
+
   }>()
 
 );
@@ -138,7 +160,9 @@ export const increaseGuestQuantity = createAction(
   '[Cart] Increase Guest Quantity',
 
   props<{
+
     cartItemId: string;
+
   }>()
 
 );
@@ -149,7 +173,9 @@ export const decreaseGuestQuantity = createAction(
   '[Cart] Decrease Guest Quantity',
 
   props<{
+
     cartItemId: string;
+
   }>()
 
 );
@@ -160,7 +186,9 @@ export const removeGuestItem = createAction(
   '[Cart] Remove Guest Item',
 
   props<{
+
     cartItemId: string;
+
   }>()
 
 );
@@ -182,7 +210,9 @@ export const mergeGuestCart = createAction(
   '[Cart] Merge Guest Cart',
 
   props<{
+
     returnUrl?: string;
+
   }>()
 
 );
@@ -193,7 +223,9 @@ export const mergeGuestCartSuccess = createAction(
   '[Cart] Merge Guest Cart Success',
 
   props<{
+
     returnUrl?: string;
+
   }>()
 
 );
@@ -204,8 +236,11 @@ export const mergeGuestCartFailure = createAction(
   '[Cart] Merge Guest Cart Failure',
 
   props<{
+
     error: string;
+
     returnUrl?: string;
+
   }>()
 
 );

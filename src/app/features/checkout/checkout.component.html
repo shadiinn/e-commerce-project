@@ -149,12 +149,15 @@
                           <p
                             class="mt-2 text-xs leading-5 text-brand-muted"
                           >
+
                             {{ address.address }}
 
                             @if (address.apartment) {
+
                               <span>
                                 , {{ address.apartment }}
                               </span>
+
                             }
 
                             <br />
@@ -948,7 +951,7 @@
 
             @for (
               item of items;
-              track item.productId + item.size
+              track item.productId + item.variantId + item.size
             ) {
 
               <div
@@ -962,7 +965,7 @@
                 >
 
                   <img
-                    [src]="item.product.images[0]"
+                    [src]="item.variant.images[0]"
                     [alt]="item.product.name"
                     class="h-full w-full object-cover"
                   />
@@ -987,6 +990,16 @@
                   >
                     {{ item.product.name }}
                   </p>
+
+                  <!-- COLOR -->
+
+                  <p
+                    class="mt-1 text-xs text-brand-muted"
+                  >
+                    Color: {{ item.variant.color }}
+                  </p>
+
+                  <!-- SIZE -->
 
                   <p
                     class="mt-1 text-xs text-brand-muted"

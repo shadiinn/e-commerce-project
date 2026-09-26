@@ -1,3 +1,15 @@
+export interface ProductSize {
+  size: string;
+  stock: number;
+}
+
+export interface ProductVariant {
+  id: string;
+  color: string;
+  images: string[];
+  sizes: ProductSize[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -6,12 +18,9 @@ export interface Product {
   price: number;
   oldPrice?: number;
   description: string;
-  images: string[];
-  sizes: string[];
-  colors: string[];
+  variants: ProductVariant[];
   rating: number;
   reviewsCount: number;
-  stock: number;
   isNew: boolean;
   isFeatured: boolean;
 }

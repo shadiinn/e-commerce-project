@@ -80,7 +80,7 @@
 
       <form
         class="hidden items-center border-b border-brand-border md:flex"
-        (submit)="search()"
+        (submit)="$event.preventDefault(); search()"
       >
 
         <input
@@ -507,7 +507,7 @@
 
           <form
             class="flex w-full items-center border-b border-brand-border"
-            (submit)="search()"
+            (submit)="$event.preventDefault(); search()"
           >
 
             <input

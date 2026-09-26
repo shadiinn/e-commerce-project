@@ -1,4 +1,7 @@
-import { createAction, props } from '@ngrx/store';
+import {
+  createAction,
+  props
+} from '@ngrx/store';
 
 import {
   CheckoutItem,
@@ -10,19 +13,29 @@ import {
 // START CHECKOUT
 // =====================================================
 
-export const startCheckout = createAction(
-  '[Checkout] Start Checkout',
-  props<{
-    mode: CheckoutMode;
-    items: CheckoutItem[];
-  }>()
-);
+export const startCheckout =
+  createAction(
+
+    '[Checkout] Start Checkout',
+
+    props<{
+
+      mode: CheckoutMode;
+
+      items: CheckoutItem[];
+
+    }>()
+
+  );
 
 
 // =====================================================
 // CLEAR CHECKOUT
 // =====================================================
 
-export const clearCheckout = createAction(
-  '[Checkout] Clear Checkout'
-);
+export const clearCheckout =
+  createAction(
+
+    '[Checkout] Clear Checkout'
+
+  );

@@ -1,13 +1,19 @@
-import { CheckoutItem } from './checkout.model';
+import {
+  CheckoutItem
+} from './checkout.model';
 
 
 export interface OrderItem {
 
   productId: string;
 
+  variantId: string;
+
   name: string;
 
   image: string;
+
+  color: string;
 
   size: string;
 
@@ -51,7 +57,9 @@ export interface CreateOrderRequest {
 
   shippingAddress: ShippingAddress;
 
-  paymentMethod: 'cod' | 'online';
+  paymentMethod:
+    'cod' |
+    'online';
 
 }
 
@@ -72,21 +80,32 @@ export interface Order {
 
   total: number;
 
-  shippingAddress: ShippingAddress;
+  shippingAddress:
+    ShippingAddress;
 
-  paymentMethod: 'cod' | 'online';
+  paymentMethod:
+    'cod' |
+    'online';
 
   paymentStatus:
-    'pending'
-    | 'paid'
-    | 'failed';
+
+    'pending' |
+
+    'paid' |
+
+    'failed';
 
   orderStatus:
-    | 'pending'
-    | 'confirmed'
-    | 'shipped'
-    | 'delivered'
-    | 'cancelled';
+
+    'pending' |
+
+    'confirmed' |
+
+    'shipped' |
+
+    'delivered' |
+
+    'cancelled';
 
   createdAt: string;
 

@@ -7,378 +7,11 @@
       "password": "ssssss",
       "phone": "9746897782",
       "id": "AqOdVEF2hFw"
-    },
-    {
-      "firstName": "Shadin",
-      "lastName": "Ahammed",
-      "email": "shadinahammed07@gmail.com",
-      "password": "ssssss",
-      "phone": "1111111111",
-      "id": "8yIGNAg5UHE"
-    },
-    {
-      "firstName": "hello",
-      "lastName": "world",
-      "email": "helloworld@gmail.com",
-      "password": "aaaaaa",
-      "phone": "1221212121",
-      "id": "k_UWYXhwBoo"
-    },
-    {
-      "firstName": "ssssassa",
-      "lastName": "gfcfcgcgc",
-      "email": "shshshshsh@gmail.com",
-      "password": "aaaaaaa",
-      "phone": "1515151515",
-      "id": "YMwhp0fb3GI"
-    },
-    {
-      "firstName": "fathima",
-      "lastName": "mufeeda",
-      "email": "fathi@gmail.com",
-      "password": "Fathi@12",
-      "phone": "9874562103",
-      "id": "xOmVGr7ax0U"
     }
   ],
-  "cart": [
-    {
-      "id": "znoYjBhuefM",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p002",
-      "size": "S",
-      "quantity": 13
-    },
-    {
-      "id": "eL4I1D5HOHw",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p005",
-      "size": "L",
-      "quantity": 1
-    },
-    {
-      "id": "SVPR0aU3Krs",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p003",
-      "size": "32",
-      "quantity": 1
-    },
-    {
-      "id": "n-Ac-7sjYOY",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p001",
-      "size": "S",
-      "quantity": 1
-    },
-    {
-      "id": "uwkOxYlvyUk",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p011",
-      "size": "S",
-      "quantity": 3
-    }
-  ],
-  "wishlists": [
-    {
-      "id": "vUX5sJ0JF1A",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p002"
-    },
-    {
-      "id": "xq3cN8H-xBM",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p003"
-    },
-    {
-      "id": "FliR5kldFzI",
-      "userId": "AqOdVEF2hFw",
-      "productId": "p001"
-    }
-  ],
-  "orders": [
-    {
-      "id": "2AlOYHcQb8A",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260924-0001",
-      "items": [
-        {
-          "productId": "p002",
-          "name": "Relaxed Linen Shirt",
-          "image": "assets/products/linen-shirt-1.jpg",
-          "size": "S",
-          "color": "Cream",
-          "quantity": 1,
-          "price": 5999,
-          "total": 5999
-        },
-        {
-          "productId": "p002",
-          "name": "Relaxed Linen Shirt",
-          "image": "assets/products/linen-shirt-1.jpg",
-          "size": "S",
-          "color": "Stone",
-          "quantity": 1,
-          "price": 5999,
-          "total": 5999
-        }
-      ],
-      "subtotal": 11998,
-      "shipping": 0,
-      "total": 11998,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-24T12:47:48.057Z"
-    },
-    {
-      "id": "1z2biWWtMSg",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260924-0002",
-      "items": [
-        {
-          "productId": "p002",
-          "name": "Relaxed Linen Shirt",
-          "image": "assets/products/linen-shirt-1.jpg",
-          "size": "S",
-          "color": "Cream",
-          "quantity": 1,
-          "price": 5999,
-          "total": 5999
-        },
-        {
-          "productId": "p003",
-          "name": "Signature Straight Trousers",
-          "image": "assets/products/straight-trousers-1.jpg",
-          "size": "30",
-          "color": "Black",
-          "quantity": 1,
-          "price": 7499,
-          "total": 7499
-        }
-      ],
-      "subtotal": 13498,
-      "shipping": 0,
-      "total": 13498,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-24T13:09:48.241Z"
-    },
-    {
-      "id": "z00XXpGHf_A",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260924-0003",
-      "items": [
-        {
-          "productId": "p002",
-          "name": "Relaxed Linen Shirt",
-          "image": "assets/products/linen-shirt-1.jpg",
-          "size": "S",
-          "color": "Cream",
-          "quantity": 1,
-          "price": 5999,
-          "total": 5999
-        }
-      ],
-      "subtotal": 5999,
-      "shipping": 0,
-      "total": 5999,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-24T13:12:43.582Z"
-    },
-    {
-      "id": "H6WG60GENtE",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260924-0004",
-      "items": [
-        {
-          "productId": "p003",
-          "name": "Signature Straight Trousers",
-          "image": "assets/products/straight-trousers-1.jpg",
-          "size": "30",
-          "color": "Black",
-          "quantity": 1,
-          "price": 7499,
-          "total": 7499
-        }
-      ],
-      "subtotal": 7499,
-      "shipping": 0,
-      "total": 7499,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-24T14:15:44.256Z"
-    },
-    {
-      "id": "XiG0dZaH7-I",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260924-0005",
-      "items": [
-        {
-          "productId": "p002",
-          "name": "Relaxed Linen Shirt",
-          "image": "assets/products/linen-shirt-1.jpg",
-          "size": "S",
-          "color": "Cream",
-          "quantity": 1,
-          "price": 5999,
-          "total": 5999
-        },
-        {
-          "productId": "p003",
-          "name": "Signature Straight Trousers",
-          "image": "assets/products/straight-trousers-1.jpg",
-          "size": "30",
-          "color": "Black",
-          "quantity": 1,
-          "price": 7499,
-          "total": 7499
-        }
-      ],
-      "subtotal": 13498,
-      "shipping": 0,
-      "total": 13498,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-24T14:24:30.187Z"
-    },
-    {
-      "id": "E3N8VX2ZQE0",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260924-0006",
-      "items": [
-        {
-          "productId": "p001",
-          "name": "Classic Oxford Shirt",
-          "image": "public/assets/products/shirt-1.jpg",
-          "size": "S",
-          "color": "White",
-          "quantity": 1,
-          "price": 6499,
-          "total": 6499
-        }
-      ],
-      "subtotal": 6499,
-      "shipping": 0,
-      "total": 6499,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-24T14:29:17.459Z"
-    },
-    {
-      "id": "KaVakOYU7Kc",
-      "userId": "AqOdVEF2hFw",
-      "orderNumber": "SA-260925-0001",
-      "items": [
-        {
-          "productId": "p007",
-          "name": "Heavyweight Essential Hoodie",
-          "image": "assets/products/essential-hoodie-1.jpg",
-          "size": "S",
-          "color": "Black",
-          "quantity": 1,
-          "price": 6999,
-          "total": 6999
-        }
-      ],
-      "subtotal": 6999,
-      "shipping": 0,
-      "total": 6999,
-      "shippingAddress": {
-        "firstName": "Shadin",
-        "lastName": "VP",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "Kerala",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9746897782",
-        "email": "shadinahammed16@gmail.com"
-      },
-      "paymentMethod": "cod",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-25T05:55:20.004Z"
-    }
-  ],
+  "cart": [],
+  "wishlists": [],
+  "orders": [],
   "products": [
     {
       "id": "p001",
@@ -388,25 +21,37 @@
       "price": 6499,
       "oldPrice": 7499,
       "description": "A timeless relaxed-fit Oxford shirt designed for effortless everyday elegance.",
-      "images": [
-        "assets/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
-        "assets/shirts/deep sea blue/deepsea-blue-linen-02.jpg",
-        "assets/shirts/deep sea blue/deepsea-blue-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "White",
-        "Beige",
-        "Black"
+      "variants": [
+        {
+          "id": "p001-01",
+          "color": "deep-sea-blue",
+          "images": [
+            "assets/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
+            "assets/shirts/deep sea blue/deepsea-blue-linen-02.jpg",
+            "assets/shirts/deep sea blue/deepsea-blue-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 5
+            },
+            {
+              "size": "XL",
+              "stock": 5
+            }
+          ]
+        }
       ],
       "rating": 4.8,
       "reviewsCount": 124,
-      "stock": 20,
       "isNew": true,
       "isFeatured": true
     },
@@ -418,26 +63,38 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/midnight green/midnight-green-linen-01.jpg",
-        "assets/shirts/midnight green/midnight-green-linen-02.jpg",
-        "assets/shirts/midnight green/midnight-green-linen-03.jpg",
-        "assets/shirts/midnight green/midnight-green-linen-01.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p002-01",
+          "color": "midnight-green",
+          "images": [
+            "assets/shirts/midnight green/midnight-green-linen-01.jpg",
+            "assets/shirts/midnight green/midnight-green-linen-02.jpg",
+            "assets/shirts/midnight green/midnight-green-linen-03.jpg",
+            "assets/shirts/midnight green/midnight-green-linen-01.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -449,27 +106,39 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/classic white/classic-white-linen-01.jpg",
-        "assets/shirts/classic white/classic-white-linen-02.jpg",
-        "assets/shirts/classic white/classic-white-linen-03.jpg",
-        "assets/shirts/classic white/classic-white-linen-04.jpg",
-        "assets/shirts/classic white/classic-white-linen-05.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p003-01",
+          "color": "classic-white",
+          "images": [
+            "assets/shirts/classic white/classic-white-linen-01.jpg",
+            "assets/shirts/classic white/classic-white-linen-02.jpg",
+            "assets/shirts/classic white/classic-white-linen-03.jpg",
+            "assets/shirts/classic white/classic-white-linen-04.jpg",
+            "assets/shirts/classic white/classic-white-linen-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -481,25 +150,37 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/espresso brown/espresso-brown-linen-01.jpg",
-        "assets/shirts/espresso brown/espresso-brown-linen-02.jpg",
-        "assets/shirts/espresso brown/espresso-brown-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p004-01",
+          "color": "espresso-brown",
+          "images": [
+            "assets/shirts/espresso brown/espresso-brown-linen-01.jpg",
+            "assets/shirts/espresso brown/espresso-brown-linen-02.jpg",
+            "assets/shirts/espresso brown/espresso-brown-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -511,26 +192,38 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/light blue/light-blue-linen-01.jpg",
-        "assets/shirts/light blue/light-blue-linen-02.jpg",
-        "assets/shirts/light blue/light-blue-linen-03.jpg",
-        "assets/shirts/light blue/light-blue-linen-04.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p005-01",
+          "color": "light-blue",
+          "images": [
+            "assets/shirts/light blue/light-blue-linen-01.jpg",
+            "assets/shirts/light blue/light-blue-linen-02.jpg",
+            "assets/shirts/light blue/light-blue-linen-03.jpg",
+            "assets/shirts/light blue/light-blue-linen-04.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -542,25 +235,37 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/lemon yellow/lemon-yellow-linen-01.jpg",
-        "assets/shirts/lemon yellow/lemon-yellow-linen-02.jpg",
-        "assets/shirts/lemon yellow/lemon-yellow-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p006-01",
+          "color": "lemon-yellow",
+          "images": [
+            "assets/shirts/lemon yellow/lemon-yellow-linen-01.jpg",
+            "assets/shirts/lemon yellow/lemon-yellow-linen-02.jpg",
+            "assets/shirts/lemon yellow/lemon-yellow-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -572,25 +277,37 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/hunter green/hunter-green-linen-01.jpg",
-        "assets/shirts/hunter green/hunter-green-linen-02.jpg",
-        "assets/shirts/hunter green/hunter-green-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p007-01",
+          "color": "hunter-green",
+          "images": [
+            "assets/shirts/hunter green/hunter-green-linen-01.jpg",
+            "assets/shirts/hunter green/hunter-green-linen-02.jpg",
+            "assets/shirts/hunter green/hunter-green-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -602,26 +319,38 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/midnight purple/midnight-purple-linen-01.jpg",
-        "assets/shirts/midnight purple/midnight-purple-linen-02.jpg",
-        "assets/shirts/midnight purple/midnight-purple-linen-03.jpg",
-        "assets/shirts/midnight purple/midnight-purple-linen-04.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p008-01",
+          "color": "midnight-purple",
+          "images": [
+            "assets/shirts/midnight purple/midnight-purple-linen-01.jpg",
+            "assets/shirts/midnight purple/midnight-purple-linen-02.jpg",
+            "assets/shirts/midnight purple/midnight-purple-linen-03.jpg",
+            "assets/shirts/midnight purple/midnight-purple-linen-04.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -633,27 +362,39 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/misty mint/misty-mint-linen-01.jpg",
-        "assets/shirts/misty mint/misty-mint-linen-02.jpg",
-        "assets/shirts/misty mint/misty-mint-linen-03.jpg",
-        "assets/shirts/misty mint/misty-mint-linen-04.jpg",
-        "assets/shirts/misty mint/misty-mint-linen-05.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p009-01",
+          "color": "misty-mint",
+          "images": [
+            "assets/shirts/misty mint/misty-mint-linen-01.jpg",
+            "assets/shirts/misty mint/misty-mint-linen-02.jpg",
+            "assets/shirts/misty mint/misty-mint-linen-03.jpg",
+            "assets/shirts/misty mint/misty-mint-linen-04.jpg",
+            "assets/shirts/misty mint/misty-mint-linen-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -665,25 +406,37 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/midnight blue/midnight-blue-linen-01.jpg",
-        "assets/shirts/midnight blue/midnight-blue-linen-02.jpg",
-        "assets/shirts/midnight blue/midnight-blue-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p010-01",
+          "color": "midnight-blue",
+          "images": [
+            "assets/shirts/midnight blue/midnight-blue-linen-01.jpg",
+            "assets/shirts/midnight blue/midnight-blue-linen-02.jpg",
+            "assets/shirts/midnight blue/midnight-blue-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -695,25 +448,37 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/classic black/classic-black-linen-01.jpg",
-        "assets/shirts/classic black/classic-black-linen-02.jpg",
-        "assets/shirts/classic black/classic-black-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p011-01",
+          "color": "classic-black",
+          "images": [
+            "assets/shirts/classic black/classic-black-linen-01.jpg",
+            "assets/shirts/classic black/classic-black-linen-02.jpg",
+            "assets/shirts/classic black/classic-black-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -725,25 +490,37 @@
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
-      "images": [
-        "assets/shirts/stone grey/stone-grey-linen-01.jpg",
-        "assets/shirts/stone grey/stone-grey-linen-02.jpg",
-        "assets/shirts/stone grey/stone-grey-linen-03.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Stone",
-        "Olive"
+      "variants": [
+        {
+          "id": "p012-01",
+          "color": "stone-grey",
+          "images": [
+            "assets/shirts/stone grey/stone-grey-linen-01.jpg",
+            "assets/shirts/stone grey/stone-grey-linen-02.jpg",
+            "assets/shirts/stone grey/stone-grey-linen-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 5
+            },
+            {
+              "size": "L",
+              "stock": 4
+            },
+            {
+              "size": "XL",
+              "stock": 4
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 89,
-      "stock": 18,
       "isNew": true,
       "isFeatured": true
     },
@@ -755,25 +532,40 @@
       "price": 7499,
       "oldPrice": 8499,
       "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
-      "images": [
-        "assets/products/straight-trousers-1.jpg",
-        "assets/products/straight-trousers-2.jpg"
-      ],
-      "sizes": [
-        "30",
-        "32",
-        "34",
-        "36",
-        "38"
-      ],
-      "colors": [
-        "Black",
-        "Charcoal",
-        "Beige"
+      "variants": [
+        {
+          "id": "p015-black",
+          "color": "Black",
+          "images": [
+            "assets/products/straight-trousers-1.jpg",
+            "assets/products/straight-trousers-2.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 5
+            },
+            {
+              "size": "32",
+              "stock": 5
+            },
+            {
+              "size": "34",
+              "stock": 5
+            },
+            {
+              "size": "36",
+              "stock": 5
+            },
+            {
+              "size": "38",
+              "stock": 5
+            }
+          ]
+        }
       ],
       "rating": 4.9,
       "reviewsCount": 156,
-      "stock": 25,
       "isNew": false,
       "isFeatured": true
     },
@@ -784,25 +576,40 @@
       "category": "trousers",
       "price": 7999,
       "description": "Pleated trousers with a relaxed tailored fit and sophisticated finish.",
-      "images": [
-        "assets/products/pleated-trousers-1.jpg",
-        "assets/products/pleated-trousers-2.jpg"
-      ],
-      "sizes": [
-        "30",
-        "32",
-        "34",
-        "36",
-        "38"
-      ],
-      "colors": [
-        "Beige",
-        "Brown",
-        "Navy"
+      "variants": [
+        {
+          "id": "p016-beige",
+          "color": "Beige",
+          "images": [
+            "assets/products/pleated-trousers-1.jpg",
+            "assets/products/pleated-trousers-2.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 3
+            },
+            {
+              "size": "32",
+              "stock": 3
+            },
+            {
+              "size": "34",
+              "stock": 3
+            },
+            {
+              "size": "36",
+              "stock": 3
+            },
+            {
+              "size": "38",
+              "stock": 3
+            }
+          ]
+        }
       ],
       "rating": 4.8,
       "reviewsCount": 73,
-      "stock": 15,
       "isNew": true,
       "isFeatured": false
     },
@@ -814,25 +621,36 @@
       "price": 4999,
       "oldPrice": 5499,
       "description": "A refined pique polo with a clean silhouette and understated detailing.",
-      "images": [
-        "assets/products/pique-polo-1.jpg",
-        "assets/products/pique-polo-2.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "White",
-        "Navy",
-        "Black",
-        "Olive"
+      "variants": [
+        {
+          "id": "p035-white",
+          "color": "White",
+          "images": [
+            "assets/products/pique-polo-1.jpg",
+            "assets/products/pique-polo-2.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 8
+            },
+            {
+              "size": "M",
+              "stock": 8
+            },
+            {
+              "size": "L",
+              "stock": 7
+            },
+            {
+              "size": "XL",
+              "stock": 7
+            }
+          ]
+        }
       ],
       "rating": 4.8,
       "reviewsCount": 112,
-      "stock": 30,
       "isNew": false,
       "isFeatured": true
     },
@@ -843,24 +661,36 @@
       "category": "sweaters",
       "price": 8999,
       "description": "A soft merino wool crewneck with a relaxed yet refined silhouette.",
-      "images": [
-        "assets/products/merino-sweater-1.jpg",
-        "assets/products/merino-sweater-2.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Cream",
-        "Charcoal",
-        "Brown"
+      "variants": [
+        {
+          "id": "p046-cream",
+          "color": "Cream",
+          "images": [
+            "assets/products/merino-sweater-1.jpg",
+            "assets/products/merino-sweater-2.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 3
+            },
+            {
+              "size": "M",
+              "stock": 3
+            },
+            {
+              "size": "L",
+              "stock": 3
+            },
+            {
+              "size": "XL",
+              "stock": 3
+            }
+          ]
+        }
       ],
       "rating": 4.9,
       "reviewsCount": 91,
-      "stock": 12,
       "isNew": true,
       "isFeatured": true
     },
@@ -871,24 +701,36 @@
       "category": "hoodies",
       "price": 6999,
       "description": "A heavyweight cotton hoodie with a relaxed fit and minimal branding.",
-      "images": [
-        "assets/products/essential-hoodie-1.jpg",
-        "assets/products/essential-hoodie-2.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Black",
-        "Stone",
-        "Grey"
+      "variants": [
+        {
+          "id": "p057-black",
+          "color": "Black",
+          "images": [
+            "assets/products/essential-hoodie-1.jpg",
+            "assets/products/essential-hoodie-2.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 6
+            },
+            {
+              "size": "M",
+              "stock": 6
+            },
+            {
+              "size": "L",
+              "stock": 5
+            },
+            {
+              "size": "XL",
+              "stock": 5
+            }
+          ]
+        }
       ],
       "rating": 4.7,
       "reviewsCount": 64,
-      "stock": 22,
       "isNew": false,
       "isFeatured": true
     },
@@ -899,25 +741,36 @@
       "category": "oversized-tshirts",
       "price": 3499,
       "description": "Premium heavyweight cotton oversized T-shirt with a relaxed contemporary fit.",
-      "images": [
-        "assets/products/oversized-tee-1.jpg",
-        "assets/products/oversized-tee-2.jpg"
-      ],
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "White",
-        "Black",
-        "Stone",
-        "Grey"
+      "variants": [
+        {
+          "id": "p068-white",
+          "color": "White",
+          "images": [
+            "assets/products/oversized-tee-1.jpg",
+            "assets/products/oversized-tee-2.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 10
+            },
+            {
+              "size": "M",
+              "stock": 10
+            },
+            {
+              "size": "L",
+              "stock": 10
+            },
+            {
+              "size": "XL",
+              "stock": 10
+            }
+          ]
+        }
       ],
       "rating": 4.8,
       "reviewsCount": 203,
-      "stock": 40,
       "isNew": true,
       "isFeatured": true
     }

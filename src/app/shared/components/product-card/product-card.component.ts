@@ -1,41 +1,94 @@
-import { Component,inject,input, OnInit,signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
+
 import { Product } from '../../../core/models/product.model';
+
 import { RouterLink } from '@angular/router';
+
 import { Store } from '@ngrx/store';
-import { selectIsProductInWishlist } from '../../../store/wishlist/wishlist.selectors';
-import { toggleWishlist } from '../../../store/wishlist/wishlist.actions';
+
+import {
+  selectIsProductInWishlist
+} from '../../../store/wishlist/wishlist.selectors';
+
+import {
+  toggleWishlist
+} from '../../../store/wishlist/wishlist.actions';
+
 import { AsyncPipe } from '@angular/common';
+
 import { Observable } from 'rxjs';
+
 import { QuickAddComponent } from '../quick-add/quick-add.component';
 
 
 @Component({
   selector: 'app-product-card',
+
   standalone: true,
-  imports: [RouterLink,AsyncPipe,QuickAddComponent],
+
+  imports: [
+    RouterLink,
+    AsyncPipe,
+    QuickAddComponent
+  ],
+
   templateUrl: './product-card.component.html',
+
   styleUrl: './product-card.component.css'
 })
 export class ProductCardComponent implements OnInit {
 
   private store = inject(Store);
 
-  product = input.required<Product>();
+
+  // =====================================================
+  // PRODUCT
+  // =====================================================
+
+  product =
+    input.required<Product>();
+
+
+  // =====================================================
+  // WISHLIST
+  // =====================================================
 
   isWishlisted$!: Observable<boolean>;
 
+
+  // =====================================================
   // QUICK ADD STATE
   // =====================================================
 
-  isQuickAddOpen = signal(false);
+  isQuickAddOpen =
+    signal(false);
+
+
+  // =====================================================
+  // INIT
+  // =====================================================
 
   ngOnInit(): void {
 
-    this.isWishlisted$ = this.store.select(
-      selectIsProductInWishlist(this.product().id)
-    );
+    this.isWishlisted$ =
+      this.store.select(
+        selectIsProductInWishlist(
+          this.product().id
+        )
+      );
 
   }
+
+
+  // =====================================================
+  // WISHLIST
+  // =====================================================
 
   toggleWishlist(): void {
 
@@ -46,6 +99,11 @@ export class ProductCardComponent implements OnInit {
     );
 
   }
+
+
+  // =====================================================
+  // QUICK ADD
+  // =====================================================
 
   openQuickAdd(): void {
 
@@ -63,4 +121,5 @@ export class ProductCardComponent implements OnInit {
     this.isQuickAddOpen.set(false);
 
   }
+
 }

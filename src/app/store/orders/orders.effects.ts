@@ -194,291 +194,312 @@ export class OrdersEffects {
   // =====================================================
 
   placeOrder$ = createEffect(() =>
+
     this.actions$.pipe(
 
       ofType(placeOrder),
 
-      tap(({ request }) => {
 
-        console.log(
-          '🔥 PLACE ORDER EFFECT TRIGGERED'
-        );
-
-        console.log(
-          '🔥 ORDER REQUEST RECEIVED:',
-          request
-        );
-
-      }),
-
-      // -----------------------------------------------
+      // ===================================================
       // GET CURRENT USER
-      // -----------------------------------------------
+      // ===================================================
 
       switchMap(({ request }) =>
 
-        this.store.select(selectCurrentUser).pipe(
+        this.store
+          .select(selectCurrentUser)
+          .pipe(
 
-          take(1),
+            take(1),
 
-          switchMap(user => {
+            switchMap(user => {
 
-            // -----------------------------------------
-            // USER MUST BE LOGGED IN
-            // -----------------------------------------
+              if (!user) {
 
-            if (!user) {
+                return of(
 
-              return of(
-                placeOrderFailure({
-                  error:
-                    'You must be logged in to place an order'
-                })
-              );
+                  placeOrderFailure({
 
-            }
+                    error:
+                      'You must be logged in to place an order'
 
+                  })
 
-            // -----------------------------------------
-            // GET CURRENT USER'S EXISTING ORDERS
-            // -----------------------------------------
+                );
 
-            return this.orderService
-              .getOrders(user.id)
-              .pipe(
-
-                tap(existingOrders => {
-
-                  console.log(
-                    'CURRENT USER ORDERS:',
-                    existingOrders
-                  );
-
-                }),
+              }
 
 
-                // -----------------------------------------
-                // GET PRODUCTS
-                // -----------------------------------------
+              // =============================================
+              // GET EXISTING ORDERS
+              // =============================================
 
-                switchMap(existingOrders =>
+              return this.orderService
+                .getOrders(user.id)
+                .pipe(
 
-                  this.productService
-                    .getProducts()
-                    .pipe(
+                  // =========================================
+                  // GET PRODUCTS
+                  // =========================================
 
-                      tap(products => {
+                  switchMap(existingOrders =>
 
-                        console.log(
-                          'PRODUCTS LOADED FOR ORDER:',
-                          products
-                        );
+                    this.productService
+                      .getProducts()
+                      .pipe(
 
-                      }),
+                        // ===================================
+                        // BUILD ORDER
+                        // ===================================
 
+                        map(products => {
 
-                      // -----------------------------------
-                      // BUILD ORDER
-                      // -----------------------------------
+                          const orderItems =
+                            request.items.map(item => {
 
-                      map(products => {
-
-                        console.log(
-                          'BUILDING ORDER...'
-                        );
-
-
-                        const orderItems =
-                          request.items.map(item => {
-
-                            const product =
-                              products.find(
-                                product =>
-                                  product.id ===
-                                  item.productId
-                              );
+                              const product =
+                                products.find(
+                                  product =>
+                                    product.id ===
+                                    item.productId
+                                );
 
 
-                            if (!product) {
+                              if (!product) {
 
-                              throw new Error(
-                                `Product ${item.productId} not found`
-                              );
+                                throw new Error(
+                                  `Product ${item.productId} not found`
+                                );
 
-                            }
-
-
-                            return {
-
-                              productId:
-                                product.id,
-
-                              name:
-                                product.name,
-
-                              image:
-                                product.images[0],
-
-                              size:
-                                item.size,
-
-                              quantity:
-                                item.quantity,
-
-                              price:
-                                product.price,
-
-                              total:
-                                product.price *
-                                item.quantity
-
-                            };
-
-                          });
+                              }
 
 
-                        // ---------------------------------
-                        // CALCULATE SUBTOTAL
-                        // ---------------------------------
-
-                        const subtotal =
-                          orderItems.reduce(
-                            (total, item) =>
-                              total + item.total,
-                            0
-                          );
+                              const variant =
+                                product.variants.find(
+                                  variant =>
+                                    variant.id ===
+                                    item.variantId
+                                );
 
 
-                        // ---------------------------------
-                        // CREATE ORDER
-                        // ---------------------------------
+                              if (!variant) {
 
-                        const order: Order = {
+                                throw new Error(
 
-                          id:
-                            crypto.randomUUID(),
+                                  `Variant ${item.variantId} not found for product ${product.id}`
 
-                          // IMPORTANT:
-                          // Associate order with logged-in user
-                          userId:
-                            user.id,
+                                );
 
-                          orderNumber:
-                            generateOrderNumber(
-                              existingOrders
-                            ),
+                              }
 
-                          items:
-                            orderItems,
 
-                          subtotal,
+                              const size =
+                                variant.sizes.find(
+                                  size =>
+                                    size.size ===
+                                    item.size
+                                );
 
-                          shipping:
-                            0,
 
-                          total:
+                              if (!size) {
+
+                                throw new Error(
+
+                                  `Size ${item.size} not found for variant ${variant.id}`
+
+                                );
+
+                              }
+
+
+                              // ---------------------------------
+                              // STOCK VALIDATION
+                              // ---------------------------------
+
+                              if (
+                                item.quantity >
+                                size.stock
+                              ) {
+
+                                throw new Error(
+
+                                  `${product.name} (${variant.color}, ${item.size}) does not have enough stock`
+
+                                );
+
+                              }
+
+
+                              // ---------------------------------
+                              // CREATE ORDER ITEM
+                              // ---------------------------------
+
+                              return {
+
+                                productId:
+                                  product.id,
+
+                                variantId:
+                                  variant.id,
+
+                                name:
+                                  product.name,
+
+                                image:
+                                  variant.images[0],
+
+                                color:
+                                  variant.color,
+
+                                size:
+                                  item.size,
+
+                                quantity:
+                                  item.quantity,
+
+                                price:
+                                  product.price,
+
+                                total:
+                                  product.price *
+                                  item.quantity
+
+                              };
+
+                            });
+
+
+                          // =================================
+                          // CALCULATE SUBTOTAL
+                          // =================================
+
+                          const subtotal =
+                            orderItems.reduce(
+
+                              (total, item) =>
+
+                                total +
+                                item.total,
+
+                              0
+
+                            );
+
+
+                          // =================================
+                          // CREATE ORDER
+                          // =================================
+
+                          const order:
+                            Order = {
+
+                            id:
+                              crypto.randomUUID(),
+
+                            userId:
+                              user.id,
+
+                            orderNumber:
+                              generateOrderNumber(
+                                existingOrders
+                              ),
+
+                            items:
+                              orderItems,
+
                             subtotal,
 
-                          shippingAddress:
-                            request.shippingAddress,
+                            shipping:
+                              0,
 
-                          paymentMethod:
-                            request.paymentMethod,
+                            total:
+                              subtotal,
 
-                          paymentStatus:
-                            'pending',
+                            shippingAddress:
+                              request.shippingAddress,
 
-                          orderStatus:
-                            'confirmed',
+                            paymentMethod:
+                              request.paymentMethod,
 
-                          createdAt:
-                            new Date().toISOString()
+                            paymentStatus:
+                              'pending',
 
-                        };
+                            orderStatus:
+                              'confirmed',
 
+                            createdAt:
+                              new Date()
+                                .toISOString()
 
-                        console.log(
-                          'ORDER CREATED:',
-                          order
-                        );
-
-
-                        return order;
-
-                      }),
+                          };
 
 
-                      // -----------------------------------
-                      // POST ORDER
-                      // -----------------------------------
+                          return order;
 
-                      switchMap(order => {
-
-                        console.log(
-                          'POSTING ORDER TO BACKEND...'
-                        );
+                        }),
 
 
-                        return this.orderService
-                          .createOrder(order)
-                          .pipe(
+                        // ===================================
+                        // POST ORDER
+                        // ===================================
 
-                            tap(createdOrder => {
+                        switchMap(order =>
 
-                              console.log(
-                                'ORDER CREATED SUCCESSFULLY:',
-                                createdOrder
-                              );
+                          this.orderService
+                            .createOrder(order)
+                            .pipe(
 
-                            }),
+                              map(createdOrder =>
 
-                            map(createdOrder =>
-                              placeOrderSuccess({
-                                order: createdOrder
-                              })
+                                placeOrderSuccess({
+
+                                  order:
+                                    createdOrder
+
+                                })
+
+                              )
+
                             )
 
-                          );
+                        )
+
+                      )
+
+                  ),
+
+
+                  // =======================================
+                  // HANDLE ERRORS
+                  // =======================================
+
+                  catchError(error =>
+
+                    of(
+
+                      placeOrderFailure({
+
+                        error:
+                          error.message ??
+                          'Failed to place order'
 
                       })
 
                     )
 
-                ),
+                  )
 
+                );
 
-                // -----------------------------------------
-                // HANDLE ERRORS
-                // -----------------------------------------
+            })
 
-                catchError(error => {
-
-                  console.error(
-                    '❌ PLACE ORDER ERROR:',
-                    error
-                  );
-
-                  return of(
-                    placeOrderFailure({
-                      error:
-                        error.message ??
-                        'Failed to place order'
-                    })
-                  );
-
-                })
-
-              );
-
-          })
-
-        )
+          )
 
       )
 
     )
-  );
 
+  );
 
   // =====================================================
   // CLEAR CART + CHECKOUT AFTER SUCCESS

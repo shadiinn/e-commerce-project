@@ -6,17 +6,21 @@ import {
 
 export interface CheckoutState {
 
-  mode: CheckoutMode | null;
+  mode:
+    CheckoutMode |
+    null;
 
-  items: CheckoutItem[];
+  items:
+    CheckoutItem[];
 
 }
 
 
-export const initialCheckoutState: CheckoutState = {
+export const initialCheckoutState:
+  CheckoutState = {
 
-  mode: null,
+    mode: null,
 
-  items: []
+    items: []
 
-};
+  };

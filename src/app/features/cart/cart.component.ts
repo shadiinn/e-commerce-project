@@ -1,7 +1,20 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
+import {
+  AsyncPipe
+} from '@angular/common';
+
+import {
+  Component,
+  inject
+} from '@angular/core';
+
+import {
+  Router,
+  RouterLink
+} from '@angular/router';
+
+import {
+  Store
+} from '@ngrx/store';
 
 import {
   selectCartItemsWithProducts,
@@ -29,7 +42,9 @@ import {
   startCheckout
 } from '../../store/checkout/checkout.actions';
 
-import { take } from 'rxjs';
+import {
+  take
+} from 'rxjs';
 
 
 @Component({
@@ -48,9 +63,11 @@ import { take } from 'rxjs';
 })
 export class CartComponent {
 
-  private store = inject(Store);
+  private store =
+    inject(Store);
 
-  private router = inject(Router);
+  private router =
+    inject(Router);
 
 
   // =====================================================
@@ -94,6 +111,61 @@ export class CartComponent {
 
 
   // =====================================================
+  // CHECK IF QUANTITY CAN INCREASE
+  // =====================================================
+
+  canIncreaseQuantity(item: any): boolean {
+
+    const variant =
+      item.variant;
+
+    if (!variant) {
+
+      return false;
+
+    }
+
+
+    const size =
+      variant.sizes.find(
+        (size: any) =>
+          size.size ===
+          item.size
+      );
+
+
+    if (!size) {
+
+      return false;
+
+    }
+
+
+    if (
+      item.quantity >=
+      size.stock
+    ) {
+
+      return false;
+
+    }
+
+
+    if (
+      item.quantity >= 5
+    ) {
+
+      return false;
+
+    }
+
+
+    return true;
+
+  }
+
+
+  // =====================================================
   // INCREASE QUANTITY
   // =====================================================
 
@@ -103,35 +175,30 @@ export class CartComponent {
 
     this.isAuthenticated$
       .pipe(take(1))
-      .subscribe(isAuthenticated => {
+      .subscribe(
+        isAuthenticated => {
 
-        // -------------------------------------------------
-        // LOGGED-IN USER
-        // -------------------------------------------------
+          if (isAuthenticated) {
 
-        if (isAuthenticated) {
+            this.store.dispatch(
+              increaseQuantity({
+                cartItemId
+              })
+            );
+
+            return;
+
+          }
+
 
           this.store.dispatch(
-            increaseQuantity({
+            increaseGuestQuantity({
               cartItemId
             })
           );
 
-          return;
         }
-
-
-        // -------------------------------------------------
-        // GUEST USER
-        // -------------------------------------------------
-
-        this.store.dispatch(
-          increaseGuestQuantity({
-            cartItemId
-          })
-        );
-
-      });
+      );
 
   }
 
@@ -146,35 +213,30 @@ export class CartComponent {
 
     this.isAuthenticated$
       .pipe(take(1))
-      .subscribe(isAuthenticated => {
+      .subscribe(
+        isAuthenticated => {
 
-        // -------------------------------------------------
-        // LOGGED-IN USER
-        // -------------------------------------------------
+          if (isAuthenticated) {
 
-        if (isAuthenticated) {
+            this.store.dispatch(
+              decreaseQuantity({
+                cartItemId
+              })
+            );
+
+            return;
+
+          }
+
 
           this.store.dispatch(
-            decreaseQuantity({
+            decreaseGuestQuantity({
               cartItemId
             })
           );
 
-          return;
         }
-
-
-        // -------------------------------------------------
-        // GUEST USER
-        // -------------------------------------------------
-
-        this.store.dispatch(
-          decreaseGuestQuantity({
-            cartItemId
-          })
-        );
-
-      });
+      );
 
   }
 
@@ -189,35 +251,30 @@ export class CartComponent {
 
     this.isAuthenticated$
       .pipe(take(1))
-      .subscribe(isAuthenticated => {
+      .subscribe(
+        isAuthenticated => {
 
-        // -------------------------------------------------
-        // LOGGED-IN USER
-        // -------------------------------------------------
+          if (isAuthenticated) {
 
-        if (isAuthenticated) {
+            this.store.dispatch(
+              removeFromCart({
+                cartItemId
+              })
+            );
+
+            return;
+
+          }
+
 
           this.store.dispatch(
-            removeFromCart({
+            removeGuestItem({
               cartItemId
             })
           );
 
-          return;
         }
-
-
-        // -------------------------------------------------
-        // GUEST USER
-        // -------------------------------------------------
-
-        this.store.dispatch(
-          removeGuestItem({
-            cartItemId
-          })
-        );
-
-      });
+      );
 
   }
 
@@ -230,31 +287,26 @@ export class CartComponent {
 
     this.isAuthenticated$
       .pipe(take(1))
-      .subscribe(isAuthenticated => {
+      .subscribe(
+        isAuthenticated => {
 
-        // -------------------------------------------------
-        // LOGGED-IN USER
-        // -------------------------------------------------
+          if (isAuthenticated) {
 
-        if (isAuthenticated) {
+            this.store.dispatch(
+              clearCart()
+            );
+
+            return;
+
+          }
+
 
           this.store.dispatch(
-            clearCart()
+            clearGuestCart()
           );
 
-          return;
         }
-
-
-        // -------------------------------------------------
-        // GUEST USER
-        // -------------------------------------------------
-
-        this.store.dispatch(
-          clearGuestCart()
-        );
-
-      });
+      );
 
   }
 
@@ -265,45 +317,25 @@ export class CartComponent {
 
   proceedToCheckout(): void {
 
-    console.log(
-      'PROCEED TO CHECKOUT CLICKED'
-    );
-
-
     this.cartItems$
       .pipe(take(1))
       .subscribe(items => {
 
-        console.log(
-          'CART ITEMS:',
-          items
-        );
-
-
-        // -------------------------------------------------
-        // EMPTY CART
-        // -------------------------------------------------
-
         if (!items.length) {
-
-          console.log(
-            'CART IS EMPTY'
-          );
 
           return;
 
         }
 
 
-        // -------------------------------------------------
-        // CREATE CHECKOUT ITEMS
-        // -------------------------------------------------
-
         const checkoutItems =
           items.map(item => ({
 
             productId:
               item.product.id,
+
+            variantId:
+              item.variant.id,
 
             size:
               item.size,
@@ -314,17 +346,8 @@ export class CartComponent {
           }));
 
 
-        console.log(
-          'CHECKOUT ITEMS TO STORE:',
-          checkoutItems
-        );
-
-
-        // -------------------------------------------------
-        // START CHECKOUT
-        // -------------------------------------------------
-
         this.store.dispatch(
+
           startCheckout({
 
             mode: 'cart',
@@ -333,17 +356,9 @@ export class CartComponent {
               checkoutItems
 
           })
+
         );
 
-
-        console.log(
-          'START CHECKOUT DISPATCHED'
-        );
-
-
-        // -------------------------------------------------
-        // NAVIGATE TO CHECKOUT
-        // -------------------------------------------------
 
         this.router.navigate([
           '/checkout'

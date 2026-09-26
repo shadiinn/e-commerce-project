@@ -1,8 +1,20 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import {
+  HttpClient
+} from '@angular/common/http';
 
-import { CartItem } from '../models/cart.model';
+import {
+  inject,
+  Injectable
+} from '@angular/core';
+
+import {
+  Observable
+} from 'rxjs';
+
+import {
+  CartItem
+} from '../models/cart.model';
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +23,7 @@ export class CartService {
 
   private http =
     inject(HttpClient);
+
 
   private readonly API_URL =
     'http://localhost:3000/cart';

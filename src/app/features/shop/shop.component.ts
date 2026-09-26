@@ -7,7 +7,9 @@ import {
 } from '@angular/core';
 
 import { Store } from '@ngrx/store';
+
 import { AsyncPipe } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
@@ -66,60 +68,82 @@ export class ShopComponent implements OnInit {
     }
   );
 
-  loading$ = this.store.select(selectProductsLoading);
+  loading$ =
+    this.store.select(
+      selectProductsLoading
+    );
 
-  error$ = this.store.select(selectProductsError);
+  error$ =
+    this.store.select(
+      selectProductsError
+    );
 
 
   // =========================================================
   // APPLIED FILTER STATE
   // =========================================================
 
-  selectedCategories = signal<string[]>([]);
+  selectedCategories =
+    signal<string[]>([]);
 
-  selectedSizes = signal<string[]>([]);
+  selectedSizes =
+    signal<string[]>([]);
 
-  minPrice = signal(0);
+  minPrice =
+    signal(0);
 
-  maxPrice = signal(10000);
+  maxPrice =
+    signal(10000);
 
-  inStockOnly = signal(false);
+  inStockOnly =
+    signal(false);
 
-  searchTerm = signal('');
+  searchTerm =
+    signal('');
 
 
   // =========================================================
   // TEMPORARY FILTER STATE
   // =========================================================
 
-  tempCategories = signal<string[]>([]);
+  tempCategories =
+    signal<string[]>([]);
 
-  tempSizes = signal<string[]>([]);
+  tempSizes =
+    signal<string[]>([]);
 
-  tempMinPrice = signal(0);
+  tempMinPrice =
+    signal(0);
 
-  tempMaxPrice = signal(10000);
+  tempMaxPrice =
+    signal(10000);
 
-  tempInStockOnly = signal(false);
+  tempInStockOnly =
+    signal(false);
 
 
   // =========================================================
   // SORT
   // =========================================================
 
-  sortBy = signal('featured');
+  sortBy =
+    signal('featured');
 
 
   // =========================================================
   // FILTER DRAWER
   // =========================================================
 
-  isFilterOpen = signal(false);
+  isFilterOpen =
+    signal(false);
 
-  activeFilter = signal<string | null>(null);
+  activeFilter =
+    signal<string | null>(null);
 
 
-  toggleFilter(section: string): void {
+  toggleFilter(
+    section: string
+  ): void {
 
     this.activeFilter.update(
       current =>
@@ -149,138 +173,365 @@ export class ShopComponent implements OnInit {
 
 
   // =========================================================
+  // PRODUCT HELPERS
+  // =========================================================
+
+  /**
+   * Checks whether a product has at least one
+   * selected size available in any of its variants.
+   */
+  productHasSelectedSize(
+    product: any,
+    selectedSizes: string[]
+  ): boolean {
+
+    if (
+      selectedSizes.length === 0
+    ) {
+
+      return true;
+
+    }
+
+
+    return product.variants?.some(
+      (variant: any) =>
+        variant.sizes?.some(
+          (size: any) =>
+            selectedSizes.includes(
+              size.size
+            )
+        )
+    ) ?? false;
+
+  }
+
+
+  /**
+   * Calculates total stock across all variants
+   * and all sizes of a product.
+   */
+  getProductTotalStock(
+    product: any
+  ): number {
+
+    return (
+      product.variants?.reduce(
+        (
+          total: number,
+          variant: any
+        ) => {
+
+          return (
+            total +
+            (
+              variant.sizes?.reduce(
+                (
+                  variantTotal: number,
+                  size: any
+                ) =>
+                  variantTotal +
+                  (size.stock ?? 0),
+                0
+              ) ?? 0
+            )
+          );
+
+        },
+        0
+      ) ?? 0
+    );
+
+  }
+
+
+  // =========================================================
+  // SEARCH HELPER
+  // =========================================================
+
+  /**
+   * Checks whether a product matches the search term.
+   *
+   * Search looks through:
+   *
+   * - Product name
+   * - Product category
+   * - Product description
+   * - Product slug
+   * - Variant/color names
+   */
+  productMatchesSearch(
+    product: any,
+    search: string
+  ): boolean {
+
+    // -------------------------------------------------------
+    // Normalize search
+    // -------------------------------------------------------
+
+    const normalizedSearch =
+      search
+        .trim()
+        .toLowerCase();
+
+
+    // -------------------------------------------------------
+    // Empty search
+    // -------------------------------------------------------
+
+    if (!normalizedSearch) {
+
+      return true;
+
+    }
+
+
+    // -------------------------------------------------------
+    // Product fields
+    // -------------------------------------------------------
+
+    const name =
+      String(
+        product.name ?? ''
+      )
+        .toLowerCase();
+
+    const category =
+      String(
+        product.category ?? ''
+      )
+        .toLowerCase();
+
+    const description =
+      String(
+        product.description ?? ''
+      )
+        .toLowerCase();
+
+    const slug =
+      String(
+        product.slug ?? ''
+      )
+        .toLowerCase();
+
+
+    // -------------------------------------------------------
+    // Variant colors
+    // -------------------------------------------------------
+
+    const variantMatches =
+      product.variants?.some(
+        (variant: any) => {
+
+          const color =
+            String(
+              variant.color ?? ''
+            )
+              .toLowerCase();
+
+          return color.includes(
+            normalizedSearch
+          );
+
+        }
+      ) ?? false;
+
+
+    // -------------------------------------------------------
+    // Final search match
+    // -------------------------------------------------------
+
+    return (
+      name.includes(
+        normalizedSearch
+      ) ||
+
+      category.includes(
+        normalizedSearch
+      ) ||
+
+      description.includes(
+        normalizedSearch
+      ) ||
+
+      slug.includes(
+        normalizedSearch
+      ) ||
+
+      variantMatches
+    );
+
+  }
+
+
+  // =========================================================
   // FILTERED PRODUCTS
   // =========================================================
 
-  filteredProducts = computed(() => {
+  filteredProducts =
+    computed(() => {
 
-    const products = this.products();
-
-    const categories = this.selectedCategories();
-
-    const sizes = this.selectedSizes();
-
-    const min = this.minPrice();
-
-    const max = this.maxPrice();
-
-    const inStock = this.inStockOnly();
-
-    const search = this.searchTerm()
-      .trim()
-      .toLowerCase();
+      const products =
+        this.products();
 
 
-    return products.filter(product => {
-
-      // SEARCH
-
-      const searchMatch =
-        search === '' ||
-        product.name
-          .toLowerCase()
-          .includes(search) ||
-        product.category
-          .toLowerCase()
-          .includes(search);
+      const categories =
+        this.selectedCategories();
 
 
-      // CATEGORY
-
-      const categoryMatch =
-        categories.length === 0 ||
-        categories.includes(product.category);
+      const sizes =
+        this.selectedSizes();
 
 
-      // SIZE
-
-      const sizeMatch =
-        sizes.length === 0 ||
-        product.sizes.some(size =>
-          sizes.includes(size)
-        );
+      const min =
+        this.minPrice();
 
 
-      // PRICE
-
-      const priceMatch =
-        product.price >= min &&
-        product.price <= max;
+      const max =
+        this.maxPrice();
 
 
-      // AVAILABILITY
-
-      const availabilityMatch =
-        !inStock ||
-        product.stock > 0;
+      const inStock =
+        this.inStockOnly();
 
 
-      return (
-        searchMatch &&
-        categoryMatch &&
-        sizeMatch &&
-        priceMatch &&
-        availabilityMatch
+      const search =
+        this.searchTerm()
+          .trim()
+          .toLowerCase();
+
+
+      return products.filter(
+        product => {
+
+
+          // =================================================
+          // SEARCH
+          // =================================================
+
+          const searchMatch =
+            this.productMatchesSearch(
+              product,
+              search
+            );
+
+
+          // =================================================
+          // CATEGORY
+          // =================================================
+
+          const categoryMatch =
+            categories.length === 0 ||
+            categories.includes(
+              product.category
+            );
+
+
+          // =================================================
+          // SIZE
+          // =================================================
+
+          const sizeMatch =
+            this.productHasSelectedSize(
+              product,
+              sizes
+            );
+
+
+          // =================================================
+          // PRICE
+          // =================================================
+
+          const priceMatch =
+            product.price >= min &&
+            product.price <= max;
+
+
+          // =================================================
+          // AVAILABILITY
+          // =================================================
+
+          const availabilityMatch =
+            !inStock ||
+            this.getProductTotalStock(
+              product
+            ) > 0;
+
+
+          // =================================================
+          // FINAL RESULT
+          // =================================================
+
+          return (
+            searchMatch &&
+            categoryMatch &&
+            sizeMatch &&
+            priceMatch &&
+            availabilityMatch
+          );
+
+        }
       );
 
     });
-
-  });
 
 
   // =========================================================
   // SORTED PRODUCTS
   // =========================================================
 
-  sortedProducts = computed(() => {
+  sortedProducts =
+    computed(() => {
 
-    const products = [
-      ...this.filteredProducts()
-    ];
-
-    const sort = this.sortBy();
-
-
-    switch (sort) {
-
-      case 'price-low':
-
-        return products.sort(
-          (a, b) =>
-            a.price - b.price
-        );
+      const products = [
+        ...this.filteredProducts()
+      ];
 
 
-      case 'price-high':
-
-        return products.sort(
-          (a, b) =>
-            b.price - a.price
-        );
+      const sort =
+        this.sortBy();
 
 
-      case 'newest':
+      switch (sort) {
 
-        return products.sort(
-          (a, b) =>
-            Number(b.isNew) -
-            Number(a.isNew)
-        );
+        case 'price-low':
+
+          return products.sort(
+            (a, b) =>
+              a.price - b.price
+          );
 
 
-      case 'featured':
+        case 'price-high':
 
-      default:
+          return products.sort(
+            (a, b) =>
+              b.price - a.price
+          );
 
-        return products.sort(
-          (a, b) =>
-            Number(b.isFeatured) -
-            Number(a.isFeatured)
-        );
 
-    }
+        case 'newest':
 
-  });
+          return products.sort(
+            (a, b) =>
+              Number(b.isNew) -
+              Number(a.isNew)
+          );
+
+
+        case 'featured':
+
+        default:
+
+          return products.sort(
+            (a, b) =>
+              Number(b.isFeatured) -
+              Number(a.isFeatured)
+          );
+
+      }
+
+    });
 
 
   // =========================================================
@@ -339,6 +590,8 @@ export class ShopComponent implements OnInit {
     );
 
 
+    this.activeFilter.set(null);
+
     this.isFilterOpen.set(true);
 
   }
@@ -369,7 +622,8 @@ export class ShopComponent implements OnInit {
         ) {
 
           return categories.filter(
-            item => item !== category
+            item =>
+              item !== category
           );
 
         }
@@ -402,7 +656,8 @@ export class ShopComponent implements OnInit {
         ) {
 
           return sizes.filter(
-            item => item !== size
+            item =>
+              item !== size
           );
 
         }
@@ -496,10 +751,22 @@ export class ShopComponent implements OnInit {
 
     this.sortBy.set('featured');
 
+    this.tempCategories.set([]);
 
-    this.router.navigate([
-      '/shop'
-    ]);
+    this.tempSizes.set([]);
+
+    this.tempMinPrice.set(0);
+
+    this.tempMaxPrice.set(10000);
+
+    this.tempInStockOnly.set(false);
+
+
+    // Clear the search query parameter too.
+
+    this.router.navigate(
+      ['/shop']
+    );
 
   }
 
@@ -516,46 +783,49 @@ export class ShopComponent implements OnInit {
 
   }
 
+  private isBrowserRefresh(): boolean {
+    const navigation = performance.getEntriesByType(
+      'navigation'
+    )[0] as PerformanceNavigationTiming;
 
+    return navigation?.type === 'reload';
+  }
   // =========================================================
   // INIT
   // =========================================================
 
+  private initialNavigationHandled = false;
+
   ngOnInit(): void {
+    this.reloadProducts();
 
-    // Load products once
+    this.route.queryParamMap.subscribe(params => {
+      const search = params.get('search') ?? '';
 
-    this.loadProducts();
+      // Only apply the refresh logic to the FIRST
+      // navigation when ShopComponent is loaded.
+      if (
+        !this.initialNavigationHandled &&
+        this.isBrowserRefresh() &&
+        search
+      ) {
+        this.initialNavigationHandled = true;
 
+        this.searchTerm.set('');
 
-    // Read search query parameter
-
-    this.route.queryParams.subscribe(
-      params => {
-
-        const search =
-          params['search'] || '';
-
-        this.searchTerm.set(
-          search
+        this.router.navigate(
+          ['/shop'],
+          {
+            replaceUrl: true
+          }
         );
 
+        return;
       }
-    );
 
+      this.initialNavigationHandled = true;
+
+      this.searchTerm.set(search);
+    });
   }
-
-
-  // =========================================================
-  // LOAD PRODUCTS
-  // =========================================================
-
-  loadProducts(): void {
-
-    this.store.dispatch(
-      loadProducts()
-    );
-
-  }
-
 }

@@ -1,4 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import {
+  Injectable,
+  inject
+} from '@angular/core';
 
 import {
   Actions,
@@ -16,9 +19,41 @@ import {
   tap
 } from 'rxjs';
 
-import { Store } from '@ngrx/store';
+import {
+  Store
+} from '@ngrx/store';
 
-import { CartService } from '../../core/services/cart.service';
+import {
+  CartService
+} from '../../core/services/cart.service';
+
+import {
+  GuestCartService
+} from '../../core/services/guest-cart.service';
+
+import {
+  CartItem
+} from '../../core/models/cart.model';
+
+import {
+  loadProductsSuccess
+} from '../products/products.actions';
+
+import {
+  selectProductEntities
+} from '../products/products.selectors';
+
+import {
+  selectCurrentUser
+} from '../auth/auth.selectors';
+
+import {
+  loginSuccess,
+  logout,
+  restoreAuthSuccess
+} from '../auth/auth.actions';
+
+import { CART_LIMITS } from '../../core/models/constants/cart.constants';
 
 import {
   loadCart,
@@ -30,6 +65,7 @@ import {
   removeFromCart,
   clearCart,
   resetCart,
+
   loadGuestCart,
   loadGuestCartSuccess,
   addGuestCartItem,
@@ -37,26 +73,11 @@ import {
   decreaseGuestQuantity,
   removeGuestItem,
   clearGuestCart,
+
   mergeGuestCart,
   mergeGuestCartFailure,
   mergeGuestCartSuccess
 } from './cart.actions';
-
-import {
-  loginSuccess,
-  logout,
-  restoreAuthSuccess
-} from '../auth/auth.actions';
-
-import {
-  selectCurrentUser
-} from '../auth/auth.selectors';
-
-import { CartItem } from '../../core/models/cart.model';
-
-import {
-  GuestCartService
-} from '../../core/services/guest-cart.service';
 
 
 @Injectable()
@@ -91,6 +112,29 @@ export class CartEffects {
 
         map(() =>
           loadCart()
+        )
+
+      )
+
+    );
+
+
+  // =====================================================
+  // LOAD GUEST CART INITIALLY
+  // =====================================================
+
+  loadGuestCartAfterAuthRestore$ =
+    createEffect(() =>
+
+      this.actions$.pipe(
+
+        ofType(
+          restoreAuthSuccess,
+          logout
+        ),
+
+        map(() =>
+          loadGuestCart()
         )
 
       )
@@ -139,29 +183,16 @@ export class CartEffects {
 
               switchMap(user => {
 
-
-                // ---------------------------------------
-                // NO USER
-                // ---------------------------------------
-
                 if (!user) {
 
                   return of(
-
                     loadCartSuccess({
-
                       items: []
-
                     })
-
                   );
 
                 }
 
-
-                // ---------------------------------------
-                // GET CURRENT USER'S CART
-                // ---------------------------------------
 
                 return this.cartService
                   .getCart(user.id)
@@ -170,9 +201,7 @@ export class CartEffects {
                     map(items =>
 
                       loadCartSuccess({
-
                         items
-
                       })
 
                     ),
@@ -180,15 +209,11 @@ export class CartEffects {
                     catchError(error =>
 
                       of(
-
                         loadCartFailure({
-
                           error:
                             error.message ??
                             'Failed to load cart'
-
                         })
-
                       )
 
                     )
@@ -198,6 +223,31 @@ export class CartEffects {
               })
 
             )
+
+        )
+
+      )
+
+    );
+
+
+  // =====================================================
+  // LOAD GUEST CART
+  // =====================================================
+
+  loadGuestCart$ =
+    createEffect(() =>
+
+      this.actions$.pipe(
+
+        ofType(loadGuestCart),
+
+        map(() =>
+
+          loadGuestCartSuccess({
+            items:
+              this.guestCartService.getCart()
+          })
 
         )
 
@@ -217,7 +267,11 @@ export class CartEffects {
 
         ofType(addToCart),
 
-        switchMap(({ product, size }) =>
+        switchMap(({
+          product,
+          variantId,
+          size
+        }) =>
 
           this.store
             .select(selectCurrentUser)
@@ -227,30 +281,17 @@ export class CartEffects {
 
               switchMap(user => {
 
-
-                // ---------------------------------------
-                // USER NOT LOGGED IN
-                // ---------------------------------------
-
                 if (!user) {
 
                   return of(
-
                     loadCartFailure({
-
                       error:
                         'You must be logged in to add items to cart'
-
                     })
-
                   );
 
                 }
 
-
-                // ---------------------------------------
-                // GET USER'S EXISTING CART
-                // ---------------------------------------
 
                 return this.cartService
                   .getCart(user.id)
@@ -258,30 +299,54 @@ export class CartEffects {
 
                     switchMap(cartItems => {
 
-
-                      // ---------------------------------
-                      // FIND EXISTING ITEM
-                      // ---------------------------------
-
                       const existingItem =
-                        cartItems.find(
+                        cartItems.find(item =>
 
-                          item =>
+                          item.productId ===
+                            product.id &&
 
-                            item.productId ===
-                              product.id &&
+                          item.variantId ===
+                            variantId &&
 
-                            item.size ===
-                              size
+                          item.size ===
+                            size
 
                         );
 
 
                       // ---------------------------------
-                      // EXISTING ITEM
+                      // EXISTING CART ITEM
                       // ---------------------------------
 
                       if (existingItem) {
+
+                        const productQuantity =
+                          cartItems
+
+                            .filter(item =>
+                              item.productId ===
+                              product.id
+                            )
+
+                            .reduce(
+                              (total, item) =>
+                                total +
+                                item.quantity,
+                              0
+                            );
+
+
+                        if (
+                          productQuantity >=
+                          CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+                        ) {
+
+                          return of(
+                            loadCart()
+                          );
+
+                        }
+
 
                         return this.cartService
                           .updateCartItem(
@@ -291,10 +356,13 @@ export class CartEffects {
                             existingItem.quantity + 1
 
                           )
+
                           .pipe(
 
                             switchMap(() =>
-                              of(loadCart())
+                              of(
+                                loadCart()
+                              )
                             )
 
                           );
@@ -303,20 +371,46 @@ export class CartEffects {
 
 
                       // ---------------------------------
-                      // NEW ITEM
+                      // DISTINCT PRODUCT LIMIT
                       // ---------------------------------
 
-                      const newCartItem:
-                        CartItem = {
+                      const distinctProducts =
+                        new Set(
+                          cartItems.map(
+                            item =>
+                              item.productId
+                          )
+                        );
+
+
+                      if (
+                        distinctProducts.size >=
+                        CART_LIMITS.MAX_DISTINCT_PRODUCTS
+                      ) {
+
+                        return of(
+                          loadCart()
+                        );
+
+                      }
+
+
+                      // ---------------------------------
+                      // NEW CART ITEM
+                      // ---------------------------------
+
+                      const cartItem: CartItem = {
 
                         id:
-                          `${product.id}-${size}`,
+                          `${product.id}-${variantId}-${size}`,
 
                         userId:
                           user.id,
 
                         productId:
                           product.id,
+
+                        variantId,
 
                         size,
 
@@ -326,13 +420,14 @@ export class CartEffects {
 
 
                       return this.cartService
-                        .addCartItem(
-                          newCartItem
-                        )
+                        .addCartItem(cartItem)
+
                         .pipe(
 
                           switchMap(() =>
-                            of(loadCart())
+                            of(
+                              loadCart()
+                            )
                           )
 
                         );
@@ -342,15 +437,11 @@ export class CartEffects {
                     catchError(error =>
 
                       of(
-
                         loadCartFailure({
-
                           error:
                             error.message ??
                             'Failed to add item to cart'
-
                         })
-
                       )
 
                     )
@@ -389,25 +480,14 @@ export class CartEffects {
 
               switchMap(user => {
 
-
                 if (!user) {
 
                   return of(
-
-                    loadCartSuccess({
-
-                      items: []
-
-                    })
-
+                    loadCart()
                   );
 
                 }
 
-
-                // ---------------------------------------
-                // GET USER CART
-                // ---------------------------------------
 
                 return this.cartService
                   .getCart(user.id)
@@ -417,17 +497,11 @@ export class CartEffects {
 
                       const item =
                         cartItems.find(
-
                           cartItem =>
                             cartItem.id ===
                             cartItemId
-
                         );
 
-
-                      // ---------------------------------
-                      // ITEM NOT FOUND
-                      // ---------------------------------
 
                       if (!item) {
 
@@ -439,22 +513,120 @@ export class CartEffects {
 
 
                       // ---------------------------------
-                      // INCREASE QUANTITY
+                      // MAX PRODUCT QUANTITY
                       // ---------------------------------
 
-                      return this.cartService
-                        .updateCartItem(
+                      const productQuantity =
+                        cartItems
 
-                          item.id!,
+                          .filter(cartItem =>
+                            cartItem.productId ===
+                            item.productId
+                          )
 
-                          item.quantity + 1
+                          .reduce(
+                            (total, cartItem) =>
+                              total +
+                              cartItem.quantity,
+                            0
+                          );
 
-                        )
+
+                      if (
+                        productQuantity >=
+                        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+                      ) {
+
+                        return of(
+                          loadCart()
+                        );
+
+                      }
+
+
+                      // ---------------------------------
+                      // CHECK VARIANT STOCK
+                      // ---------------------------------
+
+                      return this.store
+                        .select(selectProductEntities)
                         .pipe(
 
-                          switchMap(() =>
-                            of(loadCart())
-                          )
+                          take(1),
+
+                          switchMap(products => {
+
+                            const product =
+                              products[item.productId];
+
+
+                            if (!product) {
+
+                              return of(
+                                loadCart()
+                              );
+
+                            }
+
+
+                            const variant =
+                              product.variants.find(
+                                variant =>
+                                  variant.id ===
+                                  item.variantId
+                              );
+
+
+                            if (!variant) {
+
+                              return of(
+                                loadCart()
+                              );
+
+                            }
+
+
+                            const size =
+                              variant.sizes.find(
+                                size =>
+                                  size.size ===
+                                  item.size
+                              );
+
+
+                            if (
+                              !size ||
+                              item.quantity >=
+                              size.stock
+                            ) {
+
+                              return of(
+                                loadCart()
+                              );
+
+                            }
+
+
+                            return this.cartService
+                              .updateCartItem(
+
+                                item.id!,
+
+                                item.quantity + 1
+
+                              )
+
+                              .pipe(
+
+                                switchMap(() =>
+                                  of(
+                                    loadCart()
+                                  )
+                                )
+
+                              );
+
+                          })
 
                         );
 
@@ -463,15 +635,11 @@ export class CartEffects {
                     catchError(error =>
 
                       of(
-
                         loadCartFailure({
-
                           error:
                             error.message ??
                             'Failed to increase quantity'
-
                         })
-
                       )
 
                     )
@@ -510,17 +678,10 @@ export class CartEffects {
 
               switchMap(user => {
 
-
                 if (!user) {
 
                   return of(
-
-                    loadCartSuccess({
-
-                      items: []
-
-                    })
-
+                    loadCart()
                   );
 
                 }
@@ -534,11 +695,9 @@ export class CartEffects {
 
                       const item =
                         cartItems.find(
-
                           cartItem =>
                             cartItem.id ===
                             cartItemId
-
                         );
 
 
@@ -551,24 +710,21 @@ export class CartEffects {
                       }
 
 
-                      // ---------------------------------
-                      // QUANTITY > 1
-                      // ---------------------------------
-
-                      if (item.quantity > 1) {
+                      if (
+                        item.quantity <= 1
+                      ) {
 
                         return this.cartService
-                          .updateCartItem(
-
-                            item.id!,
-
-                            item.quantity - 1
-
+                          .removeCartItem(
+                            item.id!
                           )
+
                           .pipe(
 
                             switchMap(() =>
-                              of(loadCart())
+                              of(
+                                loadCart()
+                              )
                             )
 
                           );
@@ -576,19 +732,21 @@ export class CartEffects {
                       }
 
 
-                      // ---------------------------------
-                      // QUANTITY = 1
-                      // DELETE ITEM
-                      // ---------------------------------
-
                       return this.cartService
-                        .removeCartItem(
-                          item.id!
+                        .updateCartItem(
+
+                          item.id!,
+
+                          item.quantity - 1
+
                         )
+
                         .pipe(
 
                           switchMap(() =>
-                            of(loadCart())
+                            of(
+                              loadCart()
+                            )
                           )
 
                         );
@@ -598,15 +756,11 @@ export class CartEffects {
                     catchError(error =>
 
                       of(
-
                         loadCartFailure({
-
                           error:
                             error.message ??
                             'Failed to decrease quantity'
-
                         })
-
                       )
 
                     )
@@ -637,29 +791,51 @@ export class CartEffects {
 
         switchMap(({ cartItemId }) =>
 
-          this.cartService
-            .removeCartItem(cartItemId)
+          this.store
+            .select(selectCurrentUser)
             .pipe(
 
-              switchMap(() =>
-                of(loadCart())
-              ),
+              take(1),
 
-              catchError(error =>
+              switchMap(user => {
 
-                of(
+                if (!user) {
 
-                  loadCartFailure({
+                  return of(
+                    loadCart()
+                  );
 
-                    error:
-                      error.message ??
-                      'Failed to remove cart item'
+                }
 
-                  })
 
-                )
+                return this.cartService
+                  .removeCartItem(
+                    cartItemId
+                  )
 
-              )
+                  .pipe(
+
+                    switchMap(() =>
+                      of(
+                        loadCart()
+                      )
+                    ),
+
+                    catchError(error =>
+
+                      of(
+                        loadCartFailure({
+                          error:
+                            error.message ??
+                            'Failed to remove cart item'
+                        })
+                      )
+
+                    )
+
+                  );
+
+              })
 
             )
 
@@ -691,17 +867,12 @@ export class CartEffects {
 
               switchMap(user => {
 
-
                 if (!user) {
 
                   return of(
-
                     loadCartSuccess({
-
                       items: []
-
                     })
-
                   );
 
                 }
@@ -711,55 +882,41 @@ export class CartEffects {
                   .getCart(user.id)
                   .pipe(
 
-                    switchMap(cartItems => {
+                    switchMap(items => {
 
-
-                      // ---------------------------------
-                      // CART ALREADY EMPTY
-                      // ---------------------------------
-
-                      if (
-                        cartItems.length === 0
-                      ) {
+                      if (!items.length) {
 
                         return of(
-
-                          loadCartSuccess({
-
-                            items: []
-
-                          })
-
+                          loadCart()
                         );
 
                       }
 
 
-                      // ---------------------------------
-                      // DELETE ALL CART ITEMS
-                      // ---------------------------------
-
                       return forkJoin(
 
-                        cartItems.map(item =>
+                        items
 
-                          this.cartService
-                            .removeCartItem(
-                              item.id!
-                            )
+                          .filter(
+                            item =>
+                              !!item.id
+                          )
 
-                        )
+                          .map(item =>
+                            this.cartService
+                              .removeCartItem(
+                                item.id!
+                              )
+                          )
 
-                      ).pipe(
+                      )
 
-                        map(() =>
+                      .pipe(
 
-                          loadCartSuccess({
-
-                            items: []
-
-                          })
-
+                        switchMap(() =>
+                          of(
+                            loadCart()
+                          )
                         )
 
                       );
@@ -769,15 +926,11 @@ export class CartEffects {
                     catchError(error =>
 
                       of(
-
                         loadCartFailure({
-
                           error:
                             error.message ??
                             'Failed to clear cart'
-
                         })
-
                       )
 
                     )
@@ -796,35 +949,6 @@ export class CartEffects {
 
 
   // =====================================================
-  // LOAD GUEST CART
-  // =====================================================
-
-  loadGuestCart$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(loadGuestCart),
-
-        map(() => {
-
-          const items =
-            this.guestCartService.getCart();
-
-          return loadGuestCartSuccess({
-
-            items
-
-          });
-
-        })
-
-      )
-
-    );
-
-
-  // =====================================================
   // ADD GUEST CART ITEM
   // =====================================================
 
@@ -835,14 +959,20 @@ export class CartEffects {
 
         ofType(addGuestCartItem),
 
-        tap(({ productId, size }) => {
+        tap(({
+          productId,
+          variantId,
+          size
+        }) => {
 
           this.guestCartService.addItem({
 
             id:
-              `${productId}-${size}`,
+              `${productId}-${variantId}-${size}`,
 
             productId,
+
+            variantId,
 
             size,
 
@@ -872,37 +1002,125 @@ export class CartEffects {
 
         ofType(increaseGuestQuantity),
 
-        tap(({ cartItemId }) => {
+        switchMap(({ cartItemId }) =>
 
-          const cart =
-            this.guestCartService.getCart();
+          this.store
+            .select(selectProductEntities)
+            .pipe(
 
-          const item =
-            cart.find(
-              item =>
-                item.id === cartItemId
-            );
+              take(1),
 
+              switchMap(products => {
 
-          if (!item) {
-
-            return;
-
-          }
+                const cart =
+                  this.guestCartService.getCart();
 
 
-          this.guestCartService.updateQuantity(
+                const item =
+                  cart.find(
+                    item =>
+                      item.id ===
+                      cartItemId
+                  );
 
-            cartItemId,
 
-            item.quantity + 1
+                if (!item) {
 
-          );
+                  return of(
+                    loadGuestCart()
+                  );
 
-        }),
+                }
 
-        map(() =>
-          loadGuestCart()
+
+                const productQuantity =
+                  cart
+
+                    .filter(cartItem =>
+                      cartItem.productId ===
+                      item.productId
+                    )
+
+                    .reduce(
+                      (total, cartItem) =>
+                        total +
+                        cartItem.quantity,
+                      0
+                    );
+
+
+                if (
+                  productQuantity >=
+                  CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+                ) {
+
+                  return of(
+                    loadGuestCart()
+                  );
+
+                }
+
+
+                const product =
+                  products[item.productId];
+
+
+                if (!product) {
+
+                  return of(
+                    loadGuestCart()
+                  );
+
+                }
+
+
+                const variant =
+                  product.variants.find(
+                    variant =>
+                      variant.id ===
+                      item.variantId
+                  );
+
+
+                const size =
+                  variant?.sizes.find(
+                    size =>
+                      size.size ===
+                      item.size
+                  );
+
+
+                if (
+                  !size ||
+                  item.quantity >=
+                  size.stock
+                ) {
+
+                  return of(
+                    loadGuestCart()
+                  );
+
+                }
+
+
+                this.guestCartService
+                  .updateQuantity(
+
+                    cartItemId,
+
+                    item.quantity + 1
+
+                  );
+
+
+                return of(
+                  loadGuestCart()
+                );
+
+              })
+
+            )
+
         )
 
       )
@@ -926,10 +1144,12 @@ export class CartEffects {
           const cart =
             this.guestCartService.getCart();
 
+
           const item =
             cart.find(
               item =>
-                item.id === cartItemId
+                item.id ===
+                cartItemId
             );
 
 
@@ -1034,15 +1254,9 @@ export class CartEffects {
 
               switchMap(user => {
 
-
-                // ---------------------------------------
-                // NO USER
-                // ---------------------------------------
-
                 if (!user) {
 
                   return of(
-
                     mergeGuestCartFailure({
 
                       error:
@@ -1051,44 +1265,25 @@ export class CartEffects {
                       returnUrl
 
                     })
-
                   );
 
                 }
 
-
-                // ---------------------------------------
-                // GET GUEST CART
-                // ---------------------------------------
 
                 const guestItems =
                   this.guestCartService.getCart();
 
 
-                // ---------------------------------------
-                // GUEST CART EMPTY
-                // ---------------------------------------
-
-                if (
-                  guestItems.length === 0
-                ) {
+                if (!guestItems.length) {
 
                   return of(
-
                     mergeGuestCartSuccess({
-
                       returnUrl
-
                     })
-
                   );
 
                 }
 
-
-                // ---------------------------------------
-                // GET USER BACKEND CART
-                // ---------------------------------------
 
                 return this.cartService
                   .getCart(user.id)
@@ -1096,24 +1291,28 @@ export class CartEffects {
 
                     switchMap(cartItems => {
 
+                      const distinctProducts =
+                        new Set(
+                          cartItems.map(
+                            item =>
+                              item.productId
+                          )
+                        );
 
-                      // ---------------------------------
-                      // CREATE REQUEST FOR EACH
-                      // GUEST ITEM
-                      // ---------------------------------
 
                       const requests =
                         guestItems.map(
                           guestItem => {
 
-
                             const existingItem =
                               cartItems.find(
-
                                 item =>
 
                                   item.productId ===
                                     guestItem.productId &&
+
+                                  item.variantId ===
+                                    guestItem.variantId &&
 
                                   item.size ===
                                     guestItem.size
@@ -1121,11 +1320,49 @@ export class CartEffects {
                               );
 
 
-                            // ---------------------------
-                            // EXISTING ITEM
-                            // ---------------------------
-
                             if (existingItem) {
+
+                              const productQuantity =
+                                cartItems
+
+                                  .filter(item =>
+                                    item.productId ===
+                                    guestItem.productId
+                                  )
+
+                                  .reduce(
+                                    (total, item) =>
+                                      total +
+                                      item.quantity,
+                                    0
+                                  );
+
+
+                              const allowedQuantity =
+                                Math.min(
+
+                                  guestItem.quantity,
+
+                                  Math.max(
+                                    0,
+
+                                    CART_LIMITS
+                                      .MAX_QUANTITY_PER_PRODUCT -
+                                    productQuantity
+
+                                  )
+
+                                );
+
+
+                              if (
+                                allowedQuantity <= 0
+                              ) {
+
+                                return of(null);
+
+                              }
+
 
                               return this.cartService
                                 .updateCartItem(
@@ -1133,22 +1370,32 @@ export class CartEffects {
                                   existingItem.id!,
 
                                   existingItem.quantity +
-                                    guestItem.quantity
+                                  allowedQuantity
 
                                 );
 
                             }
 
 
-                            // ---------------------------
-                            // NEW ITEM
-                            // ---------------------------
+                            if (
+                              distinctProducts.size >=
+                              CART_LIMITS.MAX_DISTINCT_PRODUCTS
+                            ) {
 
-                            const newCartItem:
-                              CartItem = {
+                              return of(null);
+
+                            }
+
+
+                            distinctProducts.add(
+                              guestItem.productId
+                            );
+
+
+                            const cartItem: CartItem = {
 
                               id:
-                                `${guestItem.productId}-${guestItem.size}`,
+                                `${guestItem.productId}-${guestItem.variantId}-${guestItem.size}`,
 
                               userId:
                                 user.id,
@@ -1156,18 +1403,24 @@ export class CartEffects {
                               productId:
                                 guestItem.productId,
 
+                              variantId:
+                                guestItem.variantId,
+
                               size:
                                 guestItem.size,
 
                               quantity:
-                                guestItem.quantity
+                                Math.min(
+                                  guestItem.quantity,
+                                  CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+                                )
 
                             };
 
 
                             return this.cartService
                               .addCartItem(
-                                newCartItem
+                                cartItem
                               );
 
                           }
@@ -1175,31 +1428,26 @@ export class CartEffects {
                         );
 
 
-                      // ---------------------------------
-                      // EXECUTE ALL REQUESTS
-                      // ---------------------------------
-
                       return forkJoin(
                         requests
-                      ).pipe(
+                      )
+
+                      .pipe(
 
                         tap(() => {
-
-                          // Clear ONLY after
-                          // every request succeeds
 
                           this.guestCartService
                             .clearCart();
 
                         }),
 
-                        map(() =>
+                        switchMap(() =>
 
-                          mergeGuestCartSuccess({
-
-                            returnUrl
-
-                          })
+                          of(
+                            mergeGuestCartSuccess({
+                              returnUrl
+                            })
+                          )
 
                         )
 
@@ -1210,7 +1458,6 @@ export class CartEffects {
                     catchError(error =>
 
                       of(
-
                         mergeGuestCartFailure({
 
                           error:
@@ -1220,7 +1467,6 @@ export class CartEffects {
                           returnUrl
 
                         })
-
                       )
 
                     )
@@ -1239,10 +1485,10 @@ export class CartEffects {
 
 
   // =====================================================
-  // LOAD CART AFTER GUEST MERGE
+  // LOAD CART AFTER MERGE
   // =====================================================
 
-  loadCartAfterGuestMerge$ =
+  loadCartAfterMerge$ =
     createEffect(() =>
 
       this.actions$.pipe(

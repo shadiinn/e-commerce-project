@@ -92,6 +92,11 @@ interface SavedAddress {
 export class CheckoutComponent
   implements OnInit {
 
+
+  // =====================================================
+  // DEPENDENCIES
+  // =====================================================
+
   private store = inject(Store);
 
   private fb = inject(FormBuilder);
@@ -315,9 +320,13 @@ export class CheckoutComponent
         ?.trim()
         .toLowerCase();
 
+
     if (!email) {
+
       return null;
+
     }
+
 
     return `${this.ADDRESS_STORAGE_PREFIX}${email}`;
 
@@ -333,6 +342,7 @@ export class CheckoutComponent
     const key =
       this.getAddressStorageKey();
 
+
     if (!key) {
 
       this.savedAddresses.set([]);
@@ -340,6 +350,7 @@ export class CheckoutComponent
       this.selectedAddressId.set(null);
 
       return;
+
     }
 
 
@@ -354,6 +365,7 @@ export class CheckoutComponent
       this.selectedAddressId.set(null);
 
       return;
+
     }
 
 
@@ -409,6 +421,7 @@ export class CheckoutComponent
     const key =
       this.getAddressStorageKey();
 
+
     if (!key) {
       return;
     }
@@ -433,7 +446,9 @@ export class CheckoutComponent
     if (
       this.savedAddresses().length >= 2
     ) {
+
       return;
+
     }
 
 
@@ -753,7 +768,9 @@ export class CheckoutComponent
     if (
       this.savedAddresses().length >= 2
     ) {
+
       return;
+
     }
 
 
@@ -897,27 +914,9 @@ export class CheckoutComponent
 
   placeOrder(): void {
 
-    console.log(
-      '================================'
-    );
-
-    console.log(
-      'PLACE ORDER CLICKED'
-    );
-
-    console.log(
-      '================================'
-    );
-
-
     if (
       this.checkoutForm.invalid
     ) {
-
-      console.log(
-        'CHECKOUT FORM IS INVALID'
-      );
-
 
       this.checkoutForm.markAllAsTouched();
 
@@ -926,38 +925,11 @@ export class CheckoutComponent
     }
 
 
-    console.log(
-      'CHECKOUT FORM IS VALID'
-    );
-
-
-    this.checkoutItemsRaw$
-      .pipe(take(1))
-      .subscribe(items => {
-
-        console.log(
-          'RAW CHECKOUT ITEMS:',
-          items
-        );
-
-      });
-
-
     this.checkoutItems$
       .pipe(take(1))
       .subscribe(items => {
 
-        console.log(
-          'CHECKOUT ITEMS WITH PRODUCTS:',
-          items
-        );
-
-
         if (!items.length) {
-
-          console.log(
-            'NO CHECKOUT ITEMS'
-          );
 
           return;
 
@@ -971,12 +943,19 @@ export class CheckoutComponent
         const request:
           CreateOrderRequest = {
 
+          // -------------------------------------------
+          // ORDER ITEMS
+          // -------------------------------------------
+
           items:
 
             items.map(item => ({
 
               productId:
                 item.product.id,
+
+              variantId:
+                item.variant.id,
 
               size:
                 item.size,
@@ -986,6 +965,10 @@ export class CheckoutComponent
 
             })),
 
+
+          // -------------------------------------------
+          // SHIPPING ADDRESS
+          // -------------------------------------------
 
           shippingAddress: {
 
@@ -1022,28 +1005,24 @@ export class CheckoutComponent
           },
 
 
+          // -------------------------------------------
+          // PAYMENT
+          // -------------------------------------------
+
           paymentMethod:
             formValue.paymentMethod as
-              'cod' | 'online'
+              'cod' |
+              'online'
 
         };
 
 
-        console.log(
-          'ORDER REQUEST:',
-          request
-        );
-
-
         this.store.dispatch(
+
           placeOrder({
             request
           })
-        );
 
-
-        console.log(
-          'PLACE ORDER DISPATCHED'
         );
 
       });

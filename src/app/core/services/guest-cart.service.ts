@@ -1,12 +1,21 @@
-import { Injectable } from '@angular/core';
-import { GuestCartItem } from '../models/guest-cart.model';
+import {
+  Injectable
+} from '@angular/core';
+
+import {
+  GuestCartItem
+} from '../models/guest-cart.model';
+
+import { CART_LIMITS } from '../models/constants/cart.constants';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class GuestCartService {
 
-  private readonly STORAGE_KEY = 'sa_guest_cart';
+  private readonly STORAGE_KEY =
+    'sa_guest_cart';
 
 
   // =====================================================
@@ -16,11 +25,16 @@ export class GuestCartService {
   getCart(): GuestCartItem[] {
 
     const storedCart =
-      localStorage.getItem(this.STORAGE_KEY);
+      localStorage.getItem(
+        this.STORAGE_KEY
+      );
 
     if (!storedCart) {
+
       return [];
+
     }
+
 
     try {
 
@@ -64,10 +78,11 @@ export class GuestCartService {
 
   addItem(
     item: GuestCartItem
-  ): void {
+  ): boolean {
 
     const cart =
       this.getCart();
+
 
     const existingItem =
       cart.find(
@@ -77,13 +92,67 @@ export class GuestCartService {
 
 
     // ---------------------------------------------------
-    // ITEM ALREADY EXISTS
+    // EXISTING ITEM
     // ---------------------------------------------------
 
     if (existingItem) {
 
+      const productQuantity =
+        cart
+
+          .filter(
+            cartItem =>
+              cartItem.productId ===
+              item.productId
+          )
+
+          .reduce(
+            (total, cartItem) =>
+              total + cartItem.quantity,
+            0
+          );
+
+
+      if (
+        productQuantity >=
+        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+      ) {
+
+        return false;
+
+      }
+
+
       existingItem.quantity +=
         item.quantity;
+
+
+      this.saveCart(cart);
+
+      return true;
+
+    }
+
+
+    // ---------------------------------------------------
+    // MAX DISTINCT PRODUCTS
+    // ---------------------------------------------------
+
+    const distinctProductCount =
+      new Set(
+        cart.map(
+          cartItem =>
+            cartItem.productId
+        )
+      ).size;
+
+
+    if (
+      distinctProductCount >=
+      CART_LIMITS.MAX_DISTINCT_PRODUCTS
+    ) {
+
+      return false;
 
     }
 
@@ -92,14 +161,11 @@ export class GuestCartService {
     // NEW ITEM
     // ---------------------------------------------------
 
-    else {
-
-      cart.push(item);
-
-    }
-
+    cart.push(item);
 
     this.saveCart(cart);
+
+    return true;
 
   }
 
@@ -116,20 +182,20 @@ export class GuestCartService {
     const cart =
       this.getCart();
 
+
     const item =
       cart.find(
         cartItem =>
           cartItem.id === cartItemId
       );
 
+
     if (!item) {
+
       return;
+
     }
 
-
-    // ---------------------------------------------------
-    // REMOVE WHEN QUANTITY REACHES ZERO
-    // ---------------------------------------------------
 
     if (quantity <= 0) {
 
@@ -148,16 +214,14 @@ export class GuestCartService {
     }
 
 
-    // ---------------------------------------------------
-    // UPDATE QUANTITY
-    // ---------------------------------------------------
-
     item.quantity =
-      quantity;
+      Math.min(
+        quantity,
+        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+      );
 
-    this.saveCart(
-      cart
-    );
+
+    this.saveCart(cart);
 
   }
 
@@ -173,11 +237,13 @@ export class GuestCartService {
     const cart =
       this.getCart();
 
+
     const updatedCart =
       cart.filter(
         item =>
           item.id !== cartItemId
       );
+
 
     this.saveCart(
       updatedCart

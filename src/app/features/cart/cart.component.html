@@ -1,7 +1,7 @@
 <section class="min-h-screen bg-brand-background">
 
   <div
-    class="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-10 lg:py-20"
+    class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20"
   >
 
     <!-- ================================================= -->
@@ -9,19 +9,19 @@
     <!-- ================================================= -->
 
     <div
-      class="flex items-end justify-between border-b border-brand-border pb-7"
+      class="flex items-end justify-between border-b border-brand-border pb-6"
     >
 
       <div>
 
         <p
-          class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
+          class="text-xs uppercase tracking-[0.2em] text-brand-muted"
         >
           Your Selection
         </p>
 
         <h1
-          class="mt-3 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
+          class="mt-3 text-3xl font-light tracking-tight text-brand-text"
         >
           Shopping Bag
         </h1>
@@ -29,15 +29,14 @@
       </div>
 
 
-      <!-- ITEM COUNT -->
-
       @if (cartItemCount$ | async; as count) {
 
-        <p
-          class="text-[10px] uppercase tracking-[0.16em] text-brand-muted"
-        >
+        <p class="text-sm text-brand-muted">
+
           {{ count }}
+
           {{ count === 1 ? 'item' : 'items' }}
+
         </p>
 
       }
@@ -54,14 +53,14 @@
       @if (items.length > 0) {
 
         <div
-          class="mt-10 grid gap-14 lg:grid-cols-[1fr_360px] lg:gap-16"
+          class="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]"
         >
 
           <!-- =========================================== -->
           <!-- CART ITEMS -->
           <!-- =========================================== -->
 
-          <div class="space-y-0">
+          <div class="space-y-6">
 
             @for (
               item of items;
@@ -69,7 +68,7 @@
             ) {
 
               <article
-                class="flex gap-5 border-b border-brand-border py-6 first:pt-0 sm:gap-7"
+                class="flex gap-5 border-b border-brand-border pb-6"
               >
 
                 <!-- ===================================== -->
@@ -81,13 +80,13 @@
                     '/products',
                     item.product.id
                   ]"
-                  class="h-40 w-28 shrink-0 overflow-hidden bg-brand-surface sm:h-48 sm:w-36"
+                  class="h-36 w-28 shrink-0 overflow-hidden bg-brand-surface sm:h-44 sm:w-36"
                 >
 
                   <img
-                    [src]="item.product.images[0]"
+                    [src]="item.variant.images[0]"
                     [alt]="item.product.name"
-                    class="h-full w-full object-cover transition-transform duration-500 ease-out hover:scale-[1.03]"
+                    class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                   />
 
                 </a>
@@ -98,19 +97,19 @@
                 <!-- ===================================== -->
 
                 <div
-                  class="flex min-w-0 flex-1 flex-col justify-between"
+                  class="flex flex-1 flex-col justify-between"
                 >
 
                   <div>
 
                     <div
-                      class="flex items-start justify-between gap-5"
+                      class="flex items-start justify-between gap-4"
                     >
 
-                      <div class="min-w-0">
+                      <div>
 
                         <h2
-                          class="truncate text-sm font-medium text-brand-text"
+                          class="text-sm font-medium text-brand-text"
                         >
                           {{ item.product.name }}
                         </h2>
@@ -124,10 +123,8 @@
                       </div>
 
 
-                      <!-- ITEM TOTAL -->
-
                       <p
-                        class="shrink-0 text-sm font-medium text-brand-text"
+                        class="text-sm font-medium text-brand-text"
                       >
                         ₹{{ item.product.price * item.quantity }}
                       </p>
@@ -135,13 +132,25 @@
                     </div>
 
 
-                    <!-- SIZE -->
+                    <!-- ================================= -->
+                    <!-- VARIANT -->
+                    <!-- ================================= -->
 
-                    <p
-                      class="mt-4 text-xs text-brand-muted"
-                    >
-                      Size: {{ item.size }}
-                    </p>
+                    <div class="mt-3 space-y-1">
+
+                      <p
+                        class="text-xs text-brand-muted"
+                      >
+                        Color: {{ item.variant.color }}
+                      </p>
+
+                      <p
+                        class="text-xs text-brand-muted"
+                      >
+                        Size: {{ item.size }}
+                      </p>
+
+                    </div>
 
                   </div>
 
@@ -151,7 +160,7 @@
                   <!-- =================================== -->
 
                   <div
-                    class="mt-6 flex items-center justify-between gap-4"
+                    class="mt-5 flex items-center justify-between"
                   >
 
                     <!-- QUANTITY -->
@@ -162,18 +171,15 @@
 
                       <button
                         type="button"
-                        (click)="
-                          decreaseQuantity(item.id!)
-                        "
-                        class="flex h-9 w-9 items-center justify-center text-brand-text transition-colors duration-200 hover:bg-brand-surface"
-                        aria-label="Decrease quantity"
+                        (click)="decreaseQuantity(item.id!)"
+                        class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background"
                       >
                         −
                       </button>
 
 
                       <span
-                        class="flex h-9 min-w-10 items-center justify-center border-x border-brand-border text-xs text-brand-text"
+                        class="min-w-10 text-center text-xs text-brand-text"
                       >
                         {{ item.quantity }}
                       </span>
@@ -181,11 +187,9 @@
 
                       <button
                         type="button"
-                        (click)="
-                          increaseQuantity(item.id!)
-                        "
-                        class="flex h-9 w-9 items-center justify-center text-brand-text transition-colors duration-200 hover:bg-brand-surface"
-                        aria-label="Increase quantity"
+                        (click)="increaseQuantity(item.id!)"
+                        [disabled]="!canIncreaseQuantity(item)"
+                        class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background disabled:cursor-not-allowed disabled:opacity-30"
                       >
                         +
                       </button>
@@ -197,10 +201,8 @@
 
                     <button
                       type="button"
-                      (click)="
-                        removeItem(item.id!)
-                      "
-                      class="text-[10px] font-medium uppercase tracking-[0.14em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+                      (click)="removeItem(item.id!)"
+                      class="text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
                     >
                       Remove
                     </button>
@@ -217,40 +219,36 @@
 
 
           <!-- =========================================== -->
-          <!-- ORDER SUMMARY -->
+          <!-- SUMMARY -->
           <!-- =========================================== -->
 
           <aside
-            class="h-fit border border-brand-border bg-brand-surface p-6 sm:p-7"
+            class="h-fit border border-brand-border bg-brand-surface p-6 lg:p-8"
           >
 
-            <h2
-              class="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-text"
+            <p
+              class="text-xs uppercase tracking-[0.2em] text-brand-muted"
             >
               Order Summary
-            </h2>
+            </p>
 
-
-            <!-- SUMMARY -->
 
             <div
-              class="mt-7 space-y-5"
+              class="mt-6 space-y-4"
             >
 
-              <!-- SUBTOTAL -->
-
               <div
-                class="flex items-center justify-between text-sm"
+                class="flex justify-between"
               >
 
                 <span
-                  class="text-brand-muted"
+                  class="text-sm text-brand-muted"
                 >
                   Subtotal
                 </span>
 
                 <span
-                  class="text-brand-text"
+                  class="text-sm text-brand-text"
                 >
                   ₹{{ cartSubtotal$ | async }}
                 </span>
@@ -258,50 +256,27 @@
               </div>
 
 
-              <!-- SHIPPING -->
-
               <div
-                class="flex items-center justify-between text-sm"
+                class="border-t border-brand-border pt-4"
               >
 
-                <span
-                  class="text-brand-muted"
+                <div
+                  class="flex justify-between"
                 >
-                  Shipping
-                </span>
 
-                <span
-                  class="text-brand-text"
-                >
-                  Free
-                </span>
+                  <span
+                    class="text-sm font-medium text-brand-text"
+                  >
+                    Total
+                  </span>
 
-              </div>
+                  <span
+                    class="text-sm font-medium text-brand-text"
+                  >
+                    ₹{{ cartSubtotal$ | async }}
+                  </span>
 
-            </div>
-
-
-            <!-- TOTAL -->
-
-            <div
-              class="mt-7 border-t border-brand-border pt-6"
-            >
-
-              <div
-                class="flex items-center justify-between"
-              >
-
-                <span
-                  class="text-sm font-medium text-brand-text"
-                >
-                  Total
-                </span>
-
-                <span
-                  class="text-sm font-medium text-brand-text"
-                >
-                  ₹{{ cartSubtotal$ | async }}
-                </span>
+                </div>
 
               </div>
 
@@ -313,7 +288,7 @@
             <button
               type="button"
               (click)="proceedToCheckout()"
-              class="mt-7 w-full bg-brand-text px-6 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
+              class="mt-6 w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
             >
               Proceed to Checkout
             </button>
@@ -321,27 +296,13 @@
 
             <!-- CLEAR CART -->
 
-            <div class="mt-5 flex justify-center">
-
-              <button
-                type="button"
-                (click)="clearCart()"
-                class="group flex items-center gap-3 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
-              >
-
-                <span
-                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
-                ></span>
-
-                Clear Cart
-
-                <span
-                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
-                ></span>
-
-              </button>
-
-            </div>
+            <button
+              type="button"
+              (click)="clearCart()"
+              class="mt-4 w-full text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
+            >
+              Clear Cart
+            </button>
 
           </aside>
 
@@ -354,18 +315,18 @@
         <!-- =========================================== -->
 
         <div
-          class="flex min-h-[55vh] flex-col items-center justify-center text-center"
+          class="flex min-h-[500px] flex-col items-center justify-center text-center"
         >
 
           <p
-            class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
+            class="text-xs uppercase tracking-[0.2em] text-brand-muted"
           >
-            Your Bag
+            Your bag is empty
           </p>
 
 
           <h2
-            class="mt-4 text-2xl font-light tracking-tight text-brand-text sm:text-3xl"
+            class="mt-4 text-2xl font-light text-brand-text"
           >
             Nothing here yet.
           </h2>
@@ -379,13 +340,11 @@
           </p>
 
 
-          <!-- CONTINUE SHOPPING -->
-
           <a
             routerLink="/shop"
-            class="mt-8 bg-brand-text px-8 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
+            class="mt-8 border border-brand-text px-8 py-3 text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:bg-brand-text hover:text-white"
           >
-            Explore Collection
+            Continue Shopping
           </a>
 
         </div>

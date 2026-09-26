@@ -23,6 +23,8 @@ import {
   initialCartState
 } from './cart.state';
 
+import { CART_LIMITS } from '../../core/models/constants/cart.constants';
+
 
 export const cartReducer = createReducer(
 
@@ -37,6 +39,7 @@ export const cartReducer = createReducer(
     loadCart,
 
     state => ({
+
       ...state,
 
       loading: true,
@@ -44,6 +47,7 @@ export const cartReducer = createReducer(
       error: null
 
     })
+
   ),
 
 
@@ -55,6 +59,7 @@ export const cartReducer = createReducer(
     loadCartSuccess,
 
     (state, { items }) => ({
+
       ...state,
 
       items,
@@ -64,6 +69,7 @@ export const cartReducer = createReducer(
       error: null
 
     })
+
   ),
 
 
@@ -75,6 +81,7 @@ export const cartReducer = createReducer(
     loadCartFailure,
 
     (state, { error }) => ({
+
       ...state,
 
       loading: false,
@@ -82,6 +89,7 @@ export const cartReducer = createReducer(
       error
 
     })
+
   ),
 
 
@@ -89,10 +97,12 @@ export const cartReducer = createReducer(
   // ADD TO CART
   // =====================================================
 
+  // The actual persistence is handled by the effect.
   on(
     addToCart,
 
     state => state
+
   ),
 
 
@@ -103,25 +113,78 @@ export const cartReducer = createReducer(
   on(
     increaseQuantity,
 
-    (state, { cartItemId }) => ({
+    (state, { cartItemId }) => {
 
-      ...state,
+      const item =
+        state.items.find(
+          item =>
+            item.id === cartItemId
+        );
 
-      items: state.items.map(item =>
+      if (!item) {
 
-        item.id === cartItemId
+        return state;
 
-          ? {
-              ...item,
+      }
 
-              quantity: item.quantity + 1
-            }
 
-          : item
+      // -----------------------------------------------
+      // MAX 5 UNITS OF SAME PRODUCT
+      // -----------------------------------------------
 
-      )
+      const productQuantity =
+        state.items
 
-    })
+          .filter(
+            cartItem =>
+              cartItem.productId ===
+              item.productId
+          )
+
+          .reduce(
+            (total, cartItem) =>
+              total + cartItem.quantity,
+            0
+          );
+
+
+      if (
+        productQuantity >=
+        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+      ) {
+
+        return state;
+
+      }
+
+
+      return {
+
+        ...state,
+
+        items:
+
+          state.items.map(cartItem =>
+
+            cartItem.id === cartItemId
+
+              ? {
+
+                  ...cartItem,
+
+                  quantity:
+                    cartItem.quantity + 1
+
+                }
+
+              : cartItem
+
+          )
+
+      };
+
+    }
+
   ),
 
 
@@ -136,25 +199,34 @@ export const cartReducer = createReducer(
 
       ...state,
 
-      items: state.items
-        .map(item =>
+      items:
 
-          item.id === cartItemId
+        state.items
 
-            ? {
-                ...item,
+          .map(item =>
 
-                quantity: item.quantity - 1
-              }
+            item.id === cartItemId
 
-            : item
+              ? {
 
-        )
-        .filter(
-          item => item.quantity > 0
-        )
+                  ...item,
+
+                  quantity:
+                    item.quantity - 1
+
+                }
+
+              : item
+
+          )
+
+          .filter(
+            item =>
+              item.quantity > 0
+          )
 
     })
+
   ),
 
 
@@ -169,11 +241,15 @@ export const cartReducer = createReducer(
 
       ...state,
 
-      items: state.items.filter(
-        item => item.id !== cartItemId
-      )
+      items:
+
+        state.items.filter(
+          item =>
+            item.id !== cartItemId
+        )
 
     })
+
   ),
 
 
@@ -193,6 +269,7 @@ export const cartReducer = createReducer(
       error: null
 
     })
+
   ),
 
 
@@ -214,6 +291,7 @@ export const cartReducer = createReducer(
       error: null
 
     })
+
   ),
 
 
@@ -233,6 +311,7 @@ export const cartReducer = createReducer(
       error: null
 
     })
+
   ),
 
 
@@ -243,15 +322,20 @@ export const cartReducer = createReducer(
   on(
     addGuestCartItem,
 
-    (state, { productId, size }) => {
+    (state, {
+      productId,
+      variantId,
+      size
+    }) => {
 
       const cartItemId =
-        `${productId}-${size}`;
+        `${productId}-${variantId}-${size}`;
 
 
       const existingItem =
         state.guestItems.find(
-          item => item.id === cartItemId
+          item =>
+            item.id === cartItemId
         );
 
 
@@ -261,20 +345,49 @@ export const cartReducer = createReducer(
 
       if (existingItem) {
 
+        const productQuantity =
+          state.guestItems
+
+            .filter(
+              item =>
+                item.productId ===
+                productId
+            )
+
+            .reduce(
+              (total, item) =>
+                total + item.quantity,
+              0
+            );
+
+
+        if (
+          productQuantity >=
+          CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+        ) {
+
+          return state;
+
+        }
+
+
         return {
 
           ...state,
 
           guestItems:
+
             state.guestItems.map(item =>
 
               item.id === cartItemId
 
                 ? {
+
                     ...item,
 
                     quantity:
                       item.quantity + 1
+
                   }
 
                 : item
@@ -282,6 +395,28 @@ export const cartReducer = createReducer(
             )
 
         };
+
+      }
+
+
+      // -------------------------------------------------
+      // MAX DISTINCT PRODUCTS
+      // -------------------------------------------------
+
+      const distinctProductCount =
+        new Set(
+          state.guestItems.map(
+            item => item.productId
+          )
+        ).size;
+
+
+      if (
+        distinctProductCount >=
+        CART_LIMITS.MAX_DISTINCT_PRODUCTS
+      ) {
+
+        return state;
 
       }
 
@@ -303,6 +438,8 @@ export const cartReducer = createReducer(
             id: cartItemId,
 
             productId,
+
+            variantId,
 
             size,
 
@@ -326,30 +463,74 @@ export const cartReducer = createReducer(
   on(
     increaseGuestQuantity,
 
-    (state, { cartItemId }) => ({
+    (state, { cartItemId }) => {
 
-      ...state,
+      const item =
+        state.guestItems.find(
+          item =>
+            item.id === cartItemId
+        );
 
-      guestItems:
+      if (!item) {
 
-        state.guestItems.map(item =>
+        return state;
 
-          item.id === cartItemId
+      }
 
-            ? {
 
-                ...item,
+      const productQuantity =
+        state.guestItems
 
-                quantity:
-                  item.quantity + 1
+          .filter(
+            cartItem =>
+              cartItem.productId ===
+              item.productId
+          )
 
-              }
+          .reduce(
+            (total, cartItem) =>
+              total + cartItem.quantity,
+            0
+          );
 
-            : item
 
-        )
+      if (
+        productQuantity >=
+        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+      ) {
 
-    })
+        return state;
+
+      }
+
+
+      return {
+
+        ...state,
+
+        guestItems:
+
+          state.guestItems.map(cartItem =>
+
+            cartItem.id === cartItemId
+
+              ? {
+
+                  ...cartItem,
+
+                  quantity:
+                    cartItem.quantity + 1
+
+                }
+
+              : cartItem
+
+          )
+
+      };
+
+    }
+
   ),
 
 
@@ -367,6 +548,7 @@ export const cartReducer = createReducer(
       guestItems:
 
         state.guestItems
+
           .map(item =>
 
             item.id === cartItemId
@@ -383,11 +565,14 @@ export const cartReducer = createReducer(
               : item
 
           )
+
           .filter(
-            item => item.quantity > 0
+            item =>
+              item.quantity > 0
           )
 
     })
+
   ),
 
 
@@ -405,10 +590,12 @@ export const cartReducer = createReducer(
       guestItems:
 
         state.guestItems.filter(
-          item => item.id !== cartItemId
+          item =>
+            item.id !== cartItemId
         )
 
     })
+
   ),
 
 
@@ -428,6 +615,7 @@ export const cartReducer = createReducer(
       error: null
 
     })
+
   )
 
 );
