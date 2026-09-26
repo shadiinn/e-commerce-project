@@ -47,10 +47,54 @@
       "userId": "AqOdVEF2hFw",
       "productId": "p002",
       "size": "S",
+      "quantity": 13
+    },
+    {
+      "id": "eL4I1D5HOHw",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p005",
+      "size": "L",
       "quantity": 1
+    },
+    {
+      "id": "SVPR0aU3Krs",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p003",
+      "size": "32",
+      "quantity": 1
+    },
+    {
+      "id": "n-Ac-7sjYOY",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p001",
+      "size": "S",
+      "quantity": 1
+    },
+    {
+      "id": "uwkOxYlvyUk",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p011",
+      "size": "S",
+      "quantity": 3
     }
   ],
-  "wishlists": [],
+  "wishlists": [
+    {
+      "id": "vUX5sJ0JF1A",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p002"
+    },
+    {
+      "id": "xq3cN8H-xBM",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p003"
+    },
+    {
+      "id": "FliR5kldFzI",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p001"
+    }
+  ],
   "orders": [
     {
       "id": "2AlOYHcQb8A",
@@ -95,7 +139,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-24T12:47:48.057Z"
     },
     {
@@ -141,7 +185,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-24T13:09:48.241Z"
     },
     {
@@ -177,7 +221,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-24T13:12:43.582Z"
     },
     {
@@ -213,7 +257,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-24T14:15:44.256Z"
     },
     {
@@ -259,7 +303,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-24T14:24:30.187Z"
     },
     {
@@ -295,7 +339,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-24T14:29:17.459Z"
     },
     {
@@ -331,22 +375,23 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-09-25T05:55:20.004Z"
     }
   ],
   "products": [
     {
       "id": "p001",
-      "name": "Classic Oxford Shirt",
-      "slug": "classic-oxford-shirt",
+      "name": "Deep Sea Blue Linen Shirt",
+      "slug": "deep-sea-blue-linen-shirt",
       "category": "shirts",
       "price": 6499,
       "oldPrice": 7499,
       "description": "A timeless relaxed-fit Oxford shirt designed for effortless everyday elegance.",
       "images": [
-        "public/assets/products/shirt-1.jpg",
-        "assets/products/oxford-shirt-2.jpg"
+        "assets/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
+        "assets/shirts/deep sea blue/deepsea-blue-linen-02.jpg",
+        "assets/shirts/deep sea blue/deepsea-blue-linen-03.jpg"
       ],
       "sizes": [
         "S",
@@ -367,15 +412,17 @@
     },
     {
       "id": "p002",
-      "name": "Relaxed Linen Shirt",
-      "slug": "relaxed-linen-shirt",
+      "name": "Midnight Green Linen Shirt",
+      "slug": "midnight-green-linen-shirt",
       "category": "shirts",
       "price": 5999,
       "oldPrice": 6999,
       "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
       "images": [
-        "assets/products/linen-shirt-1.jpg",
-        "assets/products/linen-shirt-2.jpg"
+        "assets/shirts/midnight green/midnight-green-linen-01.jpg",
+        "assets/shirts/midnight green/midnight-green-linen-02.jpg",
+        "assets/shirts/midnight green/midnight-green-linen-03.jpg",
+        "assets/shirts/midnight green/midnight-green-linen-01.jpg"
       ],
       "sizes": [
         "S",
@@ -396,6 +443,312 @@
     },
     {
       "id": "p003",
+      "name": "Classic White Linen Shirt",
+      "slug": "classic-white-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/classic white/classic-white-linen-01.jpg",
+        "assets/shirts/classic white/classic-white-linen-02.jpg",
+        "assets/shirts/classic white/classic-white-linen-03.jpg",
+        "assets/shirts/classic white/classic-white-linen-04.jpg",
+        "assets/shirts/classic white/classic-white-linen-05.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p004",
+      "name": "Espresso Brown Linen Shirt",
+      "slug": "espresso-brown-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/espresso brown/espresso-brown-linen-01.jpg",
+        "assets/shirts/espresso brown/espresso-brown-linen-02.jpg",
+        "assets/shirts/espresso brown/espresso-brown-linen-03.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p005",
+      "name": "Light Blue Linen Shirt",
+      "slug": "light-blue-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/light blue/light-blue-linen-01.jpg",
+        "assets/shirts/light blue/light-blue-linen-02.jpg",
+        "assets/shirts/light blue/light-blue-linen-03.jpg",
+        "assets/shirts/light blue/light-blue-linen-04.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p006",
+      "name": "Lemon Yellow Linen Shirt",
+      "slug": "lemon-yellow-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/lemon yellow/lemon-yellow-linen-01.jpg",
+        "assets/shirts/lemon yellow/lemon-yellow-linen-02.jpg",
+        "assets/shirts/lemon yellow/lemon-yellow-linen-03.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p007",
+      "name": "Hunter Green Linen Shirt",
+      "slug": "hunter-green-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/hunter green/hunter-green-linen-01.jpg",
+        "assets/shirts/hunter green/hunter-green-linen-02.jpg",
+        "assets/shirts/hunter green/hunter-green-linen-03.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p008",
+      "name": "Midnight Purple Linen Shirt",
+      "slug": "midnight-purple-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/midnight purple/midnight-purple-linen-01.jpg",
+        "assets/shirts/midnight purple/midnight-purple-linen-02.jpg",
+        "assets/shirts/midnight purple/midnight-purple-linen-03.jpg",
+        "assets/shirts/midnight purple/midnight-purple-linen-04.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p009",
+      "name": "Misty Mint Linen Shirt",
+      "slug": "Misty-mint-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/misty mint/misty-mint-linen-01.jpg",
+        "assets/shirts/misty mint/misty-mint-linen-02.jpg",
+        "assets/shirts/misty mint/misty-mint-linen-03.jpg",
+        "assets/shirts/misty mint/misty-mint-linen-04.jpg",
+        "assets/shirts/misty mint/misty-mint-linen-05.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p010",
+      "name": "Midnight Blue Linen Shirt",
+      "slug": "midnight-blue-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/midnight blue/midnight-blue-linen-01.jpg",
+        "assets/shirts/midnight blue/midnight-blue-linen-02.jpg",
+        "assets/shirts/midnight blue/midnight-blue-linen-03.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p011",
+      "name": "Classic Black Linen Shirt",
+      "slug": "classic-black-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/classic black/classic-black-linen-01.jpg",
+        "assets/shirts/classic black/classic-black-linen-02.jpg",
+        "assets/shirts/classic black/classic-black-linen-03.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p012",
+      "name": "Stone Grey Linen Shirt",
+      "slug": "stone-grey-linen-shirt",
+      "category": "shirts",
+      "price": 5999,
+      "oldPrice": 6999,
+      "description": "Lightweight linen with a relaxed silhouette, made for warm days and effortless style.",
+      "images": [
+        "assets/shirts/stone grey/stone-grey-linen-01.jpg",
+        "assets/shirts/stone grey/stone-grey-linen-02.jpg",
+        "assets/shirts/stone grey/stone-grey-linen-03.jpg"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "colors": [
+        "Cream",
+        "Stone",
+        "Olive"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 89,
+      "stock": 18,
+      "isNew": true,
+      "isFeatured": true
+    },
+    {
+      "id": "p015",
       "name": "Signature Straight Trousers",
       "slug": "signature-straight-trousers",
       "category": "trousers",
@@ -425,7 +778,7 @@
       "isFeatured": true
     },
     {
-      "id": "p004",
+      "id": "p016",
       "name": "Pleated Tailored Trousers",
       "slug": "pleated-tailored-trousers",
       "category": "trousers",
@@ -454,7 +807,7 @@
       "isFeatured": false
     },
     {
-      "id": "p005",
+      "id": "p035",
       "name": "Classic Pique Polo",
       "slug": "classic-pique-polo",
       "category": "polo-shirts",
@@ -484,7 +837,7 @@
       "isFeatured": true
     },
     {
-      "id": "p006",
+      "id": "p046",
       "name": "Merino Crewneck Sweater",
       "slug": "merino-crewneck-sweater",
       "category": "sweaters",
@@ -512,7 +865,7 @@
       "isFeatured": true
     },
     {
-      "id": "p007",
+      "id": "p057",
       "name": "Heavyweight Essential Hoodie",
       "slug": "heavyweight-essential-hoodie",
       "category": "hoodies",
@@ -540,7 +893,7 @@
       "isFeatured": true
     },
     {
-      "id": "p008",
+      "id": "p068",
       "name": "Oversized Essential Tee",
       "slug": "oversized-essential-tee",
       "category": "oversized-tshirts",

@@ -8,8 +8,8 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          background: "#EDEDED",
-          surface: "#F8F9FA",
+          background: "#F8F9FA",
+          surface: "#FFFFFF",
           "surface-light": "#FFFFFF",
 
           text: "#111111",

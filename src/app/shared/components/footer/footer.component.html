@@ -1,241 +1,283 @@
-<footer class="border-t border-[var(--color-border)] bg-[var(--color-background)]">
+<footer class="bg-[#111111] text-white">
 
-  <!-- Main Footer -->
+  <!-- ================================================= -->
+  <!-- MAIN FOOTER -->
+  <!-- ================================================= -->
+
   <div
-    class="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4 lg:px-10 lg:py-24"
+    class="mx-auto max-w-[1440px] px-6 py-16 lg:px-10 lg:py-24"
   >
 
-    <!-- Brand -->
-    <div>
+    <div
+      class="grid gap-14 lg:grid-cols-[1.5fr_1fr_1fr_1fr]"
+    >
 
-      <h2 class="text-2xl font-semibold tracking-[0.2em]">
-        SA
-      </h2>
+      <!-- ============================================= -->
+      <!-- BRAND -->
+      <!-- ============================================= -->
 
-      <p
-        class="mt-5 max-w-xs text-sm leading-6 text-[var(--color-muted)]"
-      >
-        Timeless style. Modern essentials.
-        Thoughtfully designed pieces made to last.
-      </p>
+      <div class="flex flex-col justify-between">
 
-      <!-- Social Links -->
-      <div class="mt-8 flex gap-5">
+        <div>
 
-        <a
-          href="#"
-          aria-label="Instagram"
-          class="text-xs uppercase tracking-[0.1em] transition-opacity hover:opacity-50"
+          <h2
+            class="text-3xl font-semibold tracking-[0.3em] text-white"
+          >
+            SA
+          </h2>
+
+          <p
+            class="mt-6 max-w-sm text-sm leading-7 text-[#A3A3A3]"
+          >
+            Timeless style. Modern essentials.
+            Thoughtfully designed pieces made to last.
+          </p>
+
+        </div>
+
+
+        <!-- SOCIAL LINKS -->
+
+        <div class="mt-10 flex flex-wrap gap-x-7 gap-y-3">
+
+          <a
+            href="#"
+            aria-label="Instagram"
+            class="text-[10px] font-medium uppercase tracking-[0.18em] text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+          >
+            Instagram
+          </a>
+
+          <a
+            href="#"
+            aria-label="Facebook"
+            class="text-[10px] font-medium uppercase tracking-[0.18em] text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+          >
+            Facebook
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- SHOP -->
+      <!-- ============================================= -->
+
+      <div>
+
+        <h3
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] text-white"
         >
-          Instagram
-        </a>
+          Shop
+        </h3>
 
-        <a
-          href="#"
-          aria-label="Facebook"
-          class="text-xs uppercase tracking-[0.1em] transition-opacity hover:opacity-50"
+        <ul class="mt-7 space-y-4">
+
+          <li>
+            <a
+              routerLink="/shop"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              All Products
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/shop"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Shirts
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/shop"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Trousers
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/shop"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Polo Shirts
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/shop"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Sweaters
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/shop"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Hoodies
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- COMPANY -->
+      <!-- ============================================= -->
+
+      <div>
+
+        <h3
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] text-white"
         >
-          Facebook
-        </a>
+          Company
+        </h3>
+
+        <ul class="mt-7 space-y-4">
+
+          <li>
+            <a
+              routerLink="/about"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Our Story
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/collection"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Collections
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Journal
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/contact"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Contact
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- HELP -->
+      <!-- ============================================= -->
+
+      <div>
+
+        <h3
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] text-white"
+        >
+          Help
+        </h3>
+
+        <ul class="mt-7 space-y-4">
+
+          <li>
+            <a
+              href="#"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Shipping
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Returns
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              FAQs
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#"
+              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+            >
+              Size Guide
+            </a>
+          </li>
+
+        </ul>
 
       </div>
 
     </div>
 
 
-    <!-- Shop -->
-    <div>
-
-      <h3 class="text-xs font-semibold uppercase tracking-[0.15em]">
-        Shop
-      </h3>
-
-      <ul class="mt-6 space-y-4">
-
-        <li>
-          <a
-            routerLink="/shop"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            All Products
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/shop"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Shirts
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/shop"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Trousers
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/shop"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Polo Shirts
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/shop"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Sweaters
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/shop"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Hoodies
-          </a>
-        </li>
-
-      </ul>
-
-    </div>
-
-
-    <!-- Company -->
-    <div>
-
-      <h3 class="text-xs font-semibold uppercase tracking-[0.15em]">
-        Company
-      </h3>
-
-      <ul class="mt-6 space-y-4">
-
-        <li>
-          <a
-            routerLink="/about"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Our Story
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/collection"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Collections
-          </a>
-        </li>
-
-        <li>
-          <a
-            href="#"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Journal
-          </a>
-        </li>
-
-        <li>
-          <a
-            routerLink="/contact"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Contact
-          </a>
-        </li>
-
-      </ul>
-
-    </div>
-
-
-    <!-- Help -->
-    <div>
-
-      <h3 class="text-xs font-semibold uppercase tracking-[0.15em]">
-        Help
-      </h3>
-
-      <ul class="mt-6 space-y-4">
-
-        <li>
-          <a
-            href="#"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Shipping
-          </a>
-        </li>
-
-        <li>
-          <a
-            href="#"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Returns
-          </a>
-        </li>
-
-        <li>
-          <a
-            href="#"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            FAQs
-          </a>
-        </li>
-
-        <li>
-          <a
-            href="#"
-            class="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            Size Guide
-          </a>
-        </li>
-
-      </ul>
-
-    </div>
+   
 
   </div>
 
 
-  <!-- Bottom Footer -->
-  <div class="border-t border-[var(--color-border)]">
+  <!-- ================================================= -->
+  <!-- BOTTOM FOOTER -->
+  <!-- ================================================= -->
+
+  <div class="border-t border-[#2A2A2A]">
 
     <div
-      class="mx-auto flex max-w-[1440px] flex-col gap-5 px-6 py-7 text-xs text-[var(--color-muted)] sm:flex-row sm:items-center sm:justify-between lg:px-10"
+      class="mx-auto flex max-w-[1440px] flex-col gap-5 px-6 py-7 text-[10px] uppercase tracking-[0.12em] text-[#737373] sm:flex-row sm:items-center sm:justify-between lg:px-10"
     >
 
       <p>
-        © 2026 ELVARA. All Rights Reserved.
+        © 2026 SA. All Rights Reserved.
       </p>
 
-      <div class="flex gap-6">
+
+      <div class="flex flex-wrap gap-x-6 gap-y-3">
 
         <a
           href="#"
-          class="transition-colors hover:text-[var(--color-text)]"
+          class="transition-colors duration-200 hover:text-white"
         >
           Privacy Policy
         </a>
 
         <a
           href="#"
-          class="transition-colors hover:text-[var(--color-text)]"
+          class="transition-colors duration-200 hover:text-white"
         >
           Terms & Conditions
         </a>

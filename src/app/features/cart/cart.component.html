@@ -1,7 +1,7 @@
 <section class="min-h-screen bg-brand-background">
 
   <div
-    class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20"
+    class="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-10 lg:py-20"
   >
 
     <!-- ================================================= -->
@@ -9,19 +9,19 @@
     <!-- ================================================= -->
 
     <div
-      class="flex items-end justify-between border-b border-brand-border pb-6"
+      class="flex items-end justify-between border-b border-brand-border pb-7"
     >
 
       <div>
 
         <p
-          class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+          class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
         >
           Your Selection
         </p>
 
         <h1
-          class="mt-3 text-3xl font-light tracking-tight text-brand-text"
+          class="mt-3 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
         >
           Shopping Bag
         </h1>
@@ -33,12 +33,11 @@
 
       @if (cartItemCount$ | async; as count) {
 
-        <p class="text-sm text-brand-muted">
-
+        <p
+          class="text-[10px] uppercase tracking-[0.16em] text-brand-muted"
+        >
           {{ count }}
-
           {{ count === 1 ? 'item' : 'items' }}
-
         </p>
 
       }
@@ -55,14 +54,14 @@
       @if (items.length > 0) {
 
         <div
-          class="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]"
+          class="mt-10 grid gap-14 lg:grid-cols-[1fr_360px] lg:gap-16"
         >
 
           <!-- =========================================== -->
           <!-- CART ITEMS -->
           <!-- =========================================== -->
 
-          <div class="space-y-6">
+          <div class="space-y-0">
 
             @for (
               item of items;
@@ -70,7 +69,7 @@
             ) {
 
               <article
-                class="flex gap-5 border-b border-brand-border pb-6"
+                class="flex gap-5 border-b border-brand-border py-6 first:pt-0 sm:gap-7"
               >
 
                 <!-- ===================================== -->
@@ -82,13 +81,13 @@
                     '/products',
                     item.product.id
                   ]"
-                  class="h-36 w-28 shrink-0 overflow-hidden bg-brand-surface sm:h-44 sm:w-36"
+                  class="h-40 w-28 shrink-0 overflow-hidden bg-brand-surface sm:h-48 sm:w-36"
                 >
 
                   <img
                     [src]="item.product.images[0]"
                     [alt]="item.product.name"
-                    class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                    class="h-full w-full object-cover transition-transform duration-500 ease-out hover:scale-[1.03]"
                   />
 
                 </a>
@@ -99,19 +98,19 @@
                 <!-- ===================================== -->
 
                 <div
-                  class="flex flex-1 flex-col justify-between"
+                  class="flex min-w-0 flex-1 flex-col justify-between"
                 >
 
                   <div>
 
                     <div
-                      class="flex items-start justify-between gap-4"
+                      class="flex items-start justify-between gap-5"
                     >
 
-                      <div>
+                      <div class="min-w-0">
 
                         <h2
-                          class="text-sm font-medium text-brand-text"
+                          class="truncate text-sm font-medium text-brand-text"
                         >
                           {{ item.product.name }}
                         </h2>
@@ -128,7 +127,7 @@
                       <!-- ITEM TOTAL -->
 
                       <p
-                        class="text-sm font-medium text-brand-text"
+                        class="shrink-0 text-sm font-medium text-brand-text"
                       >
                         ₹{{ item.product.price * item.quantity }}
                       </p>
@@ -136,19 +135,13 @@
                     </div>
 
 
-                    <!-- ================================= -->
                     <!-- SIZE -->
-                    <!-- ================================= -->
 
-                    <div class="mt-3">
-
-                      <p
-                        class="text-xs text-brand-muted"
-                      >
-                        Size: {{ item.size }}
-                      </p>
-
-                    </div>
+                    <p
+                      class="mt-4 text-xs text-brand-muted"
+                    >
+                      Size: {{ item.size }}
+                    </p>
 
                   </div>
 
@@ -158,7 +151,7 @@
                   <!-- =================================== -->
 
                   <div
-                    class="mt-5 flex items-center justify-between"
+                    class="mt-6 flex items-center justify-between gap-4"
                   >
 
                     <!-- QUANTITY -->
@@ -172,7 +165,7 @@
                         (click)="
                           decreaseQuantity(item.id!)
                         "
-                        class="flex h-9 w-9 items-center justify-center text-brand-text transition-colors hover:bg-brand-surface"
+                        class="flex h-9 w-9 items-center justify-center text-brand-text transition-colors duration-200 hover:bg-brand-surface"
                         aria-label="Decrease quantity"
                       >
                         −
@@ -180,7 +173,7 @@
 
 
                       <span
-                        class="flex h-9 min-w-10 items-center justify-center border-x border-brand-border text-xs"
+                        class="flex h-9 min-w-10 items-center justify-center border-x border-brand-border text-xs text-brand-text"
                       >
                         {{ item.quantity }}
                       </span>
@@ -191,7 +184,7 @@
                         (click)="
                           increaseQuantity(item.id!)
                         "
-                        class="flex h-9 w-9 items-center justify-center text-brand-text transition-colors hover:bg-brand-surface"
+                        class="flex h-9 w-9 items-center justify-center text-brand-text transition-colors duration-200 hover:bg-brand-surface"
                         aria-label="Increase quantity"
                       >
                         +
@@ -207,7 +200,7 @@
                       (click)="
                         removeItem(item.id!)
                       "
-                      class="text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
+                      class="text-[10px] font-medium uppercase tracking-[0.14em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
                     >
                       Remove
                     </button>
@@ -228,11 +221,11 @@
           <!-- =========================================== -->
 
           <aside
-            class="h-fit border border-brand-border bg-brand-surface p-6"
+            class="h-fit border border-brand-border bg-brand-surface p-6 sm:p-7"
           >
 
             <h2
-              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+              class="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-text"
             >
               Order Summary
             </h2>
@@ -241,20 +234,24 @@
             <!-- SUMMARY -->
 
             <div
-              class="mt-6 space-y-4"
+              class="mt-7 space-y-5"
             >
 
               <!-- SUBTOTAL -->
 
               <div
-                class="flex justify-between text-sm"
+                class="flex items-center justify-between text-sm"
               >
 
-                <span class="text-brand-muted">
+                <span
+                  class="text-brand-muted"
+                >
                   Subtotal
                 </span>
 
-                <span class="text-brand-text">
+                <span
+                  class="text-brand-text"
+                >
                   ₹{{ cartSubtotal$ | async }}
                 </span>
 
@@ -264,14 +261,18 @@
               <!-- SHIPPING -->
 
               <div
-                class="flex justify-between text-sm"
+                class="flex items-center justify-between text-sm"
               >
 
-                <span class="text-brand-muted">
+                <span
+                  class="text-brand-muted"
+                >
                   Shipping
                 </span>
 
-                <span class="text-brand-text">
+                <span
+                  class="text-brand-text"
+                >
                   Free
                 </span>
 
@@ -283,11 +284,11 @@
             <!-- TOTAL -->
 
             <div
-              class="mt-6 border-t border-brand-border pt-6"
+              class="mt-7 border-t border-brand-border pt-6"
             >
 
               <div
-                class="flex justify-between"
+                class="flex items-center justify-between"
               >
 
                 <span
@@ -312,7 +313,7 @@
             <button
               type="button"
               (click)="proceedToCheckout()"
-              class="mt-6 w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+              class="mt-7 w-full bg-brand-text px-6 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
             >
               Proceed to Checkout
             </button>
@@ -320,13 +321,27 @@
 
             <!-- CLEAR CART -->
 
-            <button
-              type="button"
-              (click)="clearCart()"
-              class="mt-4 w-full text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
-            >
-              Clear Cart
-            </button>
+            <div class="mt-5 flex justify-center">
+
+              <button
+                type="button"
+                (click)="clearCart()"
+                class="group flex items-center gap-3 whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
+              >
+
+                <span
+                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+                ></span>
+
+                Clear Cart
+
+                <span
+                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+                ></span>
+
+              </button>
+
+            </div>
 
           </aside>
 
@@ -339,18 +354,18 @@
         <!-- =========================================== -->
 
         <div
-          class="flex min-h-[500px] flex-col items-center justify-center text-center"
+          class="flex min-h-[55vh] flex-col items-center justify-center text-center"
         >
 
           <p
-            class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+            class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
           >
-            Your bag is empty
+            Your Bag
           </p>
 
 
           <h2
-            class="mt-4 text-2xl font-light text-brand-text"
+            class="mt-4 text-2xl font-light tracking-tight text-brand-text sm:text-3xl"
           >
             Nothing here yet.
           </h2>
@@ -364,11 +379,13 @@
           </p>
 
 
+          <!-- CONTINUE SHOPPING -->
+
           <a
             routerLink="/shop"
-            class="mt-8 border border-brand-text px-8 py-3 text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:bg-brand-text hover:text-white"
+            class="mt-8 bg-brand-text px-8 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
           >
-            Continue Shopping
+            Explore Collection
           </a>
 
         </div>

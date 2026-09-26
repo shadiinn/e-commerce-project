@@ -1,21 +1,25 @@
 <section class="min-h-screen bg-brand-background">
 
-  <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20">
+  <div
+    class="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-10 lg:py-20"
+  >
 
     <!-- ================================================= -->
     <!-- HEADER -->
     <!-- ================================================= -->
 
-    <div class="border-b border-brand-border pb-6">
+    <div
+      class="border-b border-brand-border pb-7"
+    >
 
       <p
-        class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+        class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
       >
         Complete Your Purchase
       </p>
 
       <h1
-        class="mt-3 text-3xl font-light tracking-tight text-brand-text"
+        class="mt-3 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
       >
         Checkout
       </h1>
@@ -30,26 +34,614 @@
     <form
       [formGroup]="checkoutForm"
       (ngSubmit)="placeOrder()"
-      class="mt-10 grid gap-12 lg:grid-cols-[1fr_380px]"
+      class="mt-10 grid gap-14 lg:grid-cols-[1fr_380px] lg:gap-16"
     >
 
       <!-- ================================================= -->
       <!-- LEFT SIDE -->
       <!-- ================================================= -->
 
-      <div class="space-y-10">
+      <div class="space-y-12">
 
 
-        <!-- =============================================== -->
-        <!-- CONTACT INFORMATION -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
+        <!-- SHIPPING ADDRESS -->
+        <!-- ================================================= -->
 
         <section>
 
-          <div class="border-b border-brand-border pb-4">
+          <div
+            class="flex items-end justify-between border-b border-brand-border pb-5"
+          >
+
+            <div>
+
+              <p
+                class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+              >
+                Step 01
+              </p>
+
+              <h2
+                class="mt-2 text-lg font-medium text-brand-text"
+              >
+                Shipping Address
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <!-- =============================================== -->
+          <!-- SAVED ADDRESSES -->
+          <!-- =============================================== -->
+
+          @if (savedAddresses().length > 0) {
+
+            <div class="mt-6 space-y-3">
+
+              @for (
+                address of savedAddresses();
+                track address.id
+              ) {
+
+                <div
+                  class="group border p-5 transition-colors duration-200"
+                  [class.border-brand-text]="
+                    selectedAddressId() === address.id
+                  "
+                  [class.bg-brand-surface]="
+                    selectedAddressId() === address.id
+                  "
+                  [class.border-brand-border]="
+                    selectedAddressId() !== address.id
+                  "
+                >
+
+                  <div
+                    class="flex items-start gap-4"
+                  >
+
+                    <!-- SELECT -->
+
+                    <button
+                      type="button"
+                      (click)="selectAddress(address)"
+                      class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-brand-text"
+                      [attr.aria-label]="'Select address'"
+                    >
+
+                      @if (
+                        selectedAddressId() === address.id
+                      ) {
+
+                        <span
+                          class="h-2 w-2 rounded-full bg-brand-text"
+                        ></span>
+
+                      }
+
+                    </button>
+
+
+                    <!-- ADDRESS DETAILS -->
+
+                    <button
+                      type="button"
+                      (click)="selectAddress(address)"
+                      class="min-w-0 flex-1 text-left"
+                    >
+
+                      <div
+                        class="flex items-start justify-between gap-4"
+                      >
+
+                        <div>
+
+                          <p
+                            class="text-sm font-medium text-brand-text"
+                          >
+                            {{ address.firstName }}
+                            {{ address.lastName }}
+                          </p>
+
+                          <p
+                            class="mt-2 text-xs leading-5 text-brand-muted"
+                          >
+                            {{ address.address }}
+
+                            @if (address.apartment) {
+                              <span>
+                                , {{ address.apartment }}
+                              </span>
+                            }
+
+                            <br />
+
+                            {{ address.city }},
+                            {{ address.state }}
+                            {{ address.postalCode }}
+
+                            <br />
+
+                            {{ address.country }}
+
+                          </p>
+
+                        </div>
+
+
+                        <!-- SELECTED -->
+
+                        @if (
+                          selectedAddressId() === address.id
+                        ) {
+
+                          <span
+                            class="shrink-0 text-[9px] font-medium uppercase tracking-[0.15em] text-brand-text"
+                          >
+                            Selected
+                          </span>
+
+                        }
+
+                      </div>
+
+                    </button>
+
+                  </div>
+
+
+                  <!-- EDIT -->
+
+                  <div
+                    class="mt-4 border-t border-brand-border pt-4 pl-8"
+                  >
+
+                    <button
+                      type="button"
+                      (click)="editAddress(address)"
+                      class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+                    >
+                      Edit Address
+                    </button>
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- ADD ADDRESS -->
+          <!-- ================================================= -->
+
+          @if (
+            !isAddressFormOpen() &&
+            savedAddresses().length < 2
+          ) {
+
+            <div class="mt-5">
+
+              <button
+                type="button"
+                (click)="openAddAddress()"
+                class="group flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
+              >
+
+                <span
+                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+                ></span>
+
+                Add New Address
+
+                <span
+                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+                ></span>
+
+              </button>
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- ADDRESS FORM -->
+          <!-- ================================================= -->
+
+          @if (isAddressFormOpen()) {
+
+            <div
+              class="mt-7 border border-brand-border bg-brand-surface p-6 sm:p-7"
+            >
+
+              <div
+                class="flex items-center justify-between border-b border-brand-border pb-5"
+              >
+
+                <div>
+
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+                  >
+                    {{
+                      editingAddressId()
+                        ? 'Edit Address'
+                        : 'New Address'
+                    }}
+                  </p>
+
+                  <h3
+                    class="mt-2 text-sm font-medium text-brand-text"
+                  >
+                    Shipping Details
+                  </h3>
+
+                </div>
+
+              </div>
+
+
+              <!-- FORM FIELDS -->
+
+              <div
+                class="mt-6 grid gap-5 sm:grid-cols-2"
+              >
+
+                <!-- FIRST NAME -->
+
+                <div>
+
+                  <label
+                    for="firstName"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    First Name
+                  </label>
+
+                  <input
+                    id="firstName"
+                    type="text"
+                    formControlName="firstName"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                  />
+
+                  @if (
+                    checkoutForm.controls.firstName.touched &&
+                    checkoutForm.controls.firstName.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      First name is required.
+                    </p>
+
+                  }
+
+                </div>
+
+
+                <!-- LAST NAME -->
+
+                <div>
+
+                  <label
+                    for="lastName"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    Last Name
+                  </label>
+
+                  <input
+                    id="lastName"
+                    type="text"
+                    formControlName="lastName"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                  />
+
+                  @if (
+                    checkoutForm.controls.lastName.touched &&
+                    checkoutForm.controls.lastName.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      Last name is required.
+                    </p>
+
+                  }
+
+                </div>
+
+
+                <!-- ADDRESS -->
+
+                <div class="sm:col-span-2">
+
+                  <label
+                    for="address"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    Street Address
+                  </label>
+
+                  <input
+                    id="address"
+                    type="text"
+                    formControlName="address"
+                    placeholder="Street address"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+                  />
+
+                  @if (
+                    checkoutForm.controls.address.touched &&
+                    checkoutForm.controls.address.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      Address is required.
+                    </p>
+
+                  }
+
+                </div>
+
+
+                <!-- APARTMENT -->
+
+                <div class="sm:col-span-2">
+
+                  <label
+                    for="apartment"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    Apartment, Suite, etc.
+                    <span>
+                      (optional)
+                    </span>
+                  </label>
+
+                  <input
+                    id="apartment"
+                    type="text"
+                    formControlName="apartment"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                  />
+
+                </div>
+
+
+                <!-- CITY -->
+
+                <div>
+
+                  <label
+                    for="city"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    City
+                  </label>
+
+                  <input
+                    id="city"
+                    type="text"
+                    formControlName="city"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                  />
+
+                  @if (
+                    checkoutForm.controls.city.touched &&
+                    checkoutForm.controls.city.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      City is required.
+                    </p>
+
+                  }
+
+                </div>
+
+
+                <!-- STATE -->
+
+                <div>
+
+                  <label
+                    for="state"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    State
+                  </label>
+
+                  <input
+                    id="state"
+                    type="text"
+                    formControlName="state"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                  />
+
+                  @if (
+                    checkoutForm.controls.state.touched &&
+                    checkoutForm.controls.state.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      State is required.
+                    </p>
+
+                  }
+
+                </div>
+
+
+                <!-- POSTAL CODE -->
+
+                <div>
+
+                  <label
+                    for="postalCode"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    Postal Code
+                  </label>
+
+                  <input
+                    id="postalCode"
+                    type="text"
+                    inputmode="numeric"
+                    formControlName="postalCode"
+                    placeholder="6 digit postal code"
+                    class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+                  />
+
+                  @if (
+                    checkoutForm.controls.postalCode.touched &&
+                    checkoutForm.controls.postalCode.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      Enter a valid 6 digit postal code.
+                    </p>
+
+                  }
+
+                </div>
+
+
+                <!-- COUNTRY -->
+
+                <div>
+
+                  <label
+                    for="country"
+                    class="text-[11px] text-brand-muted"
+                  >
+                    Country
+                  </label>
+
+                  <input
+                    id="country"
+                    type="text"
+                    formControlName="country"
+                    readonly
+                    class="mt-2 w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-muted outline-none"
+                  />
+
+                </div>
+
+              </div>
+
+
+              <!-- FORM ACTIONS -->
+
+              <div
+                class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+              >
+
+                <button
+                  type="button"
+                  (click)="cancelAddressForm()"
+                  class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  (click)="saveAddress()"
+                  class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
+                >
+                  {{
+                    editingAddressId()
+                      ? 'Save Changes'
+                      : 'Save Address'
+                  }}
+                </button>
+
+              </div>
+
+            </div>
+
+          }
+
+
+          <!-- ================================================= -->
+          <!-- NO ADDRESS MESSAGE -->
+          <!-- ================================================= -->
+
+          @if (
+            savedAddresses().length === 0 &&
+            !isAddressFormOpen()
+          ) {
+
+            <div
+              class="mt-6 border border-dashed border-brand-border p-8 text-center"
+            >
+
+              <p
+                class="text-sm font-light text-brand-text"
+              >
+                No saved address
+              </p>
+
+              <p
+                class="mt-2 text-xs leading-5 text-brand-muted"
+              >
+                Add a shipping address to continue
+                with your order.
+              </p>
+
+              <button
+                type="button"
+                (click)="openAddAddress()"
+                class="mt-5 bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
+              >
+                Add Address
+              </button>
+
+            </div>
+
+          }
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- CONTACT INFORMATION -->
+        <!-- ================================================= -->
+
+        <section>
+
+          <div
+            class="border-b border-brand-border pb-5"
+          >
+
+            <p
+              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+            >
+              Step 02
+            </p>
 
             <h2
-              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+              class="mt-2 text-lg font-medium text-brand-text"
             >
               Contact Information
             </h2>
@@ -57,15 +649,17 @@
           </div>
 
 
-          <div class="mt-6 grid gap-5 sm:grid-cols-2">
+          <div
+            class="mt-6 grid gap-5 sm:grid-cols-2"
+          >
 
             <!-- EMAIL -->
 
-            <div class="sm:col-span-2">
+            <div>
 
               <label
                 for="email"
-                class="text-xs text-brand-muted"
+                class="text-[11px] text-brand-muted"
               >
                 Email Address
               </label>
@@ -75,7 +669,7 @@
                 type="email"
                 formControlName="email"
                 placeholder="you@example.com"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors placeholder:text-brand-muted focus:border-brand-text"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
               />
 
               @if (
@@ -83,7 +677,9 @@
                 checkoutForm.controls.email.invalid
               ) {
 
-                <p class="mt-2 text-xs text-red-600">
+                <p
+                  class="mt-2 text-[10px] text-red-600"
+                >
                   Please enter a valid email address.
                 </p>
 
@@ -94,11 +690,11 @@
 
             <!-- PHONE -->
 
-            <div class="sm:col-span-2">
+            <div>
 
               <label
                 for="phone"
-                class="text-xs text-brand-muted"
+                class="text-[11px] text-brand-muted"
               >
                 Phone Number
               </label>
@@ -108,7 +704,7 @@
                 type="tel"
                 formControlName="phone"
                 placeholder="10 digit mobile number"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors placeholder:text-brand-muted focus:border-brand-text"
+                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
               />
 
               @if (
@@ -116,7 +712,9 @@
                 checkoutForm.controls.phone.invalid
               ) {
 
-                <p class="mt-2 text-xs text-red-600">
+                <p
+                  class="mt-2 text-[10px] text-red-600"
+                >
                   Please enter a valid 10 digit phone number.
                 </p>
 
@@ -129,215 +727,24 @@
         </section>
 
 
-        <!-- =============================================== -->
-        <!-- SHIPPING ADDRESS -->
-        <!-- =============================================== -->
-
-        <section>
-
-          <div class="border-b border-brand-border pb-4">
-
-            <h2
-              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
-            >
-              Shipping Address
-            </h2>
-
-          </div>
-
-
-          <div class="mt-6 grid gap-5 sm:grid-cols-2">
-
-            <!-- FIRST NAME -->
-
-            <div>
-
-              <label
-                for="firstName"
-                class="text-xs text-brand-muted"
-              >
-                First Name
-              </label>
-
-              <input
-                id="firstName"
-                type="text"
-                formControlName="firstName"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- LAST NAME -->
-
-            <div>
-
-              <label
-                for="lastName"
-                class="text-xs text-brand-muted"
-              >
-                Last Name
-              </label>
-
-              <input
-                id="lastName"
-                type="text"
-                formControlName="lastName"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- ADDRESS -->
-
-            <div class="sm:col-span-2">
-
-              <label
-                for="address"
-                class="text-xs text-brand-muted"
-              >
-                Address
-              </label>
-
-              <input
-                id="address"
-                type="text"
-                formControlName="address"
-                placeholder="Street address"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none placeholder:text-brand-muted focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- APARTMENT -->
-
-            <div class="sm:col-span-2">
-
-              <label
-                for="apartment"
-                class="text-xs text-brand-muted"
-              >
-                Apartment, Suite, etc.
-
-                <span class="text-brand-muted">
-                  (optional)
-                </span>
-
-              </label>
-
-              <input
-                id="apartment"
-                type="text"
-                formControlName="apartment"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- CITY -->
-
-            <div>
-
-              <label
-                for="city"
-                class="text-xs text-brand-muted"
-              >
-                City
-              </label>
-
-              <input
-                id="city"
-                type="text"
-                formControlName="city"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- STATE -->
-
-            <div>
-
-              <label
-                for="state"
-                class="text-xs text-brand-muted"
-              >
-                State
-              </label>
-
-              <input
-                id="state"
-                type="text"
-                formControlName="state"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- POSTAL CODE -->
-
-            <div>
-
-              <label
-                for="postalCode"
-                class="text-xs text-brand-muted"
-              >
-                Postal Code
-              </label>
-
-              <input
-                id="postalCode"
-                type="text"
-                inputmode="numeric"
-                formControlName="postalCode"
-                class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-              />
-
-            </div>
-
-
-            <!-- COUNTRY -->
-
-            <div>
-
-              <label
-                for="country"
-                class="text-xs text-brand-muted"
-              >
-                Country
-              </label>
-
-              <input
-                id="country"
-                type="text"
-                formControlName="country"
-                readonly
-                class="mt-2 w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-muted outline-none"
-              />
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- DELIVERY -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         <section>
 
-          <div class="border-b border-brand-border pb-4">
+          <div
+            class="border-b border-brand-border pb-5"
+          >
+
+            <p
+              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+            >
+              Step 03
+            </p>
 
             <h2
-              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+              class="mt-2 text-lg font-medium text-brand-text"
             >
               Delivery
             </h2>
@@ -350,26 +757,42 @@
           >
 
             <div
-              class="flex items-start justify-between gap-4"
+              class="flex items-start justify-between gap-5"
             >
 
               <div>
 
-                <p
-                  class="text-sm font-medium text-brand-text"
-                >
-                  Standard Delivery
-                </p>
+                <div class="flex items-center gap-3">
+
+                  <span
+                    class="flex h-4 w-4 items-center justify-center rounded-full border border-brand-text"
+                  >
+
+                    <span
+                      class="h-2 w-2 rounded-full bg-brand-text"
+                    ></span>
+
+                  </span>
+
+                  <p
+                    class="text-sm font-medium text-brand-text"
+                  >
+                    Standard Delivery
+                  </p>
+
+                </div>
 
                 <p
-                  class="mt-1 text-xs text-brand-muted"
+                  class="mt-2 pl-7 text-xs leading-5 text-brand-muted"
                 >
                   Delivered within 3–7 business days
                 </p>
 
               </div>
 
-              <p class="text-sm text-brand-text">
+              <p
+                class="shrink-0 text-sm text-brand-text"
+              >
                 Free
               </p>
 
@@ -380,16 +803,24 @@
         </section>
 
 
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- PAYMENT -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         <section>
 
-          <div class="border-b border-brand-border pb-4">
+          <div
+            class="border-b border-brand-border pb-5"
+          >
+
+            <p
+              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+            >
+              Step 04
+            </p>
 
             <h2
-              class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+              class="mt-2 text-lg font-medium text-brand-text"
             >
               Payment
             </h2>
@@ -397,7 +828,9 @@
           </div>
 
 
-          <div class="mt-6 space-y-3">
+          <div
+            class="mt-6 space-y-3"
+          >
 
             <!-- COD -->
 
@@ -409,7 +842,7 @@
                 type="radio"
                 formControlName="paymentMethod"
                 value="cod"
-                class="mt-1"
+                class="mt-1 h-4 w-4 accent-black"
               />
 
               <div>
@@ -434,14 +867,14 @@
             <!-- ONLINE PAYMENT -->
 
             <label
-              class="flex cursor-pointer items-start gap-4 border border-brand-border p-5 transition-colors hover:border-brand-text"
+              class="flex cursor-pointer items-start gap-4 border border-brand-border bg-brand-surface p-5 transition-colors duration-200 hover:border-brand-text"
             >
 
               <input
                 type="radio"
                 formControlName="paymentMethod"
                 value="online"
-                class="mt-1"
+                class="mt-1 h-4 w-4 accent-black"
               />
 
               <div>
@@ -474,33 +907,53 @@
       <!-- ================================================= -->
 
       <aside
-        class="h-fit border border-brand-border bg-brand-surface p-6 lg:sticky lg:top-24"
+        class="h-fit border border-brand-border bg-brand-surface p-6 sm:p-7 lg:sticky lg:top-24"
       >
 
-        <h2
-          class="text-sm font-medium uppercase tracking-[0.15em] text-brand-text"
+        <div
+          class="flex items-center justify-between border-b border-brand-border pb-5"
         >
-          Order Summary
-        </h2>
+
+          <div>
+
+            <p
+              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
+            >
+              Your Selection
+            </p>
+
+            <h2
+              class="mt-2 text-lg font-medium text-brand-text"
+            >
+              Order Summary
+            </h2>
+
+          </div>
+
+        </div>
 
 
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- CHECKOUT ITEMS -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         @if (
           checkoutItems$ | async;
           as items
         ) {
 
-          <div class="mt-6 space-y-5">
+          <div
+            class="mt-6 space-y-5"
+          >
 
             @for (
               item of items;
               track item.productId + item.size
             ) {
 
-              <div class="flex gap-4">
+              <div
+                class="flex gap-4"
+              >
 
                 <!-- IMAGE -->
 
@@ -525,7 +978,9 @@
 
                 <!-- PRODUCT INFO -->
 
-                <div class="min-w-0 flex-1">
+                <div
+                  class="min-w-0 flex-1"
+                >
 
                   <p
                     class="truncate text-sm font-medium text-brand-text"
@@ -553,7 +1008,7 @@
                 <!-- ITEM TOTAL -->
 
                 <p
-                  class="text-sm font-medium text-brand-text"
+                  class="shrink-0 text-sm font-medium text-brand-text"
                 >
                   ₹{{ item.product.price * item.quantity }}
                 </p>
@@ -567,23 +1022,29 @@
         }
 
 
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- PRICE -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         <div
-          class="mt-6 space-y-4 border-t border-brand-border pt-6"
+          class="mt-7 space-y-4 border-t border-brand-border pt-6"
         >
 
           <!-- SUBTOTAL -->
 
-          <div class="flex justify-between text-sm">
+          <div
+            class="flex justify-between text-sm"
+          >
 
-            <span class="text-brand-muted">
+            <span
+              class="text-brand-muted"
+            >
               Subtotal
             </span>
 
-            <span class="text-brand-text">
+            <span
+              class="text-brand-text"
+            >
               ₹{{ checkoutSubtotal$ | async }}
             </span>
 
@@ -592,13 +1053,19 @@
 
           <!-- SHIPPING -->
 
-          <div class="flex justify-between text-sm">
+          <div
+            class="flex justify-between text-sm"
+          >
 
-            <span class="text-brand-muted">
+            <span
+              class="text-brand-muted"
+            >
               Shipping
             </span>
 
-            <span class="text-brand-text">
+            <span
+              class="text-brand-text"
+            >
               Free
             </span>
 
@@ -607,9 +1074,9 @@
         </div>
 
 
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- TOTAL -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         <div
           class="mt-6 border-t border-brand-border pt-6"
@@ -636,27 +1103,30 @@
         </div>
 
 
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- PLACE ORDER -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         <button
           type="submit"
-          [disabled]="checkoutForm.invalid"
-          class="mt-6 w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          [disabled]="
+            checkoutForm.invalid ||
+            savedAddresses().length === 0
+          "
+          class="mt-7 w-full bg-brand-text px-6 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Place Order
         </button>
 
 
-        <!-- =============================================== -->
+        <!-- ================================================= -->
         <!-- RETURN TO CART -->
-        <!-- =============================================== -->
+        <!-- ================================================= -->
 
         <a
           routerLink="/cart"
           (click)="cancelCheckout()"
-          class="mt-4 block text-center text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
+          class="mt-5 block text-center text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
         >
           Return to Cart
         </a>
