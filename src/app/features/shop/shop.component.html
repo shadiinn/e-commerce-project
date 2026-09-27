@@ -1,27 +1,39 @@
 <section class="min-h-screen bg-brand-background">
 
   <!-- ========================================================= -->
-  <!-- SHOP INTRO -->
+  <!-- SHOP HERO -->
   <!-- ========================================================= -->
 
-  <section class="border-b border-brand-border bg-brand-surface">
+  <section
+    class="relative min-h-[600px] overflow-hidden border-b border-brand-border bg-black bg-cover bg-center lg:min-h-[680px]"
+    style="background-image: url('/assets/images/home/shop-hero.png');"
+  >
+
+    <!-- HERO OVERLAY -->
+
+    <div class="absolute inset-0 bg-black/45"></div>
+
+
+    <!-- HERO CONTENT -->
 
     <div
-      class="mx-auto max-w-[1440px] px-6 pb-14 pt-16 lg:px-10 lg:pb-20 lg:pt-20"
+      class="relative z-10 mx-auto flex min-h-[600px] max-w-[1440px] flex-col px-6 pb-8 pt-12 lg:min-h-[680px] lg:px-10 lg:pb-10 lg:pt-16"
     >
 
+      <!-- ======================================================= -->
       <!-- TOP LABEL -->
+      <!-- ======================================================= -->
 
       <div class="flex items-start justify-between">
 
         <p
-          class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
+          class="text-[10px] font-medium uppercase tracking-[0.2em] text-white/75"
         >
           The Collection
         </p>
 
         <span
-          class="hidden text-[10px] uppercase tracking-[0.15em] text-brand-muted sm:block"
+          class="hidden text-[10px] uppercase tracking-[0.15em] text-white/65 sm:block"
         >
           01 / Shop
         </span>
@@ -29,12 +41,14 @@
       </div>
 
 
+      <!-- ======================================================= -->
       <!-- TITLE -->
+      <!-- ======================================================= -->
 
-      <div class="mt-16 max-w-5xl lg:mt-24">
+      <div class="mt-auto max-w-5xl pb-12 lg:pb-16">
 
         <h1
-          class="text-6xl font-light leading-[0.9] tracking-[-0.055em] text-brand-text sm:text-7xl lg:text-[9rem]"
+          class="text-6xl font-light leading-[0.9] tracking-[-0.055em] text-white sm:text-7xl lg:text-[9rem]"
         >
           Shop
         </h1>
@@ -45,11 +59,11 @@
         >
 
           <span
-            class="hidden h-px w-16 bg-brand-text sm:mt-3 sm:block"
+            class="hidden h-px w-16 bg-white sm:mt-3 sm:block"
           ></span>
 
           <p
-            class="max-w-xl text-sm leading-7 text-brand-muted sm:text-base"
+            class="max-w-xl text-sm leading-7 text-white/75 sm:text-base"
           >
             Timeless pieces designed with a focus on quality,
             simplicity, and effortless everyday style.
@@ -64,7 +78,9 @@
       <!-- CATEGORY NAVIGATION -->
       <!-- ======================================================= -->
 
-      <div class="mt-16 border-t border-brand-border pt-5">
+      <div
+        class="border-t border-white/30 pt-5"
+      >
 
         <div class="flex justify-center overflow-x-auto">
 
@@ -72,16 +88,15 @@
             class="flex min-w-max items-center justify-center gap-7 px-6"
           >
 
+            <!-- ================================================= -->
             <!-- ALL -->
+            <!-- ================================================= -->
 
             <button
               type="button"
               (click)="selectAllCategories()"
-              class="group relative pb-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-200"
-              [class.text-brand-text]="
-                selectedCategories().length === 0
-              "
-              [class.text-brand-muted]="
+              class="group relative pb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-white transition-colors duration-200"
+              [class.opacity-60]="
                 selectedCategories().length !== 0
               "
             >
@@ -91,7 +106,7 @@
               @if (selectedCategories().length === 0) {
 
                 <span
-                  class="absolute bottom-0 left-0 h-px w-full bg-brand-text"
+                  class="absolute bottom-0 left-0 h-px w-full bg-white"
                 ></span>
 
               }
@@ -99,7 +114,9 @@
             </button>
 
 
+            <!-- ================================================= -->
             <!-- CATEGORIES -->
+            <!-- ================================================= -->
 
             @for (
               category of categories;
@@ -109,12 +126,8 @@
               <button
                 type="button"
                 (click)="selectHeaderCategory(category.slug)"
-                class="group relative pb-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-200"
-                [class.text-brand-text]="
-                  selectedCategories().length === 1 &&
-                  selectedCategories()[0] === category.slug
-                "
-                [class.text-brand-muted]="!(
+                class="group relative pb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-white transition-colors duration-200"
+                [class.opacity-60]="!(
                   selectedCategories().length === 1 &&
                   selectedCategories()[0] === category.slug
                 )"
@@ -128,7 +141,7 @@
                 ) {
 
                   <span
-                    class="absolute bottom-0 left-0 h-px w-full bg-brand-text"
+                    class="absolute bottom-0 left-0 h-px w-full bg-white"
                   ></span>
 
                 }
@@ -322,6 +335,7 @@
       }
 
 
+
       <!-- ========================================================= -->
       <!-- ERROR -->
       <!-- ========================================================= -->
@@ -370,6 +384,7 @@
       }
 
 
+
       <!-- ========================================================= -->
       <!-- PRODUCTS -->
       <!-- ========================================================= -->
@@ -396,6 +411,7 @@
           </div>
 
         }
+
 
 
         <!-- ===================================================== -->

@@ -9,7 +9,24 @@
       "id": "AqOdVEF2hFw"
     }
   ],
-  "cart": [],
+  "cart": [
+    {
+      "id": "xkY0Bq21M_I",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p002",
+      "variantId": "p002-01",
+      "size": "S",
+      "quantity": 5
+    },
+    {
+      "id": "x4bb-zEGPds",
+      "userId": "AqOdVEF2hFw",
+      "productId": "p003",
+      "variantId": "p003-01",
+      "size": "M",
+      "quantity": 5
+    }
+  ],
   "wishlists": [],
   "orders": [],
   "products": [
@@ -614,47 +631,6 @@
       "isFeatured": false
     },
     {
-      "id": "p035",
-      "name": "Classic Pique Polo",
-      "slug": "classic-pique-polo",
-      "category": "polo-shirts",
-      "price": 4999,
-      "oldPrice": 5499,
-      "description": "A refined pique polo with a clean silhouette and understated detailing.",
-      "variants": [
-        {
-          "id": "p035-white",
-          "color": "White",
-          "images": [
-            "assets/products/pique-polo-1.jpg",
-            "assets/products/pique-polo-2.jpg"
-          ],
-          "sizes": [
-            {
-              "size": "S",
-              "stock": 8
-            },
-            {
-              "size": "M",
-              "stock": 8
-            },
-            {
-              "size": "L",
-              "stock": 7
-            },
-            {
-              "size": "XL",
-              "stock": 7
-            }
-          ]
-        }
-      ],
-      "rating": 4.8,
-      "reviewsCount": 112,
-      "isNew": false,
-      "isFeatured": true
-    },
-    {
       "id": "p046",
       "name": "Merino Crewneck Sweater",
       "slug": "merino-crewneck-sweater",
@@ -692,46 +668,6 @@
       "rating": 4.9,
       "reviewsCount": 91,
       "isNew": true,
-      "isFeatured": true
-    },
-    {
-      "id": "p057",
-      "name": "Heavyweight Essential Hoodie",
-      "slug": "heavyweight-essential-hoodie",
-      "category": "hoodies",
-      "price": 6999,
-      "description": "A heavyweight cotton hoodie with a relaxed fit and minimal branding.",
-      "variants": [
-        {
-          "id": "p057-black",
-          "color": "Black",
-          "images": [
-            "assets/products/essential-hoodie-1.jpg",
-            "assets/products/essential-hoodie-2.jpg"
-          ],
-          "sizes": [
-            {
-              "size": "S",
-              "stock": 6
-            },
-            {
-              "size": "M",
-              "stock": 6
-            },
-            {
-              "size": "L",
-              "stock": 5
-            },
-            {
-              "size": "XL",
-              "stock": 5
-            }
-          ]
-        }
-      ],
-      "rating": 4.7,
-      "reviewsCount": 64,
-      "isNew": false,
       "isFeatured": true
     },
     {

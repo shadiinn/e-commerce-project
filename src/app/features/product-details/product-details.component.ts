@@ -50,6 +50,7 @@ import {
   Observable,
   take
 } from 'rxjs';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 
 @Component({
@@ -79,6 +80,7 @@ export class ProductDetailsComponent
   private route = inject(ActivatedRoute);
 
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
 
   // =====================================================
@@ -524,7 +526,7 @@ export class ProductDetailsComponent
 
             })
           );
-
+          this.toastService.success('Added to cart');
           return;
 
         }
@@ -547,7 +549,7 @@ export class ProductDetailsComponent
 
           })
         );
-
+        this.toastService.success('Added to cart');
       });
 
   }

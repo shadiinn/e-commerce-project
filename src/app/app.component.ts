@@ -35,6 +35,7 @@ import {
 import {
   loadGuestWishlist
 } from './store/wishlist/wishlist.actions';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 
 @Component({
@@ -45,7 +46,7 @@ import {
   imports: [
     RouterOutlet,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,ToastComponent
   ],
 
   templateUrl: './app.component.html',

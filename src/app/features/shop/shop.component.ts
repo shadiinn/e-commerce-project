@@ -762,7 +762,8 @@ export class ShopComponent implements OnInit {
     this.tempInStockOnly.set(false);
 
 
-    // Clear the search query parameter too.
+    // Clear the search and category
+    // query parameters too.
 
     this.router.navigate(
       ['/shop']
@@ -783,13 +784,19 @@ export class ShopComponent implements OnInit {
 
   }
 
+
   private isBrowserRefresh(): boolean {
-    const navigation = performance.getEntriesByType(
-      'navigation'
-    )[0] as PerformanceNavigationTiming;
+
+    const navigation =
+      performance.getEntriesByType(
+        'navigation'
+      )[0] as PerformanceNavigationTiming;
 
     return navigation?.type === 'reload';
+
   }
+
+
   // =========================================================
   // INIT
   // =========================================================
@@ -797,35 +804,88 @@ export class ShopComponent implements OnInit {
   private initialNavigationHandled = false;
 
   ngOnInit(): void {
+
     this.reloadProducts();
 
-    this.route.queryParamMap.subscribe(params => {
-      const search = params.get('search') ?? '';
+    this.route.queryParamMap.subscribe(
+      params => {
 
-      // Only apply the refresh logic to the FIRST
-      // navigation when ShopComponent is loaded.
-      if (
-        !this.initialNavigationHandled &&
-        this.isBrowserRefresh() &&
-        search
-      ) {
-        this.initialNavigationHandled = true;
+        const search =
+          params.get('search') ?? '';
 
-        this.searchTerm.set('');
+        const category =
+          params.get('category') ?? '';
 
-        this.router.navigate(
-          ['/shop'],
-          {
-            replaceUrl: true
-          }
+
+        // -----------------------------------------------------
+        // Handle browser refresh
+        // -----------------------------------------------------
+        //
+        // If the browser is refreshed while a search query
+        // exists, clear the search and return to /shop.
+        //
+        // Category navigation should still work normally.
+        // -----------------------------------------------------
+
+        if (
+          !this.initialNavigationHandled &&
+          this.isBrowserRefresh() &&
+          search
+        ) {
+
+          this.initialNavigationHandled = true;
+
+          this.searchTerm.set('');
+
+          this.selectedCategories.set(
+            category
+              ? [category]
+              : []
+          );
+
+          this.router.navigate(
+            ['/shop'],
+            {
+              replaceUrl: true
+            }
+          );
+
+          return;
+
+        }
+
+
+        // -----------------------------------------------------
+        // Apply search query
+        // -----------------------------------------------------
+
+        this.searchTerm.set(
+          search
         );
 
-        return;
+
+        // -----------------------------------------------------
+        // Apply category query
+        // -----------------------------------------------------
+
+        if (category) {
+
+          this.selectedCategories.set([
+            category
+          ]);
+
+        } else {
+
+          this.selectedCategories.set([]);
+
+        }
+
+
+        this.initialNavigationHandled = true;
+
       }
+    );
 
-      this.initialNavigationHandled = true;
-
-      this.searchTerm.set(search);
-    });
   }
+
 }

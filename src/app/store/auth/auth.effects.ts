@@ -1,11 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-
 import {
   Actions,
   createEffect,
   ofType
 } from '@ngrx/effects';
-
 import {
   login,
   loginSuccess,
@@ -17,9 +15,7 @@ import {
   restoreAuthSuccess,
   logout
 } from './auth.actions';
-
 import { AuthService } from '../../core/services/auth.service';
-
 import {
   catchError,
   map,
@@ -27,363 +23,171 @@ import {
   switchMap,
   tap
 } from 'rxjs';
-
 import { AuthStorageService } from '../../core/services/auth-storage.service';
-
 import { AuthUser } from '../../core/models/auth-user.model';
-
 import { Router } from '@angular/router';
-
 import {
   mergeGuestCart,
   mergeGuestCartSuccess
 } from '../cart/cart.actions';
-
 import {
   mergeGuestWishlist,
   mergeGuestWishlistSuccess
 } from '../wishlist/wishlist.actions';
 
-
 @Injectable()
 export class AuthEffects {
 
-  private actions$ =
-    inject(Actions);
+  private actions$ =inject(Actions);
+  private router =inject(Router);
+  private authService =inject(AuthService);
+  private authStorage =inject(AuthStorageService);
 
-  private router =
-    inject(Router);
-
-  private authService =
-    inject(AuthService);
-
-  private authStorage =
-    inject(AuthStorageService);
-
-
-  // =====================================================
   // LOGIN
-  // =====================================================
 
   login$ = createEffect(() =>
-
     this.actions$.pipe(
-
       ofType(login),
-
       switchMap(
         ({
           email,
           password,
           returnUrl
         }) =>
-
-          this.authService
-            .login(
-              email,
-              password
-            )
-            .pipe(
-
+          this.authService.login(email,password).pipe(
               map(users => {
-
                 if (users.length === 0) {
-
                   return loginFailure({
-                    error:
-                      'Invalid email or password'
+                    error:'Invalid email or password'
                   });
-
                 }
-
-                const user =
-                  users[0];
-
-                const authUser:
-                  AuthUser = {
-
-                  id:
-                    user.id,
-
-                  firstName:
-                    user.firstName,
-
-                  lastName:
-                    user.lastName,
-
-                  email:
-                    user.email,
-
-                  phone:
-                    user.phone
-
+                const user = users[0];
+                const authUser:AuthUser = {
+                  id:user.id,
+                  firstName:user.firstName,
+                  lastName:user.lastName,
+                  email:user.email,
+                  phone:user.phone
                 };
-
-                this.authStorage
-                  .saveUser(
-                    authUser
-                  );
-
+                this.authStorage.saveUser(authUser);
                 return loginSuccess({
-
-                  user:
-                    authUser,
-
+                  user:authUser,
                   returnUrl
-
                 });
-
               }),
-
               catchError(error =>
-
                 of(
-
                   loginFailure({
-
-                    error:
-                      error.message ??
-                      'Login failed'
-
+                    error:error.message ??'Login failed'
                   })
-
                 )
-
               )
-
             )
-
       )
-
     )
-
   );
 
-
-  // =====================================================
   // REGISTER
-  // =====================================================
 
   register$ = createEffect(() =>
-
     this.actions$.pipe(
-
       ofType(register),
-
-      switchMap(
-        ({ user }) =>
-
-          this.authService
-            .register(user)
-            .pipe(
-
+      switchMap(({ user }) =>
+          this.authService.register(user).pipe(
               map(() =>
                 registerSuccess()
               ),
-
               catchError(error =>
-
                 of(
-
                   registerFailure({
-
-                    error:
-                      error.message ??
-                      'Registration failed'
-
+                    error:error.message ??'Registration failed'
                   })
-
                 )
-
               )
-
             )
-
       )
-
     )
-
   );
 
-
-  // =====================================================
   // RESTORE AUTH
-  // =====================================================
 
   restoreAuth$ = createEffect(() =>
-
     this.actions$.pipe(
-
       ofType(
         restoreAuth
       ),
-
       map(() => {
-
-        const user =
-          this.authStorage
-            .getUser();
-
-        return restoreAuthSuccess({
-
-          user
-
-        });
-
+        const user =this.authStorage.getUser();
+        return restoreAuthSuccess({user});
       })
-
     )
-
   );
 
-
-  // =====================================================
   // LOGOUT
-  // =====================================================
 
-  logout$ = createEffect(
-
-    () =>
-
+  logout$ = createEffect(() =>
       this.actions$.pipe(
-
         ofType(logout),
-
         tap(() => {
-
-          this.authStorage
-            .clearUser();
-
+          this.authStorage.clearUser();
         })
-
       ),
-
     {
       dispatch: false
     }
-
   );
 
-
-  // =====================================================
   // REGISTER SUCCESS NAVIGATION
-  // =====================================================
 
-  registerSuccessNavigation$ =
-    createEffect(
-
-      () =>
-
+  registerSuccessNavigation$ =createEffect(() =>
         this.actions$.pipe(
-
-          ofType(
-            registerSuccess
-          ),
-
+          ofType(registerSuccess),
           tap(() => {
-
-            this.router.navigate([
-              '/login'
-            ]);
-
+            this.router.navigate(['/login']);
           })
-
         ),
-
       {
         dispatch: false
       }
-
     );
 
-
-  // =====================================================
   // LOGIN → MERGE GUEST CART
-  // =====================================================
 
-  loginSuccessMergeCart$ =
-    createEffect(() =>
-
+  loginSuccessMergeCart$ =createEffect(() =>
       this.actions$.pipe(
-
-        ofType(
-          loginSuccess
-        ),
-
+        ofType(loginSuccess),
         map(({ returnUrl }) =>
-
           mergeGuestCart({
-
             returnUrl
-
           })
-
         )
-
       )
-
     );
 
-
-  // =====================================================
   // CART MERGE SUCCESS → MERGE GUEST WISHLIST
-  // =====================================================
 
-  loginSuccessMergeWishlist$ =
-    createEffect(() =>
-
+  loginSuccessMergeWishlist$ =createEffect(() =>
       this.actions$.pipe(
-
-        ofType(
-          mergeGuestCartSuccess
-        ),
-
+        ofType(mergeGuestCartSuccess),
         map(({ returnUrl }) =>
-
           mergeGuestWishlist({
-
             returnUrl
-
           })
-
         )
-
       )
-
     );
 
-
-  // =====================================================
   // WISHLIST MERGE SUCCESS → NAVIGATE
-  // =====================================================
 
-  mergeGuestWishlistSuccessNavigation$ =
-    createEffect(
-
-      () =>
-
+  mergeGuestWishlistSuccessNavigation$ =createEffect(() =>
         this.actions$.pipe(
-
-          ofType(
-            mergeGuestWishlistSuccess
-          ),
-
+          ofType(mergeGuestWishlistSuccess),
           tap(({ returnUrl }) => {
-
-            this.router.navigateByUrl(
-
-              returnUrl || '/'
-
-            );
-
+            this.router.navigateByUrl(returnUrl || '/');
           })
-
         ),
-
       {
         dispatch: false
       }
-
     );
-
 }

@@ -47,55 +47,23 @@ import {
 })
 export class NavbarComponent {
 
-  private router =
-    inject(Router);
+  private router =inject(Router);
+  private store =inject(Store);
 
-  private store =
-    inject(Store);
+  isMenuOpen =signal(false);
+  isAccountMenuOpen =signal(false);
 
-
-  // =====================================================
-  // MOBILE MENU
-  // =====================================================
-
-  isMenuOpen =
-    signal(false);
-
-  isAccountMenuOpen =
-    signal(false);
-
-
-  // =====================================================
-  // SEARCH
-  // =====================================================
-
-  searchTerm =
-    signal('');
-
-
-  // =====================================================
-  // CART
-  // =====================================================
+  searchTerm =signal('');
 
   cartItemCount$ =
     this.store.select(
       selectCartItemCount
     );
 
-
-  // =====================================================
-  // WISHLIST
-  // =====================================================
-
   wishlistCount$ =
     this.store.select(
       selectWishlistCount
     );
-
-
-  // =====================================================
-  // AUTHENTICATION
-  // =====================================================
 
   isAuthenticated$ =
     this.store.select(
@@ -107,37 +75,20 @@ export class NavbarComponent {
       selectCurrentUser
     );
 
-
-  // =====================================================
-  // MOBILE MENU
-  // =====================================================
-
   toggleMenu(): void {
-
     this.isMenuOpen.update(
       value => !value
     );
-
   }
 
 
   closeMenu(): void {
-
     this.isMenuOpen.set(false);
 
   }
 
-
-  // =====================================================
-  // SEARCH
-  // =====================================================
-
   search(): void {
     const term = this.searchTerm().trim();
-
-    console.log('SEARCH BUTTON CLICKED');
-    console.log('SEARCH TERM:', term);
-
     if (!term) {
       this.router.navigateByUrl('/shop');
       this.closeMenu();
@@ -145,50 +96,27 @@ export class NavbarComponent {
     }
 
     const searchUrl = `/shop?search=${encodeURIComponent(term)}`;
-
-    console.log('NAVIGATING TO:', searchUrl);
-
     this.router.navigateByUrl(searchUrl);
-
     this.closeMenu();
   }
 
-  // =====================================================
-  // ACCOUNT MENU
-  // =====================================================
-
   toggleAccountMenu(): void {
-
     this.isAccountMenuOpen.update(
       value => !value
     );
-
   }
-
 
   closeAccountMenu(): void {
-
     this.isAccountMenuOpen.set(false);
-
   }
 
-
-  // =====================================================
-  // LOGOUT
-  // =====================================================
-
   logout(): void {
-
     this.store.dispatch(
       logout()
     );
-
     this.closeAccountMenu();
-
     this.router.navigate(
       ['/']
     );
-
   }
-
 }
