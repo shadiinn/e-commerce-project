@@ -4,31 +4,170 @@
       "firstName": "Shadin",
       "lastName": "VP",
       "email": "shadinahammed16@gmail.com",
-      "password": "ssssss",
+      "password": "Sss@123",
       "phone": "9746897782",
-      "id": "AqOdVEF2hFw"
+      "id": "6ivFObMKcqE"
     }
   ],
   "cart": [
     {
-      "id": "xkY0Bq21M_I",
-      "userId": "AqOdVEF2hFw",
+      "id": "YNXSCPUxSmY",
+      "userId": "B8sGAG6Yf5U",
+      "productId": "p046",
+      "variantId": "p046-cream",
+      "size": "M",
+      "quantity": 1
+    },
+    {
+      "id": "p5LeSlxz220",
+      "userId": "6ivFObMKcqE",
       "productId": "p002",
       "variantId": "p002-01",
       "size": "S",
-      "quantity": 5
+      "quantity": 3
     },
     {
-      "id": "x4bb-zEGPds",
-      "userId": "AqOdVEF2hFw",
+      "id": "EM-YQZLT8HA",
+      "userId": "6ivFObMKcqE",
+      "productId": "p002",
+      "variantId": "p002-01",
+      "size": "M",
+      "quantity": 2
+    },
+    {
+      "id": "WmZI-k0uoes",
+      "userId": "6ivFObMKcqE",
       "productId": "p003",
       "variantId": "p003-01",
-      "size": "M",
-      "quantity": 5
+      "size": "L",
+      "quantity": 1
     }
   ],
-  "wishlists": [],
-  "orders": [],
+  "wishlists": [
+    {
+      "id": "HvafzCTYqWU",
+      "userId": "6ivFObMKcqE",
+      "productId": "p002"
+    },
+    {
+      "id": "U9IDSteTNwI",
+      "userId": "6ivFObMKcqE",
+      "productId": "p003"
+    }
+  ],
+  "orders": [
+    {
+      "id": "bE024Te6yRE",
+      "userId": "B8sGAG6Yf5U",
+      "orderNumber": "SA-260928-0001",
+      "items": [
+        {
+          "productId": "p046",
+          "variantId": "p046-cream",
+          "name": "Merino Crewneck Sweater",
+          "image": "assets/products/merino-sweater-1.jpg",
+          "color": "Cream",
+          "size": "M",
+          "quantity": 1,
+          "price": 8999,
+          "total": 8999
+        }
+      ],
+      "subtotal": 8999,
+      "shipping": 0,
+      "total": 8999,
+      "shippingAddress": {
+        "firstName": "fathima12",
+        "lastName": "mufeeda21",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "987456",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9865321470",
+        "email": "fathi@gmail.com000"
+      },
+      "paymentMethod": "online",
+      "paymentStatus": "pending",
+      "orderStatus": "cancelled",
+      "createdAt": "2026-09-28T04:56:05.288Z"
+    },
+    {
+      "id": "6ymRTCNngD0",
+      "userId": "B8sGAG6Yf5U",
+      "orderNumber": "SA-260928-0002",
+      "items": [
+        {
+          "productId": "p002",
+          "variantId": "p002-01",
+          "name": "Midnight Green Linen Shirt",
+          "image": "assets/shirts/midnight green/midnight-green-linen-01.jpg",
+          "color": "midnight-green",
+          "size": "L",
+          "quantity": 1,
+          "price": 5999,
+          "total": 5999
+        }
+      ],
+      "subtotal": 5999,
+      "shipping": 0,
+      "total": 5999,
+      "shippingAddress": {
+        "firstName": "fathima12",
+        "lastName": "mufeeda21",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "987456",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9865321470",
+        "email": "fathi@gmail.com000"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-09-28T04:57:26.824Z"
+    },
+    {
+      "id": "LQhPXsyVCVM",
+      "userId": "6ivFObMKcqE",
+      "orderNumber": "SA-260928-0001",
+      "items": [
+        {
+          "productId": "p002",
+          "variantId": "p002-01",
+          "name": "Midnight Green Linen Shirt",
+          "image": "assets/shirts/midnight green/midnight-green-linen-01.jpg",
+          "color": "midnight-green",
+          "size": "S",
+          "quantity": 1,
+          "price": 5999,
+          "total": 5999
+        }
+      ],
+      "subtotal": 5999,
+      "shipping": 0,
+      "total": 5999,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "VP",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "Kerala",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-09-28T10:04:48.086Z"
+    }
+  ],
   "products": [
     {
       "id": "p001",

@@ -44,6 +44,24 @@ import {
 
 
 // =====================================================
+// VALIDATION PATTERNS
+// =====================================================
+
+// First / last name: letters and single spaces (same as auth form)
+const PERSON_NAME_PATTERN =
+  /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+
+// Street address / apartment: letters (plus spaces and . , ' - / & ( )),
+// no numbers
+const ADDRESS_TEXT_PATTERN =
+  /^[A-Za-z][A-Za-z\s.,'\-\/&()]*$/;
+
+// City / state: letters with spaces, no numbers
+const PLACE_NAME_PATTERN =
+  /^[A-Za-z]+(?:[\s.'-]+[A-Za-z]+)*\s*$/;
+
+
+// =====================================================
 // SAVED ADDRESS
 // =====================================================
 
@@ -194,31 +212,59 @@ export class CheckoutComponent
 
       firstName: [
         '',
-        Validators.required
+        [
+          Validators.required,
+          Validators.pattern(
+            PERSON_NAME_PATTERN
+          )
+        ]
       ],
 
       lastName: [
         '',
-        Validators.required
+        [
+          Validators.required,
+          Validators.pattern(
+            PERSON_NAME_PATTERN
+          )
+        ]
       ],
 
       address: [
         '',
-        Validators.required
+        [
+          Validators.required,
+          Validators.pattern(
+            ADDRESS_TEXT_PATTERN
+          )
+        ]
       ],
 
       apartment: [
-        ''
+        '',
+        Validators.pattern(
+          ADDRESS_TEXT_PATTERN
+        )
       ],
 
       city: [
         '',
-        Validators.required
+        [
+          Validators.required,
+          Validators.pattern(
+            PLACE_NAME_PATTERN
+          )
+        ]
       ],
 
       state: [
         '',
-        Validators.required
+        [
+          Validators.required,
+          Validators.pattern(
+            PLACE_NAME_PATTERN
+          )
+        ]
       ],
 
       postalCode: [
@@ -270,7 +316,7 @@ export class CheckoutComponent
 
 
         // ---------------------------------------------
-        // PREFILL CONTACT INFORMATION
+        // PREFILL CONTACT INFORMATION + NAME (FROM REGISTER)
         // ---------------------------------------------
 
         this.checkoutForm.patchValue({
@@ -279,7 +325,13 @@ export class CheckoutComponent
             user.email,
 
           phone:
-            user.phone ?? ''
+            user.phone ?? '',
+
+          firstName:
+            user.firstName ?? '',
+
+          lastName:
+            user.lastName ?? ''
 
         });
 
@@ -563,6 +615,15 @@ export class CheckoutComponent
 
     });
 
+
+    // Saved before the stricter rules (e.g. street contains
+    // numbers)? Open it for editing so the errors are visible.
+    if (!this.areAddressFieldsValid()) {
+
+      this.editAddress(address);
+
+    }
+
   }
 
 
@@ -613,9 +674,93 @@ export class CheckoutComponent
     });
 
 
+    // Show validation messages right away for addresses that
+    // no longer satisfy the current rules
+    this.markAddressFieldsTouched();
+
+
     this.isAddressFormOpen.set(
       true
     );
+
+  }
+
+
+  // =====================================================
+  // ADDRESS FIELD HELPERS
+  // =====================================================
+
+  private readonly ADDRESS_FIELDS = [
+
+    'firstName',
+
+    'lastName',
+
+    'address',
+
+    'apartment',
+
+    'city',
+
+    'state',
+
+    'postalCode',
+
+    'country'
+
+  ] as const;
+
+
+  private areAddressFieldsValid(): boolean {
+
+    return this.ADDRESS_FIELDS.every(
+      field =>
+        this.checkoutForm.controls[field].valid
+    );
+
+  }
+
+
+  private markAddressFieldsTouched(): void {
+
+    for (
+      const field of this.ADDRESS_FIELDS
+    ) {
+
+      this.checkoutForm
+        .controls[field]
+        .markAsTouched();
+
+    }
+
+  }
+
+
+  // =====================================================
+  // POSTAL CODE: DIGITS ONLY, MAX 6
+  // =====================================================
+
+  onPostalCodeInput(
+    event: Event
+  ): void {
+
+    const input =
+      event.target as HTMLInputElement;
+
+    const digits =
+      input.value
+        .replace(/\D/g, '')
+        .slice(0, 6);
+
+    if (input.value !== digits) {
+
+      input.value = digits;
+
+      this.checkoutForm.controls
+        .postalCode
+        .setValue(digits);
+
+    }
 
   }
 
@@ -633,6 +778,8 @@ export class CheckoutComponent
       'lastName',
 
       'address',
+
+      'apartment',
 
       'city',
 

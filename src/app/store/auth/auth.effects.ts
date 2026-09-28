@@ -92,20 +92,55 @@ export class AuthEffects {
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(register),
+
       switchMap(({ user }) =>
-          this.authService.register(user).pipe(
+
+        this.authService.checkEmailExists(user.email).pipe(
+
+          switchMap(users => {
+
+            // Email already exists
+            if (users.length > 0) {
+
+              return of(
+                registerFailure({
+                  error: 'An account with this email already exists.'
+                })
+              );
+
+            }
+
+            // Email does not exist
+            return this.authService.register(user).pipe(
+
               map(() =>
                 registerSuccess()
               ),
+
               catchError(error =>
                 of(
                   registerFailure({
-                    error:error.message ??'Registration failed'
+                    error: error.message ?? 'Registration failed'
                   })
                 )
               )
+
+            );
+
+          }),
+
+          catchError(error =>
+            of(
+              registerFailure({
+                error: error.message ?? 'Unable to verify email'
+              })
             )
+          )
+
+        )
+
       )
+
     )
   );
 

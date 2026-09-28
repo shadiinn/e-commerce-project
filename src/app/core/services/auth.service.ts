@@ -14,15 +14,33 @@ export class AuthService {
   private readonly API_URL =
     'http://localhost:3000/users';
 
+
+  // LOGIN
+
   login(
     email: string,
     password: string
   ): Observable<User[]> {
 
     return this.http.get<User[]>(
-      `${this.API_URL}?email=${email}&password=${password}`
+      `${this.API_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
     );
   }
+
+
+  // CHECK WHETHER EMAIL ALREADY EXISTS
+
+  checkEmailExists(
+    email: string
+  ): Observable<User[]> {
+
+    return this.http.get<User[]>(
+      `${this.API_URL}?email=${encodeURIComponent(email)}`
+    );
+  }
+
+
+  // REGISTER
 
   register(
     user: Omit<User, 'id'>
@@ -33,4 +51,5 @@ export class AuthService {
       user
     );
   }
+
 }

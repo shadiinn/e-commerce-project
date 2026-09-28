@@ -7,8 +7,11 @@ import {
 } from '@angular/core';
 
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 
@@ -67,16 +70,26 @@ export class AuthComponent {
 
   isRegisterMode = signal(false);
 
+  showLoginPassword = signal(false);
+
+  showRegisterPassword = signal(false);
+
+  showConfirmPassword = signal(false);
+
 
   // =====================================================
   // AUTH STATE
   // =====================================================
 
   loading$ =
-    this.store.select(selectAuthLoading);
+    this.store.select(
+      selectAuthLoading
+    );
 
   error$ =
-    this.store.select(selectAuthError);
+    this.store.select(
+      selectAuthError
+    );
 
 
   // =====================================================
@@ -112,12 +125,22 @@ export class AuthComponent {
 
     firstName: [
       '',
-      Validators.required
+      [
+        Validators.required,
+        Validators.pattern(
+          /^[A-Za-z]+(?:\s[A-Za-z]+)*$/
+        )
+      ]
     ],
 
     lastName: [
       '',
-      Validators.required
+      [
+        Validators.required,
+        Validators.pattern(
+          /^[A-Za-z]+(?:\s[A-Za-z]+)*$/
+        )
+      ]
     ],
 
     email: [
@@ -132,7 +155,9 @@ export class AuthComponent {
       '',
       [
         Validators.required,
-        Validators.pattern(/^[0-9]{10}$/)
+        Validators.pattern(
+          /^[0-9]{10}$/
+        )
       ]
     ],
 
@@ -140,11 +165,62 @@ export class AuthComponent {
       '',
       [
         Validators.required,
-        Validators.minLength(6)
+        Validators.minLength(6),
+        Validators.pattern(
+          /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/
+        )
+      ]
+    ],
+
+    confirmPassword: [
+      '',
+      [
+        Validators.required
       ]
     ]
 
+  }, {
+
+    validators: this.passwordMatchValidator()
+
   });
+
+
+  // =====================================================
+  // PASSWORD MATCH VALIDATOR
+  // =====================================================
+
+  private passwordMatchValidator(): ValidatorFn {
+
+    return (
+      control: AbstractControl
+    ): ValidationErrors | null => {
+
+      const password =
+        control.get('password')?.value;
+
+      const confirmPassword =
+        control.get('confirmPassword')?.value;
+
+
+      if (!password || !confirmPassword) {
+
+        return null;
+
+      }
+
+
+      return password === confirmPassword
+
+        ? null
+
+        : {
+            passwordMismatch: true
+          };
+
+    };
+
+  }
 
 
   // =====================================================
@@ -161,19 +237,44 @@ export class AuthComponent {
 
 
   // =====================================================
+  // PASSWORD VISIBILITY
+  // =====================================================
+
+  toggleLoginPassword(): void {
+
+    this.showLoginPassword.update(
+      value => !value
+    );
+
+  }
+
+
+  toggleRegisterPassword(): void {
+
+    this.showRegisterPassword.update(
+      value => !value
+    );
+
+  }
+
+
+  toggleConfirmPassword(): void {
+
+    this.showConfirmPassword.update(
+      value => !value
+    );
+
+  }
+
+
+  // =====================================================
   // GO TO REGISTER
   // =====================================================
 
   showRegister(): void {
 
-    // Change UI state first.
-    // This immediately starts the animation.
-
     this.isRegisterMode.set(true);
 
-
-    // Update the URL without triggering
-    // another Angular navigation.
 
     const returnUrl =
       this.route.snapshot
@@ -198,14 +299,8 @@ export class AuthComponent {
 
   showLogin(): void {
 
-    // Change UI state first.
-    // This reverses the exact same animation.
-
     this.isRegisterMode.set(false);
 
-
-    // Update URL without recreating
-    // or navigating the component.
 
     const returnUrl =
       this.route.snapshot
@@ -257,6 +352,7 @@ export class AuthComponent {
       login({
 
         email: email!,
+
         password: password!,
 
         returnUrl

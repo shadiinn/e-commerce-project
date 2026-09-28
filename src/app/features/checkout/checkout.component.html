@@ -324,7 +324,21 @@
                     <p
                       class="mt-2 text-[10px] text-red-600"
                     >
-                      First name is required.
+
+                      @if (
+                        checkoutForm.controls.firstName.hasError('required')
+                      ) {
+
+                        First name is required.
+
+                      } @else if (
+                        checkoutForm.controls.firstName.hasError('pattern')
+                      ) {
+
+                        First name can contain letters and spaces only.
+
+                      }
+
                     </p>
 
                   }
@@ -358,7 +372,21 @@
                     <p
                       class="mt-2 text-[10px] text-red-600"
                     >
-                      Last name is required.
+
+                      @if (
+                        checkoutForm.controls.lastName.hasError('required')
+                      ) {
+
+                        Last name is required.
+
+                      } @else if (
+                        checkoutForm.controls.lastName.hasError('pattern')
+                      ) {
+
+                        Last name can contain letters and spaces only.
+
+                      }
+
                     </p>
 
                   }
@@ -393,7 +421,21 @@
                     <p
                       class="mt-2 text-[10px] text-red-600"
                     >
-                      Address is required.
+
+                      @if (
+                        checkoutForm.controls.address.hasError('required')
+                      ) {
+
+                        Address is required.
+
+                      } @else if (
+                        checkoutForm.controls.address.hasError('pattern')
+                      ) {
+
+                        Address can contain letters only, no numbers.
+
+                      }
+
                     </p>
 
                   }
@@ -421,6 +463,19 @@
                     formControlName="apartment"
                     class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
                   />
+
+                  @if (
+                    checkoutForm.controls.apartment.touched &&
+                    checkoutForm.controls.apartment.invalid
+                  ) {
+
+                    <p
+                      class="mt-2 text-[10px] text-red-600"
+                    >
+                      Apartment can contain letters only, no numbers.
+                    </p>
+
+                  }
 
                 </div>
 
@@ -451,7 +506,21 @@
                     <p
                       class="mt-2 text-[10px] text-red-600"
                     >
-                      City is required.
+
+                      @if (
+                        checkoutForm.controls.city.hasError('required')
+                      ) {
+
+                        City is required.
+
+                      } @else if (
+                        checkoutForm.controls.city.hasError('pattern')
+                      ) {
+
+                        City can contain letters only, no numbers.
+
+                      }
+
                     </p>
 
                   }
@@ -485,7 +554,21 @@
                     <p
                       class="mt-2 text-[10px] text-red-600"
                     >
-                      State is required.
+
+                      @if (
+                        checkoutForm.controls.state.hasError('required')
+                      ) {
+
+                        State is required.
+
+                      } @else if (
+                        checkoutForm.controls.state.hasError('pattern')
+                      ) {
+
+                        State can contain letters only, no numbers.
+
+                      }
+
                     </p>
 
                   }
@@ -508,6 +591,8 @@
                     id="postalCode"
                     type="text"
                     inputmode="numeric"
+                    maxlength="6"
+                    (input)="onPostalCodeInput($event)"
                     formControlName="postalCode"
                     placeholder="6 digit postal code"
                     class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
@@ -521,7 +606,21 @@
                     <p
                       class="mt-2 text-[10px] text-red-600"
                     >
-                      Enter a valid 6 digit postal code.
+
+                      @if (
+                        checkoutForm.controls.postalCode.hasError('required')
+                      ) {
+
+                        Postal code is required.
+
+                      } @else if (
+                        checkoutForm.controls.postalCode.hasError('pattern')
+                      ) {
+
+                        Postal code must be exactly 6 digits.
+
+                      }
+
                     </p>
 
                   }
