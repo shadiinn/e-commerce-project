@@ -46,6 +46,12 @@ import {
   take
 } from 'rxjs';
 
+import {
+  checkQuantityLimit,
+  getSizeStock,
+  quantityLimitNote
+} from '../../core/utils/cart.limits';
+
 
 @Component({
   selector: 'app-cart',
@@ -116,51 +122,46 @@ export class CartComponent {
 
   canIncreaseQuantity(item: any): boolean {
 
-    const variant =
-      item.variant;
-
-    if (!variant) {
-
-      return false;
-
-    }
-
-
-    const size =
-      variant.sizes.find(
-        (size: any) =>
-          size.size ===
-          item.size
+    const stock =
+      getSizeStock(
+        item.product,
+        item.variant?.id,
+        item.size
       );
 
+    return (
+      checkQuantityLimit(
+        item.quantity,
+        stock
+      ) === 'OK'
+    );
 
-    if (!size) {
-
-      return false;
-
-    }
-
-
-    if (
-      item.quantity >=
-      size.stock
-    ) {
-
-      return false;
-
-    }
+  }
 
 
-    if (
-      item.quantity >= 5
-    ) {
+  // =====================================================
+  // MESSAGE SHOWN WHEN THIS ITEM CAN'T BE INCREASED FURTHER
+  // (empty string when it's still under the limit)
+  // =====================================================
 
-      return false;
+  quantityLimitNote(item: any): string {
 
-    }
+    const stock =
+      getSizeStock(
+        item.product,
+        item.variant?.id,
+        item.size
+      );
 
+    const limit =
+      checkQuantityLimit(
+        item.quantity,
+        stock
+      );
 
-    return true;
+    return limit === 'OK'
+      ? ''
+      : quantityLimitNote(limit, stock);
 
   }
 

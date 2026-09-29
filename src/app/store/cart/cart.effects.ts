@@ -55,6 +55,18 @@ import {
 import { CART_LIMITS } from '../../core/models/constants/cart.constants';
 
 import {
+  CART_MERGE_TRIMMED_MESSAGE,
+  checkQuantityLimit,
+  evaluateAddToCart,
+  getMaxQuantity,
+  getSizeStock
+} from '../../core/utils/cart.limits';
+
+import {
+  ToastService
+} from '../../core/services/toast/toast.service';
+
+import {
   loadCart,
   loadCartSuccess,
   loadCartFailure,
@@ -93,6 +105,9 @@ export class CartEffects {
 
   private guestCartService =
     inject(GuestCartService);
+
+  private toastService =
+    inject(ToastService);
 
 
   // =====================================================
@@ -314,38 +329,48 @@ export class CartEffects {
 
 
                       // ---------------------------------
+                      // LIMITS
+                      // - quantity of THIS item (product +
+                      //   color + size), capped by its stock
+                      // - number of distinct products
+                      // (the user is told about it in the
+                      //  component before this runs)
+                      // ---------------------------------
+
+                      const limitCheck =
+                        evaluateAddToCart(
+
+                          cartItems,
+
+                          product.id,
+
+                          variantId,
+
+                          size,
+
+                          getSizeStock(
+                            product,
+                            variantId,
+                            size
+                          )
+
+                        );
+
+
+                      if (!limitCheck.allowed) {
+
+                        return of(
+                          loadCart()
+                        );
+
+                      }
+
+
+                      // ---------------------------------
                       // EXISTING CART ITEM
                       // ---------------------------------
 
                       if (existingItem) {
-
-                        const productQuantity =
-                          cartItems
-
-                            .filter(item =>
-                              item.productId ===
-                              product.id
-                            )
-
-                            .reduce(
-                              (total, item) =>
-                                total +
-                                item.quantity,
-                              0
-                            );
-
-
-                        if (
-                          productQuantity >=
-                          CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
-                        ) {
-
-                          return of(
-                            loadCart()
-                          );
-
-                        }
-
 
                         return this.cartService
                           .updateCartItem(
@@ -365,31 +390,6 @@ export class CartEffects {
                             )
 
                           );
-
-                      }
-
-
-                      // ---------------------------------
-                      // DISTINCT PRODUCT LIMIT
-                      // ---------------------------------
-
-                      const distinctProducts =
-                        new Set(
-                          cartItems.map(
-                            item =>
-                              item.productId
-                          )
-                        );
-
-
-                      if (
-                        distinctProducts.size >=
-                        CART_LIMITS.MAX_DISTINCT_PRODUCTS
-                      ) {
-
-                        return of(
-                          loadCart()
-                        );
 
                       }
 
@@ -512,39 +512,8 @@ export class CartEffects {
 
 
                       // ---------------------------------
-                      // MAX PRODUCT QUANTITY
-                      // ---------------------------------
-
-                      const productQuantity =
-                        cartItems
-
-                          .filter(cartItem =>
-                            cartItem.productId ===
-                            item.productId
-                          )
-
-                          .reduce(
-                            (total, cartItem) =>
-                              total +
-                              cartItem.quantity,
-                            0
-                          );
-
-
-                      if (
-                        productQuantity >=
-                        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
-                      ) {
-
-                        return of(
-                          loadCart()
-                        );
-
-                      }
-
-
-                      // ---------------------------------
-                      // CHECK VARIANT STOCK
+                      // CHECK LIMITS FOR THIS ITEM ONLY
+                      // (max per item + variant size stock)
                       // ---------------------------------
 
                       return this.store
@@ -595,8 +564,10 @@ export class CartEffects {
 
                             if (
                               !size ||
-                              item.quantity >=
-                              size.stock
+                              checkQuantityLimit(
+                                item.quantity,
+                                size.stock
+                              ) !== 'OK'
                             ) {
 
                               return of(
@@ -958,31 +929,77 @@ export class CartEffects {
 
         ofType(addGuestCartItem),
 
-        tap(({
+        switchMap(({
           productId,
           variantId,
           size
-        }) => {
+        }) =>
 
-          this.guestCartService.addItem({
+          this.store
+            .select(selectProductEntities)
+            .pipe(
 
-            id:
-              `${productId}-${variantId}-${size}`,
+              take(1),
 
-            productId,
+              map(products => {
 
-            variantId,
+                const product =
+                  products[productId];
 
-            size,
 
-            quantity: 1
+                // Same rules as the logged-in cart:
+                // per-item quantity, size stock and
+                // distinct product limit.
+                const limitCheck =
+                  evaluateAddToCart(
 
-          });
+                    this.guestCartService
+                      .getCart(),
 
-        }),
+                    productId,
 
-        map(() =>
-          loadGuestCart()
+                    variantId,
+
+                    size,
+
+                    // product not loaded -> don't block
+                    product
+                      ? getSizeStock(
+                          product,
+                          variantId,
+                          size
+                        )
+                      : Number.MAX_SAFE_INTEGER
+
+                  );
+
+
+                if (limitCheck.allowed) {
+
+                  this.guestCartService.addItem({
+
+                    id:
+                      `${productId}-${variantId}-${size}`,
+
+                    productId,
+
+                    variantId,
+
+                    size,
+
+                    quantity: 1
+
+                  });
+
+                }
+
+
+                return loadGuestCart();
+
+              })
+
+            )
+
         )
 
       )
@@ -1032,34 +1049,6 @@ export class CartEffects {
                 }
 
 
-                const productQuantity =
-                  cart
-
-                    .filter(cartItem =>
-                      cartItem.productId ===
-                      item.productId
-                    )
-
-                    .reduce(
-                      (total, cartItem) =>
-                        total +
-                        cartItem.quantity,
-                      0
-                    );
-
-
-                if (
-                  productQuantity >=
-                  CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
-                ) {
-
-                  return of(
-                    loadGuestCart()
-                  );
-
-                }
-
-
                 const product =
                   products[item.productId];
 
@@ -1091,8 +1080,10 @@ export class CartEffects {
 
                 if (
                   !size ||
-                  item.quantity >=
-                  size.stock
+                  checkQuantityLimit(
+                    item.quantity,
+                    size.stock
+                  ) !== 'OK'
                 ) {
 
                   return of(
@@ -1299,6 +1290,11 @@ export class CartEffects {
                         );
 
 
+                      let anyItemTrimmed = false;
+
+
+
+
                       const requests =
                         guestItems.map(
                           guestItem => {
@@ -1319,23 +1315,13 @@ export class CartEffects {
                               );
 
 
+                            // ---------------------------
+                            // ITEM ALREADY IN THE ACCOUNT CART
+                            // Limit applies to THIS item only
+                            // (same product + color + size)
+                            // ---------------------------
+
                             if (existingItem) {
-
-                              const productQuantity =
-                                cartItems
-
-                                  .filter(item =>
-                                    item.productId ===
-                                    guestItem.productId
-                                  )
-
-                                  .reduce(
-                                    (total, item) =>
-                                      total +
-                                      item.quantity,
-                                    0
-                                  );
-
 
                               const allowedQuantity =
                                 Math.min(
@@ -1346,8 +1332,8 @@ export class CartEffects {
                                     0,
 
                                     CART_LIMITS
-                                      .MAX_QUANTITY_PER_PRODUCT -
-                                    productQuantity
+                                      .MAX_QUANTITY_PER_ITEM -
+                                    existingItem.quantity
 
                                   )
 
@@ -1358,7 +1344,19 @@ export class CartEffects {
                                 allowedQuantity <= 0
                               ) {
 
+                                anyItemTrimmed = true;
+
                                 return of(null);
+
+                              }
+
+
+                              if (
+                                allowedQuantity <
+                                guestItem.quantity
+                              ) {
+
+                                anyItemTrimmed = true;
 
                               }
 
@@ -1376,10 +1374,19 @@ export class CartEffects {
                             }
 
 
+                            // ---------------------------
+                            // NEW PRODUCT FOR THIS ACCOUNT
+                            // ---------------------------
+
                             if (
+                              !distinctProducts.has(
+                                guestItem.productId
+                              ) &&
                               distinctProducts.size >=
                               CART_LIMITS.MAX_DISTINCT_PRODUCTS
                             ) {
+
+                              anyItemTrimmed = true;
 
                               return of(null);
 
@@ -1389,6 +1396,16 @@ export class CartEffects {
                             distinctProducts.add(
                               guestItem.productId
                             );
+
+
+                            if (
+                              guestItem.quantity >
+                              CART_LIMITS.MAX_QUANTITY_PER_ITEM
+                            ) {
+
+                              anyItemTrimmed = true;
+
+                            }
 
 
                             const cartItem: CartItem = {
@@ -1411,7 +1428,7 @@ export class CartEffects {
                               quantity:
                                 Math.min(
                                   guestItem.quantity,
-                                  CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+                                  CART_LIMITS.MAX_QUANTITY_PER_ITEM
                                 )
 
                             };
@@ -1437,6 +1454,15 @@ export class CartEffects {
 
                           this.guestCartService
                             .clearCart();
+
+
+                          if (anyItemTrimmed) {
+
+                            this.toastService.info(
+                              CART_MERGE_TRIMMED_MESSAGE
+                            );
+
+                          }
 
                         }),
 

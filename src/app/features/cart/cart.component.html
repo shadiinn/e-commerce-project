@@ -165,34 +165,51 @@
 
                     <!-- QUANTITY -->
 
-                    <div
-                      class="flex items-center border border-brand-border"
-                    >
+                    <div>
 
-                      <button
-                        type="button"
-                        (click)="decreaseQuantity(item.id!)"
-                        class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background"
+                      <div
+                        class="flex items-center border border-brand-border"
                       >
-                        −
-                      </button>
+
+                        <button
+                          type="button"
+                          (click)="decreaseQuantity(item.id!)"
+                          class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background"
+                        >
+                          −
+                        </button>
 
 
-                      <span
-                        class="min-w-10 text-center text-xs text-brand-text"
-                      >
-                        {{ item.quantity }}
-                      </span>
+                        <span
+                          class="min-w-10 text-center text-xs text-brand-text"
+                        >
+                          {{ item.quantity }}
+                        </span>
 
 
-                      <button
-                        type="button"
-                        (click)="increaseQuantity(item.id!)"
-                        [disabled]="!canIncreaseQuantity(item)"
-                        class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background disabled:cursor-not-allowed disabled:opacity-30"
-                      >
-                        +
-                      </button>
+                        <button
+                          type="button"
+                          (click)="increaseQuantity(item.id!)"
+                          [disabled]="!canIncreaseQuantity(item)"
+                          class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background disabled:cursor-not-allowed disabled:opacity-30"
+                        >
+                          +
+                        </button>
+
+                      </div>
+
+
+                      <!-- LIMIT REACHED -->
+
+                      @if (quantityLimitNote(item); as note) {
+
+                        <p
+                          class="mt-1.5 text-[10px] text-brand-muted"
+                        >
+                          {{ note }}
+                        </p>
+
+                      }
 
                     </div>
 
@@ -342,7 +359,7 @@
 
           <a
             routerLink="/shop"
-            class="mt-8 border border-brand-text px-8 py-3 text-xs font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:bg-brand-text hover:text-white"
+            class="mt-8 bg-brand-text px-8 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
           >
             Continue Shopping
           </a>

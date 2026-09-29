@@ -39,6 +39,14 @@ import {
 } from '../../store/wishlist/wishlist.selectors';
 
 import {
+  selectActiveCartItems
+} from '../../store/cart/cart.selectors';
+
+import {
+  evaluateAddToCart
+} from '../../core/utils/cart.limits';
+
+import {
   selectProductById
 } from '../../store/products/products.selectors';
 
@@ -500,56 +508,89 @@ export class ProductDetailsComponent
 
 
     // ---------------------------------------------------
-    // CHECK AUTHENTICATION
+    // CHECK CART LIMITS (same item quantity + distinct
+    // products) before dispatching, so we can show the
+    // right message.
     // ---------------------------------------------------
 
-    this.isAuthenticated$
+    this.store
+      .select(selectActiveCartItems)
       .pipe(take(1))
-      .subscribe(isAuthenticated => {
+      .subscribe(cartItems => {
 
-
-        // ===============================================
-        // LOGGED-IN USER
-        // ===============================================
-
-        if (isAuthenticated) {
-
-          this.store.dispatch(
-            addToCart({
-
-              product,
-
-              variantId:
-                variant.id,
-
-              size
-
-            })
+        const limitCheck =
+          evaluateAddToCart(
+            cartItems,
+            product.id,
+            variant.id,
+            size,
+            selectedSizeStock
           );
-          this.toastService.success('Added to cart');
+
+        if (!limitCheck.allowed) {
+
+          this.toastService.warning(
+            limitCheck.message
+          );
+
           return;
 
         }
 
 
-        // ===============================================
-        // GUEST USER
-        // ===============================================
+        // -------------------------------------------------
+        // CHECK AUTHENTICATION
+        // -------------------------------------------------
 
-        this.store.dispatch(
-          addGuestCartItem({
+        this.isAuthenticated$
+          .pipe(take(1))
+          .subscribe(isAuthenticated => {
 
-            productId:
-              product.id,
 
-            variantId:
-              variant.id,
+            // ===========================================
+            // LOGGED-IN USER
+            // ===========================================
 
-            size
+            if (isAuthenticated) {
 
-          })
-        );
-        this.toastService.success('Added to cart');
+              this.store.dispatch(
+                addToCart({
+
+                  product,
+
+                  variantId:
+                    variant.id,
+
+                  size
+
+                })
+              );
+              this.toastService.success('Added to cart');
+              return;
+
+            }
+
+
+            // ===========================================
+            // GUEST USER
+            // ===========================================
+
+            this.store.dispatch(
+              addGuestCartItem({
+
+                productId:
+                  product.id,
+
+                variantId:
+                  variant.id,
+
+                size
+
+              })
+            );
+            this.toastService.success('Added to cart');
+          });
+
       });
 
   }

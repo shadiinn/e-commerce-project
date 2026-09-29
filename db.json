@@ -17,130 +17,95 @@
       "variantId": "p046-cream",
       "size": "M",
       "quantity": 1
-    },
-    {
-      "id": "p5LeSlxz220",
-      "userId": "6ivFObMKcqE",
-      "productId": "p002",
-      "variantId": "p002-01",
-      "size": "S",
-      "quantity": 3
-    },
-    {
-      "id": "EM-YQZLT8HA",
-      "userId": "6ivFObMKcqE",
-      "productId": "p002",
-      "variantId": "p002-01",
-      "size": "M",
-      "quantity": 2
-    },
-    {
-      "id": "WmZI-k0uoes",
-      "userId": "6ivFObMKcqE",
-      "productId": "p003",
-      "variantId": "p003-01",
-      "size": "L",
-      "quantity": 1
     }
   ],
-  "wishlists": [
-    {
-      "id": "HvafzCTYqWU",
-      "userId": "6ivFObMKcqE",
-      "productId": "p002"
-    },
-    {
-      "id": "U9IDSteTNwI",
-      "userId": "6ivFObMKcqE",
-      "productId": "p003"
-    }
-  ],
+  "wishlists": [],
   "orders": [
     {
-      "id": "bE024Te6yRE",
-      "userId": "B8sGAG6Yf5U",
-      "orderNumber": "SA-260928-0001",
+      "id": "gnMZ5RjZ-Ec",
+      "userId": "6ivFObMKcqE",
+      "orderNumber": "SA-260929-0001",
       "items": [
         {
-          "productId": "p046",
-          "variantId": "p046-cream",
-          "name": "Merino Crewneck Sweater",
-          "image": "assets/products/merino-sweater-1.jpg",
-          "color": "Cream",
-          "size": "M",
+          "productId": "p001",
+          "variantId": "p001-01",
+          "name": "Deep Sea Blue Linen Shirt",
+          "image": "assets/images/products/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
+          "color": "Deep Sea Blue",
+          "size": "S",
           "quantity": 1,
-          "price": 8999,
-          "total": 8999
+          "price": 6499,
+          "total": 6499
         }
       ],
-      "subtotal": 8999,
+      "subtotal": 6499,
       "shipping": 0,
-      "total": 8999,
+      "total": 6499,
       "shippingAddress": {
-        "firstName": "fathima12",
-        "lastName": "mufeeda21",
+        "firstName": "Shadin",
+        "lastName": "VP",
         "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
         "apartment": "",
         "city": "Chemmad",
-        "state": "987456",
+        "state": "Kerala",
         "postalCode": "676311",
         "country": "India",
-        "phone": "9865321470",
-        "email": "fathi@gmail.com000"
-      },
-      "paymentMethod": "online",
-      "paymentStatus": "pending",
-      "orderStatus": "cancelled",
-      "createdAt": "2026-09-28T04:56:05.288Z"
-    },
-    {
-      "id": "6ymRTCNngD0",
-      "userId": "B8sGAG6Yf5U",
-      "orderNumber": "SA-260928-0002",
-      "items": [
-        {
-          "productId": "p002",
-          "variantId": "p002-01",
-          "name": "Midnight Green Linen Shirt",
-          "image": "assets/shirts/midnight green/midnight-green-linen-01.jpg",
-          "color": "midnight-green",
-          "size": "L",
-          "quantity": 1,
-          "price": 5999,
-          "total": 5999
-        }
-      ],
-      "subtotal": 5999,
-      "shipping": 0,
-      "total": 5999,
-      "shippingAddress": {
-        "firstName": "fathima12",
-        "lastName": "mufeeda21",
-        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
-        "apartment": "",
-        "city": "Chemmad",
-        "state": "987456",
-        "postalCode": "676311",
-        "country": "India",
-        "phone": "9865321470",
-        "email": "fathi@gmail.com000"
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
       "orderStatus": "confirmed",
-      "createdAt": "2026-09-28T04:57:26.824Z"
+      "createdAt": "2026-09-29T04:53:10.510Z"
     },
     {
-      "id": "LQhPXsyVCVM",
+      "id": "0XHAYf4j53E",
       "userId": "6ivFObMKcqE",
-      "orderNumber": "SA-260928-0001",
+      "orderNumber": "SA-260929-0002",
+      "items": [
+        {
+          "productId": "p001",
+          "variantId": "p001-01",
+          "name": "Deep Sea Blue Linen Shirt",
+          "image": "assets/images/products/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
+          "color": "Deep Sea Blue",
+          "size": "M",
+          "quantity": 1,
+          "price": 6499,
+          "total": 6499
+        }
+      ],
+      "subtotal": 6499,
+      "shipping": 0,
+      "total": 6499,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "Ahammed",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "Chemmad",
+        "state": "Kerala",
+        "postalCode": "676311",
+        "country": "India",
+        "phone": "9746897782",
+        "email": "shadinahammed16@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-09-29T04:53:43.166Z"
+    },
+    {
+      "id": "92w5rLujGak",
+      "userId": "6ivFObMKcqE",
+      "orderNumber": "SA-260929-0003",
       "items": [
         {
           "productId": "p002",
           "variantId": "p002-01",
           "name": "Midnight Green Linen Shirt",
-          "image": "assets/shirts/midnight green/midnight-green-linen-01.jpg",
-          "color": "midnight-green",
+          "image": "assets/images/products/shirts/midnight green/midnight-green-linen-01.jpg",
+          "color": "Midnight Green",
           "size": "S",
           "quantity": 1,
           "price": 5999,
@@ -165,7 +130,7 @@
       "paymentMethod": "cod",
       "paymentStatus": "pending",
       "orderStatus": "confirmed",
-      "createdAt": "2026-09-28T10:04:48.086Z"
+      "createdAt": "2026-09-29T05:07:23.567Z"
     }
   ],
   "products": [
@@ -180,11 +145,11 @@
       "variants": [
         {
           "id": "p001-01",
-          "color": "deep-sea-blue",
+          "color": "Deep Sea Blue",
           "images": [
-            "assets/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
-            "assets/shirts/deep sea blue/deepsea-blue-linen-02.jpg",
-            "assets/shirts/deep sea blue/deepsea-blue-linen-03.jpg"
+            "assets/images/products/shirts/deep sea blue/deepsea-blue-linen-01.jpg",
+            "assets/images/products/shirts/deep sea blue/deepsea-blue-linen-02.jpg",
+            "assets/images/products/shirts/deep sea blue/deepsea-blue-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -222,12 +187,12 @@
       "variants": [
         {
           "id": "p002-01",
-          "color": "midnight-green",
+          "color": "Midnight Green",
           "images": [
-            "assets/shirts/midnight green/midnight-green-linen-01.jpg",
-            "assets/shirts/midnight green/midnight-green-linen-02.jpg",
-            "assets/shirts/midnight green/midnight-green-linen-03.jpg",
-            "assets/shirts/midnight green/midnight-green-linen-01.jpg"
+            "assets/images/products/shirts/midnight green/midnight-green-linen-01.jpg",
+            "assets/images/products/shirts/midnight green/midnight-green-linen-02.jpg",
+            "assets/images/products/shirts/midnight green/midnight-green-linen-03.jpg",
+            "assets/images/products/shirts/midnight green/midnight-green-linen-04.jpg"
           ],
           "sizes": [
             {
@@ -265,13 +230,13 @@
       "variants": [
         {
           "id": "p003-01",
-          "color": "classic-white",
+          "color": "Classic White",
           "images": [
-            "assets/shirts/classic white/classic-white-linen-01.jpg",
-            "assets/shirts/classic white/classic-white-linen-02.jpg",
-            "assets/shirts/classic white/classic-white-linen-03.jpg",
-            "assets/shirts/classic white/classic-white-linen-04.jpg",
-            "assets/shirts/classic white/classic-white-linen-05.jpg"
+            "assets/images/products/shirts/classic white/classic-white-linen-01.jpg",
+            "assets/images/products/shirts/classic white/classic-white-linen-02.jpg",
+            "assets/images/products/shirts/classic white/classic-white-linen-03.jpg",
+            "assets/images/products/shirts/classic white/classic-white-linen-04.jpg",
+            "assets/images/products/shirts/classic white/classic-white-linen-05.jpg"
           ],
           "sizes": [
             {
@@ -309,11 +274,11 @@
       "variants": [
         {
           "id": "p004-01",
-          "color": "espresso-brown",
+          "color": "Espresso Brown",
           "images": [
-            "assets/shirts/espresso brown/espresso-brown-linen-01.jpg",
-            "assets/shirts/espresso brown/espresso-brown-linen-02.jpg",
-            "assets/shirts/espresso brown/espresso-brown-linen-03.jpg"
+            "assets/images/products/shirts/espresso brown/espresso-brown-linen-01.jpg",
+            "assets/images/products/shirts/espresso brown/espresso-brown-linen-02.jpg",
+            "assets/images/products/shirts/espresso brown/espresso-brown-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -351,12 +316,12 @@
       "variants": [
         {
           "id": "p005-01",
-          "color": "light-blue",
+          "color": "Light Blue",
           "images": [
-            "assets/shirts/light blue/light-blue-linen-01.jpg",
-            "assets/shirts/light blue/light-blue-linen-02.jpg",
-            "assets/shirts/light blue/light-blue-linen-03.jpg",
-            "assets/shirts/light blue/light-blue-linen-04.jpg"
+            "assets/images/products/shirts/light blue/light-blue-linen-01.jpg",
+            "assets/images/products/shirts/light blue/light-blue-linen-02.jpg",
+            "assets/images/products/shirts/light blue/light-blue-linen-03.jpg",
+            "assets/images/products/shirts/light blue/light-blue-linen-04.jpg"
           ],
           "sizes": [
             {
@@ -394,11 +359,11 @@
       "variants": [
         {
           "id": "p006-01",
-          "color": "lemon-yellow",
+          "color": "Lemon Yellow",
           "images": [
-            "assets/shirts/lemon yellow/lemon-yellow-linen-01.jpg",
-            "assets/shirts/lemon yellow/lemon-yellow-linen-02.jpg",
-            "assets/shirts/lemon yellow/lemon-yellow-linen-03.jpg"
+            "assets/images/products/shirts/lemon yellow/lemon-yellow-linen-01.jpg",
+            "assets/images/products/shirts/lemon yellow/lemon-yellow-linen-02.jpg",
+            "assets/images/products/shirts/lemon yellow/lemon-yellow-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -436,11 +401,11 @@
       "variants": [
         {
           "id": "p007-01",
-          "color": "hunter-green",
+          "color": "Hunter Green",
           "images": [
-            "assets/shirts/hunter green/hunter-green-linen-01.jpg",
-            "assets/shirts/hunter green/hunter-green-linen-02.jpg",
-            "assets/shirts/hunter green/hunter-green-linen-03.jpg"
+            "assets/images/products/shirts/hunter green/hunter-green-linen-01.jpg",
+            "assets/images/products/shirts/hunter green/hunter-green-linen-02.jpg",
+            "assets/images/products/shirts/hunter green/hunter-green-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -478,12 +443,12 @@
       "variants": [
         {
           "id": "p008-01",
-          "color": "midnight-purple",
+          "color": "Midnight Purple",
           "images": [
-            "assets/shirts/midnight purple/midnight-purple-linen-01.jpg",
-            "assets/shirts/midnight purple/midnight-purple-linen-02.jpg",
-            "assets/shirts/midnight purple/midnight-purple-linen-03.jpg",
-            "assets/shirts/midnight purple/midnight-purple-linen-04.jpg"
+            "assets/images/products/shirts/midnight purple/midnight-purple-linen-01.jpg",
+            "assets/images/products/shirts/midnight purple/midnight-purple-linen-02.jpg",
+            "assets/images/products/shirts/midnight purple/midnight-purple-linen-03.jpg",
+            "assets/images/products/shirts/midnight purple/midnight-purple-linen-04.jpg"
           ],
           "sizes": [
             {
@@ -521,13 +486,13 @@
       "variants": [
         {
           "id": "p009-01",
-          "color": "misty-mint",
+          "color": "Misty Mint",
           "images": [
-            "assets/shirts/misty mint/misty-mint-linen-01.jpg",
-            "assets/shirts/misty mint/misty-mint-linen-02.jpg",
-            "assets/shirts/misty mint/misty-mint-linen-03.jpg",
-            "assets/shirts/misty mint/misty-mint-linen-04.jpg",
-            "assets/shirts/misty mint/misty-mint-linen-05.jpg"
+            "assets/images/products/shirts/misty mint/misty-mint-linen-01.jpg",
+            "assets/images/products/shirts/misty mint/misty-mint-linen-02.jpg",
+            "assets/images/products/shirts/misty mint/misty-mint-linen-03.jpg",
+            "assets/images/products/shirts/misty mint/misty-mint-linen-04.jpg",
+            "assets/images/products/shirts/misty mint/misty-mint-linen-05.jpg"
           ],
           "sizes": [
             {
@@ -565,11 +530,11 @@
       "variants": [
         {
           "id": "p010-01",
-          "color": "midnight-blue",
+          "color": "Midnight Blue",
           "images": [
-            "assets/shirts/midnight blue/midnight-blue-linen-01.jpg",
-            "assets/shirts/midnight blue/midnight-blue-linen-02.jpg",
-            "assets/shirts/midnight blue/midnight-blue-linen-03.jpg"
+            "assets/images/products/shirts/midnight blue/midnight-blue-linen-01.jpg",
+            "assets/images/products/shirts/midnight blue/midnight-blue-linen-02.jpg",
+            "assets/images/products/shirts/midnight blue/midnight-blue-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -607,11 +572,11 @@
       "variants": [
         {
           "id": "p011-01",
-          "color": "classic-black",
+          "color": "Classic Black",
           "images": [
-            "assets/shirts/classic black/classic-black-linen-01.jpg",
-            "assets/shirts/classic black/classic-black-linen-02.jpg",
-            "assets/shirts/classic black/classic-black-linen-03.jpg"
+            "assets/images/products/shirts/classic black/classic-black-linen-01.jpg",
+            "assets/images/products/shirts/classic black/classic-black-linen-02.jpg",
+            "assets/images/products/shirts/classic black/classic-black-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -649,11 +614,11 @@
       "variants": [
         {
           "id": "p012-01",
-          "color": "stone-grey",
+          "color": "Stone Grey",
           "images": [
-            "assets/shirts/stone grey/stone-grey-linen-01.jpg",
-            "assets/shirts/stone grey/stone-grey-linen-02.jpg",
-            "assets/shirts/stone grey/stone-grey-linen-03.jpg"
+            "assets/images/products/shirts/stone grey/stone-grey-linen-01.jpg",
+            "assets/images/products/shirts/stone grey/stone-grey-linen-02.jpg",
+            "assets/images/products/shirts/stone grey/stone-grey-linen-03.jpg"
           ],
           "sizes": [
             {
@@ -681,41 +646,139 @@
       "isFeatured": true
     },
     {
-      "id": "p015",
-      "name": "Signature Straight Trousers",
-      "slug": "signature-straight-trousers",
+      "id": "p013",
+      "name": "Signature Cream Straight Trousers",
+      "slug": "signature-cream-straight-trousers",
       "category": "trousers",
       "price": 7499,
       "oldPrice": 8499,
       "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
       "variants": [
         {
-          "id": "p015-black",
-          "color": "Black",
+          "id": "p013-01",
+          "color": "Cream",
           "images": [
-            "assets/products/straight-trousers-1.jpg",
-            "assets/products/straight-trousers-2.jpg"
+            "assets/images/products/trousers/cream/cream-01.jpg",
+            "assets/images/products/trousers/cream/cream-02.jpg",
+            "assets/images/products/trousers/cream/cream-03.jpg",
+            "assets/images/products/trousers/cream/cream-04.jpg",
+            "assets/images/products/trousers/cream/cream-05.jpg"
           ],
           "sizes": [
             {
               "size": "30",
-              "stock": 5
+              "stock": 25
             },
             {
               "size": "32",
-              "stock": 5
+              "stock": 25
             },
             {
               "size": "34",
-              "stock": 5
+              "stock": 25
             },
             {
               "size": "36",
-              "stock": 5
+              "stock": 25
             },
             {
               "size": "38",
-              "stock": 5
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p014",
+      "name": "Navy Blue Straight Linen Trousers",
+      "slug": "navy-blue-straight-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p014-01",
+          "color": "Navy Blue",
+          "images": [
+            "assets/images/products/trousers/navy blue/navy-blue-01.jpg",
+            "assets/images/products/trousers/navy blue/navy-blue-02.jpg",
+            "assets/images/products/trousers/navy blue/navy-blue-03.jpg",
+            "assets/images/products/trousers/navy blue/navy-blue-04.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p015",
+      "name": "Sage Green Straight Linen Trousers",
+      "slug": "sage-green-straight-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p015-01",
+          "color": "Sage Green",
+          "images": [
+            "assets/images/products/trousers/sage green/sage-green-01.jpg",
+            "assets/images/products/trousers/sage green/sage-green-02.jpg",
+            "assets/images/products/trousers/sage green/sage-green-03.jpg",
+            "assets/images/products/trousers/sage green/sage-green-04.jpg",
+            "assets/images/products/trousers/sage green/sage-green-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
             }
           ]
         }
@@ -727,47 +790,431 @@
     },
     {
       "id": "p016",
-      "name": "Pleated Tailored Trousers",
-      "slug": "pleated-tailored-trousers",
+      "name": "Warm Chocolate Brown Linen Trousers",
+      "slug": "warm-chocolate-brown-linen-trousers",
       "category": "trousers",
-      "price": 7999,
-      "description": "Pleated trousers with a relaxed tailored fit and sophisticated finish.",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
       "variants": [
         {
-          "id": "p016-beige",
-          "color": "Beige",
+          "id": "p016-01",
+          "color": "Warm Chocolate Brown",
           "images": [
-            "assets/products/pleated-trousers-1.jpg",
-            "assets/products/pleated-trousers-2.jpg"
+            "assets/images/products/trousers/warm chocolate brown/warm-chocolate-brown-01.jpg",
+            "assets/images/products/trousers/warm chocolate brown/warm-chocolate-brown-02.jpg",
+            "assets/images/products/trousers/warm chocolate brown/warm-chocolate-brown-03.jpg",
+            "assets/images/products/trousers/warm chocolate brown/warm-chocolate-brown-04.jpg",
+            "assets/images/products/trousers/warm chocolate brown/warm-chocolate-brown-05.jpg"
           ],
           "sizes": [
             {
               "size": "30",
-              "stock": 3
+              "stock": 25
             },
             {
               "size": "32",
-              "stock": 3
+              "stock": 25
             },
             {
               "size": "34",
-              "stock": 3
+              "stock": 25
             },
             {
               "size": "36",
-              "stock": 3
+              "stock": 25
             },
             {
               "size": "38",
-              "stock": 3
+              "stock": 25
             }
           ]
         }
       ],
-      "rating": 4.8,
-      "reviewsCount": 73,
-      "isNew": true,
-      "isFeatured": false
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p017",
+      "name": "Classic Jet Black Linen Trousers",
+      "slug": "classic-jet-black-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p017-01",
+          "color": "Classic Jet Black",
+          "images": [
+            "assets/images/products/trousers/classic jet black/classic-jet-black-01.jpg",
+            "assets/images/products/trousers/classic jet black/classic-jet-black-02.jpg",
+            "assets/images/products/trousers/classic jet black/classic-jet-black-03.jpg",
+            "assets/images/products/trousers/classic jet black/classic-jet-black-04.jpg",
+            "assets/images/products/trousers/classic jet black/classic-jet-black-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p018",
+      "name": "French Blue Straight Linen Trousers",
+      "slug": "french-blue-straight-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p018-01",
+          "color": "French Blue",
+          "images": [
+            "assets/images/products/trousers/french blue/french-blue-01.jpg",
+            "assets/images/products/trousers/french blue/french-blue-02.jpg",
+            "assets/images/products/trousers/french blue/french-blue-03.jpg",
+            "assets/images/products/trousers/french blue/french-blue-04.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p019",
+      "name": "Classic White Straight Linen Trousers",
+      "slug": "classic-white-straight-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p019-01",
+          "color": "Classic White",
+          "images": [
+            "assets/images/products/trousers/classic white/classic-white-01.jpg",
+            "assets/images/products/trousers/classic white/classic-white-02.jpg",
+            "assets/images/products/trousers/classic white/classic-white-03.jpg",
+            "assets/images/products/trousers/classic white/classic-white-04.jpg",
+            "assets/images/products/trousers/classic white/classic-white-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p020",
+      "name": "Forest Green Linen Trousers",
+      "slug": "forest-green-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p020-01",
+          "color": "Forest Green",
+          "images": [
+            "assets/images/products/trousers/forest green/forest-green-01.jpg",
+            "assets/images/products/trousers/forest green/forest-green-02.jpg",
+            "assets/images/products/trousers/forest green/forest-green-03.jpg",
+            "assets/images/products/trousers/forest green/forest-green-04.jpg",
+            "assets/images/products/trousers/forest green/forest-green-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p021",
+      "name": "Charcoal Grey Linen Trousers",
+      "slug": "charcoal-grey-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p021-01",
+          "color": "Charcoal Grey",
+          "images": [
+            "assets/images/products/trousers/charcoal grey/charcoal-grey-01.jpg",
+            "assets/images/products/trousers/charcoal grey/charcoal-grey-02.jpg",
+            "assets/images/products/trousers/charcoal grey/charcoal-grey-03.jpg",
+            "assets/images/products/trousers/charcoal grey/charcoal-grey-04.jpg",
+            "assets/images/products/trousers/charcoal grey/charcoal-grey-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p022",
+      "name": "Sand Beige Linen Trousers",
+      "slug": "sand-beige-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p022-01",
+          "color": "Sand Beige",
+          "images": [
+            "assets/images/products/trousers/sand beige/sand-beige-01.jpg",
+            "assets/images/products/trousers/sand beige/sand-beige-02.jpg",
+            "assets/images/products/trousers/sand beige/sand-beige-03.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p023",
+      "name": "Olive Green Linen Trousers",
+      "slug": "olive-green-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p023-01",
+          "color": "Olive Green",
+          "images": [
+            "assets/images/products/trousers/olive green/olive-green-01.jpg",
+            "assets/images/products/trousers/olive green/olive-green-02.jpg",
+            "assets/images/products/trousers/olive green/olive-green-03.jpg",
+            "assets/images/products/trousers/olive green/olive-green-04.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
+    },
+    {
+      "id": "p024",
+      "name": "Slate Blue Linen Trousers",
+      "slug": "slate-blue-linen-trousers",
+      "category": "trousers",
+      "price": 7499,
+      "oldPrice": 8499,
+      "description": "Clean straight-leg trousers with a refined silhouette for a timeless wardrobe.",
+      "variants": [
+        {
+          "id": "p024-01",
+          "color": "Slate Blue",
+          "images": [
+            "assets/images/products/trousers/slate blue/slate-blue-01.jpg",
+            "assets/images/products/trousers/slate blue/slate-blue-02.jpg",
+            "assets/images/products/trousers/slate blue/slate-blue-03.jpg",
+            "assets/images/products/trousers/slate blue/slate-blue-04.jpg",
+            "assets/images/products/trousers/slate blue/slate-blue-05.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "30",
+              "stock": 25
+            },
+            {
+              "size": "32",
+              "stock": 25
+            },
+            {
+              "size": "34",
+              "stock": 25
+            },
+            {
+              "size": "36",
+              "stock": 25
+            },
+            {
+              "size": "38",
+              "stock": 25
+            }
+          ]
+        }
+      ],
+      "rating": 4.9,
+      "reviewsCount": 156,
+      "isNew": false,
+      "isFeatured": true
     },
     {
       "id": "p046",

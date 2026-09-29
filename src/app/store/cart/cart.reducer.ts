@@ -129,28 +129,14 @@ export const cartReducer = createReducer(
 
 
       // -----------------------------------------------
-      // MAX 5 UNITS OF SAME PRODUCT
+      // MAX UNITS OF THIS CART ITEM
+      // (same product + color + size). The stock check
+      // and the user message are handled in the effect.
       // -----------------------------------------------
 
-      const productQuantity =
-        state.items
-
-          .filter(
-            cartItem =>
-              cartItem.productId ===
-              item.productId
-          )
-
-          .reduce(
-            (total, cartItem) =>
-              total + cartItem.quantity,
-            0
-          );
-
-
       if (
-        productQuantity >=
-        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+        item.quantity >=
+        CART_LIMITS.MAX_QUANTITY_PER_ITEM
       ) {
 
         return state;
@@ -345,25 +331,9 @@ export const cartReducer = createReducer(
 
       if (existingItem) {
 
-        const productQuantity =
-          state.guestItems
-
-            .filter(
-              item =>
-                item.productId ===
-                productId
-            )
-
-            .reduce(
-              (total, item) =>
-                total + item.quantity,
-              0
-            );
-
-
         if (
-          productQuantity >=
-          CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+          existingItem.quantity >=
+          CART_LIMITS.MAX_QUANTITY_PER_ITEM
         ) {
 
           return state;
@@ -403,16 +373,18 @@ export const cartReducer = createReducer(
       // MAX DISTINCT PRODUCTS
       // -------------------------------------------------
 
-      const distinctProductCount =
+      const distinctProducts =
         new Set(
           state.guestItems.map(
             item => item.productId
           )
-        ).size;
+        );
 
 
+      // Only a brand-new product counts towards the limit
       if (
-        distinctProductCount >=
+        !distinctProducts.has(productId) &&
+        distinctProducts.size >=
         CART_LIMITS.MAX_DISTINCT_PRODUCTS
       ) {
 
@@ -478,25 +450,9 @@ export const cartReducer = createReducer(
       }
 
 
-      const productQuantity =
-        state.guestItems
-
-          .filter(
-            cartItem =>
-              cartItem.productId ===
-              item.productId
-          )
-
-          .reduce(
-            (total, cartItem) =>
-              total + cartItem.quantity,
-            0
-          );
-
-
       if (
-        productQuantity >=
-        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+        item.quantity >=
+        CART_LIMITS.MAX_QUANTITY_PER_ITEM
       ) {
 
         return state;

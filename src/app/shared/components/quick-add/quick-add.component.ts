@@ -21,6 +21,13 @@ import {
 } from '../../../store/auth/auth.selectors';
 import { take } from 'rxjs';
 import { ToastService } from '../../../core/services/toast/toast.service';
+import {
+  selectActiveCartItems
+} from '../../../store/cart/cart.selectors';
+import {
+  evaluateAddToCart,
+  getSizeStock
+} from '../../../core/utils/cart.limits';
 
 @Component({
   selector: 'app-quick-add',
@@ -203,41 +210,74 @@ export class QuickAddComponent {
       return;
     }
 
-    // CHECK AUTHENTICATION
+    // CHECK CART LIMITS (same item quantity + distinct products)
+    // before dispatching, so we can show the right message.
 
-    this.isAuthenticated$
+    this.store
+      .select(selectActiveCartItems)
       .pipe(take(1))
       .subscribe(
-        isAuthenticated => {
+        cartItems => {
 
-          // LOGGED-IN USER
-
-          if (isAuthenticated) {
-            this.store.dispatch(
-              addToCart({
-                product:this.product(),
-                variantId:variant.id,
-                size
-              })
+          const limitCheck =
+            evaluateAddToCart(
+              cartItems,
+              this.product().id,
+              variant.id,
+              size,
+              selectedSizeStock
             );
-            this.toastService.success('Added to cart');
+
+          if (!limitCheck.allowed) {
+
+            this.toastService.warning(
+              limitCheck.message
+            );
+
+            this.close.emit();
+
+            return;
+
           }
 
-          // GUEST USER
-          else {
-            this.store.dispatch(
-              addGuestCartItem({
-                productId:this.product().id,
-                variantId:variant.id,
-                size
-              })
+          // CHECK AUTHENTICATION
+
+          this.isAuthenticated$
+            .pipe(take(1))
+            .subscribe(
+              isAuthenticated => {
+
+                // LOGGED-IN USER
+
+                if (isAuthenticated) {
+                  this.store.dispatch(
+                    addToCart({
+                      product:this.product(),
+                      variantId:variant.id,
+                      size
+                    })
+                  );
+                  this.toastService.success('Added to cart');
+                }
+
+                // GUEST USER
+                else {
+                  this.store.dispatch(
+                    addGuestCartItem({
+                      productId:this.product().id,
+                      variantId:variant.id,
+                      size
+                    })
+                  );
+                  this.toastService.success('Added to cart');
+                }
+
+                // CLOSE QUICK ADD
+
+                this.close.emit();
+              }
             );
-            this.toastService.success('Added to cart');
-          }
 
-          // CLOSE QUICK ADD
-
-          this.close.emit();
         }
       );
   }

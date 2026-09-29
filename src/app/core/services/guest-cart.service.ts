@@ -97,25 +97,11 @@ export class GuestCartService {
 
     if (existingItem) {
 
-      const productQuantity =
-        cart
-
-          .filter(
-            cartItem =>
-              cartItem.productId ===
-              item.productId
-          )
-
-          .reduce(
-            (total, cartItem) =>
-              total + cartItem.quantity,
-            0
-          );
-
-
+      // Limit applies to this item only
+      // (same product + color + size)
       if (
-        productQuantity >=
-        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+        existingItem.quantity >=
+        CART_LIMITS.MAX_QUANTITY_PER_ITEM
       ) {
 
         return false;
@@ -123,8 +109,12 @@ export class GuestCartService {
       }
 
 
-      existingItem.quantity +=
-        item.quantity;
+      existingItem.quantity =
+        Math.min(
+          existingItem.quantity +
+          item.quantity,
+          CART_LIMITS.MAX_QUANTITY_PER_ITEM
+        );
 
 
       this.saveCart(cart);
@@ -138,17 +128,21 @@ export class GuestCartService {
     // MAX DISTINCT PRODUCTS
     // ---------------------------------------------------
 
-    const distinctProductCount =
+    const distinctProducts =
       new Set(
         cart.map(
           cartItem =>
             cartItem.productId
         )
-      ).size;
+      );
 
 
+    // Only a brand-new product counts towards the limit
     if (
-      distinctProductCount >=
+      !distinctProducts.has(
+        item.productId
+      ) &&
+      distinctProducts.size >=
       CART_LIMITS.MAX_DISTINCT_PRODUCTS
     ) {
 
@@ -217,7 +211,7 @@ export class GuestCartService {
     item.quantity =
       Math.min(
         quantity,
-        CART_LIMITS.MAX_QUANTITY_PER_PRODUCT
+        CART_LIMITS.MAX_QUANTITY_PER_ITEM
       );
 
 
