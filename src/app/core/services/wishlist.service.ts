@@ -10,54 +10,31 @@ import { WishlistItem } from '../models/wishlist.model';
 export class WishlistService {
 
   private http = inject(HttpClient);
+  private readonly API_URL ='http://localhost:3000/wishlists';
 
-  private readonly API_URL =
-    'http://localhost:3000/wishlists';
-
-
-  // =====================================================
   // GET CURRENT USER'S WISHLIST
-  // =====================================================
 
-  getWishlist(
-    userId: string
-  ): Observable<WishlistItem[]> {
-
+  getWishlist(userId: string): Observable<WishlistItem[]> {
     return this.http.get<WishlistItem[]>(
       `${this.API_URL}?userId=${userId}`
     );
-
   }
 
-
-  // =====================================================
   // ADD TO WISHLIST
-  // =====================================================
 
-  addWishlistItem(
-    item: WishlistItem
-  ): Observable<WishlistItem> {
-
+  addWishlistItem(item: WishlistItem): Observable<WishlistItem> {
     return this.http.post<WishlistItem>(
       this.API_URL,
       item
     );
-
   }
 
-
-  // =====================================================
   // REMOVE FROM WISHLIST
-  // =====================================================
 
-  removeWishlistItem(
-    id: string
-  ): Observable<void> {
-
+  removeWishlistItem(id: string): Observable<void> {
     return this.http.delete<void>(
       `${this.API_URL}/${id}`
     );
-
   }
 
 }

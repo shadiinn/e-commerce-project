@@ -28,6 +28,37 @@
 
 
             <!-- =============================================== -->
+            <!-- IMAGE ARROWS -->
+            <!-- =============================================== -->
+
+            @if ((selectedVariant()?.images?.length ?? 0) > 1) {
+
+              <button
+                type="button"
+                (click)="goToImage(-1)"
+                aria-label="Previous image"
+                class="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white/95 shadow-sm transition-opacity duration-300 hover:opacity-80"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M15 6l-6 6 6 6" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                (click)="goToImage(1)"
+                aria-label="Next image"
+                class="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white/95 shadow-sm transition-opacity duration-300 hover:opacity-80"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </button>
+
+            }
+
+
+            <!-- =============================================== -->
             <!-- WISHLIST -->
             <!-- =============================================== -->
 
@@ -365,6 +396,48 @@
         </div>
 
       </div>
+
+
+      <!-- ================================================= -->
+      <!-- SIMILAR PRODUCTS -->
+      <!-- ================================================= -->
+
+      @if (similarProducts$ | async; as similarProducts) {
+
+        @if (similarProducts.length > 0) {
+
+          <div class="mt-20 border-t border-brand-border pt-14 sm:mt-24 sm:pt-16">
+
+            <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">
+              You May Also Like
+            </p>
+
+            <h2 class="mt-2 text-2xl font-light tracking-tight text-brand-text sm:text-3xl">
+              Similar Products
+            </h2>
+
+            <div
+              class="mt-8 grid grid-cols-2 gap-x-3 gap-y-12 sm:gap-x-5 sm:gap-y-16 lg:grid-cols-4"
+            >
+
+              @for (
+                similarProduct of similarProducts.slice(0, 4);
+                track similarProduct.id
+              ) {
+
+                <app-product-card
+                  [product]="similarProduct"
+                />
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+      }
 
     </div>
 

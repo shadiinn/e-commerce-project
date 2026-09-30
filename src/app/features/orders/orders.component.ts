@@ -19,7 +19,6 @@ import {
 } from '@ngrx/store';
 
 import {
-  cancelOrder as cancelOrderAction,
   loadOrders
 } from '../../store/orders/orders.actions';
 
@@ -28,7 +27,6 @@ import {
   selectOrdersLoading,
   selectOrdersError
 } from '../../store/orders/orders.selectors';
-import { Order } from '../../core/models/order.model';
 
 @Component({
   selector: 'app-orders',
@@ -64,35 +62,6 @@ export class OrdersComponent implements OnInit {
 
   }
 
-  canCancel(order: Order): boolean {
-
-    return (
-      order.orderStatus === 'pending' ||
-      order.orderStatus === 'confirmed'
-    );
-
-  }
-
-
-  cancelOrder(order: Order): void {
-
-    if (!this.canCancel(order)) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Are you sure you want to cancel order ${order.orderNumber}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.store.dispatch(
-      cancelOrderAction({
-        id: order.id
-      })
-    );
-
-  }
+  // Cancelling an order is done from the order details page now,
+  // not from this list.
 }

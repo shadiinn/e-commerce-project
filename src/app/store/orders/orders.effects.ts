@@ -20,6 +20,7 @@ import { Store } from '@ngrx/store';
 
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
+import { ToastService } from '../../core/services/toast.service';
 
 import {
   loadOrders,
@@ -72,6 +73,8 @@ export class OrdersEffects {
   private productService = inject(ProductService);
 
   private router = inject(Router);
+
+  private toastService = inject(ToastService);
 
 
   // =====================================================
@@ -845,6 +848,52 @@ export class OrdersEffects {
       )
 
     )
+  );
+
+
+  // =====================================================
+  // CANCEL ORDER — FEEDBACK
+  // =====================================================
+
+  cancelOrderSuccessToast$ = createEffect(
+    () =>
+      this.actions$.pipe(
+
+        ofType(cancelOrderSuccess),
+
+        tap(() => {
+
+          this.toastService.success(
+            'Order cancelled'
+          );
+
+        })
+
+      ),
+    {
+      dispatch: false
+    }
+  );
+
+
+  cancelOrderFailureToast$ = createEffect(
+    () =>
+      this.actions$.pipe(
+
+        ofType(cancelOrderFailure),
+
+        tap(({ error }) => {
+
+          this.toastService.error(
+            error
+          );
+
+        })
+
+      ),
+    {
+      dispatch: false
+    }
   );
 
 }

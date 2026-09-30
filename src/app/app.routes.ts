@@ -1,10 +1,16 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { NotFoundComponent } from './features/not-found/not-found.component';
 
 export const routes: Routes = [
-     {
-    path: '',
+  {
+    path:'',
+    redirectTo:'home',
+    pathMatch:'full'
+  },
+  {
+    path: 'home',
     loadComponent: () =>
       import ('./features/home/home.component')
         .then(m => m.HomeComponent)
@@ -103,5 +109,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/account/account.component')
         .then(m => m.AccountComponent)
+  },
+  {
+    path: '**',
+    component: NotFoundComponent
   }
 ];

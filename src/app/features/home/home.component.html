@@ -1,5 +1,18 @@
 <div class="bg-[var(--color-background)]">
 
+  <!-- Local entrance-animation keyframes (scoped to this component) -->
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up { animation: fadeInUp 0.7s ease-out both; }
+    .fade-up-2 { animation-delay: 0.15s; }
+    .fade-up-3 { animation-delay: 0.3s; }
+    .fade-up-4 { animation-delay: 0.45s; }
+  </style>
+
   <!-- ========================================================= -->
   <!-- HERO -->
   <!-- ========================================================= -->
@@ -34,7 +47,7 @@
 
             <!-- Eyebrow -->
             <p
-              class="mb-5 text-xs font-medium uppercase tracking-[0.3em] text-[var(--color-muted)]"
+              class="mb-5 text-xs font-medium uppercase tracking-[0.3em] text-[var(--color-muted)] fade-up"
             >
               SA — Modern Menswear
             </p>
@@ -42,7 +55,7 @@
 
             <!-- Heading -->
             <h1
-              class="text-5xl font-medium leading-[0.92] tracking-[-0.05em] sm:text-6xl md:text-7xl lg:text-8xl"
+              class="text-5xl font-medium leading-[0.92] tracking-[-0.05em] fade-up fade-up-2 sm:text-6xl md:text-7xl lg:text-8xl"
             >
               Essentials,
               <br />
@@ -52,7 +65,7 @@
 
             <!-- Description -->
             <p
-              class="mt-7 max-w-md text-sm leading-7 text-[var(--color-muted)] sm:text-base"
+              class="mt-7 max-w-md text-sm leading-7 text-[var(--color-muted)] fade-up fade-up-3 sm:text-base"
             >
               Modern silhouettes designed for everyday elegance.
               Thoughtful fabrics, relaxed proportions and timeless
@@ -63,7 +76,7 @@
             <!-- CTA -->
             <a
               routerLink="/shop"
-              class="mt-9 inline-flex items-center gap-5 border border-[var(--color-text)] bg-[var(--color-text)] px-7 py-4 text-xs font-medium uppercase tracking-[0.16em] text-white transition-all duration-300 hover:bg-transparent hover:text-[var(--color-text)]"
+              class="mt-9 inline-flex items-center gap-5 border border-[var(--color-text)] bg-[var(--color-text)] px-7 py-4 text-xs font-medium uppercase tracking-[0.16em] text-white fade-up fade-up-4 transition-all duration-300 hover:bg-transparent hover:text-[var(--color-text)]"
             >
               Shop Collection
 
@@ -93,7 +106,7 @@
   >
 
     <div
-      class="mx-auto max-w-3xl px-6 py-20 text-center sm:px-10 lg:py-28"
+      class="mx-auto max-w-3xl px-6 py-20 text-center sm:px-10 lg:py-28 fade-up"
     >
 
       <p
@@ -123,14 +136,14 @@
 
 
   <!-- ========================================================= -->
-  <!-- NEW ARRIVALS -->
+  <!-- FEATURED PRODUCTS -->
   <!-- ========================================================= -->
 
   <section
     class="mx-auto max-w-[1440px] px-6 py-20 lg:px-10 lg:py-28"
   >
 
-    <div class="flex items-end justify-between">
+    <div class="flex items-end justify-between fade-up">
 
       <div>
 
@@ -143,7 +156,7 @@
         <h2
           class="mt-3 text-3xl font-medium text-[var(--color-text)] sm:text-4xl"
         >
-          New Arrivals
+          Featured Products
         </h2>
 
       </div>
@@ -160,52 +173,93 @@
 
 
     <!-- ===================================================== -->
-    <!-- ARRIVALS GRID -->
+    <!-- SWIPEABLE ROW -->
+    <!-- Native horizontal scroll + snap = swipe on touch, drag  -->
+    <!-- on trackpad. Arrows below are a mouse-only convenience  -->
+    <!-- and hide on touch / small screens.                      -->
     <!-- ===================================================== -->
 
-    <div
-      class="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4"
-    >
+    <div class="relative mt-10 fade-up fade-up-2">
 
-      @for (item of newArrivals(); track item.id) {
+      <div
+        #featuredScroller
+        class="-mx-1.5 flex snap-x snap-mandatory overflow-x-auto scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
 
-        <a
-          [routerLink]="['/products', item.id]"
-          class="group block"
+        @for (item of featuredProducts(); track item.id) {
+
+          <div class="w-1/2 shrink-0 snap-start px-1.5 md:w-1/4">
+
+            <a
+              [routerLink]="['/products', item.id]"
+              class="group block"
+            >
+
+              <!-- Product Image -->
+              <div
+                class="aspect-[3/4] overflow-hidden bg-[var(--color-surface)]"
+              >
+
+                <img
+                  [src]="item.image"
+                  [alt]="item.name"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+
+              </div>
+
+
+              <!-- Product Information -->
+              <div class="mt-4">
+
+                <h3
+                  class="text-sm font-medium text-[var(--color-text)]"
+                >
+                  {{ item.name }}
+                </h3>
+
+                <p
+                  class="mt-1 text-sm text-[var(--color-muted)]"
+                >
+                  ₹{{ item.price }}
+                </p>
+
+              </div>
+
+            </a>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- Arrows (desktop, mouse users) -->
+
+      @if (featuredProducts().length > 4) {
+
+        <button
+          type="button"
+          (click)="scrollFeatured(-1)"
+          aria-label="Scroll featured products left"
+          class="absolute -left-5 top-[38%] hidden h-10 w-10 -translate-y-1/2 items-center justify-center bg-white/95 shadow-sm transition-opacity duration-300 hover:opacity-80 lg:flex"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" />
+          </svg>
+        </button>
 
-          <!-- Product Image -->
-          <div
-            class="aspect-[3/4] overflow-hidden bg-[var(--color-surface)]"
-          >
-
-            <img
-              [src]="item.image"
-              [alt]="item.name"
-              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-
-          </div>
-
-
-          <!-- Product Information -->
-          <div class="mt-4">
-
-            <h3
-              class="text-sm font-medium text-[var(--color-text)]"
-            >
-              {{ item.name }}
-            </h3>
-
-            <p
-              class="mt-1 text-sm text-[var(--color-muted)]"
-            >
-              ₹{{ item.price }}
-            </p>
-
-          </div>
-
-        </a>
+        <button
+          type="button"
+          (click)="scrollFeatured(1)"
+          aria-label="Scroll featured products right"
+          class="absolute -right-5 top-[38%] hidden h-10 w-10 -translate-y-1/2 items-center justify-center bg-white/95 shadow-sm transition-opacity duration-300 hover:opacity-80 lg:flex"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </button>
 
       }
 
@@ -241,7 +295,7 @@
 
       <!-- Category Header -->
 
-      <div class="text-center">
+      <div class="text-center fade-up">
 
         <p
           class="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]"
@@ -274,7 +328,7 @@
         <a
           routerLink="/shop"
           [queryParams]="{ category: 'shirts' }"
-          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8"
+          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8 fade-up"
         >
 
           <img
@@ -313,7 +367,7 @@
         <a
           routerLink="/shop"
           [queryParams]="{ category: 'trousers' }"
-          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8"
+          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8 fade-up fade-up-2"
         >
 
           <img
@@ -352,7 +406,7 @@
         <a
           routerLink="/shop"
           [queryParams]="{ category: 'sweaters' }"
-          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8"
+          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8 fade-up fade-up-3"
         >
 
           <img
@@ -391,7 +445,7 @@
         <a
           routerLink="/shop"
           [queryParams]="{ category: 'oversized-tshirts' }"
-          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8"
+          class="group relative flex aspect-[4/3] items-end overflow-hidden p-8 fade-up fade-up-4"
         >
 
           <img
@@ -445,15 +499,23 @@
       <!-- Visual -->
 
       <div
-        class="min-h-[500px] bg-[var(--color-background)] lg:min-h-[650px]"
+        class="group relative min-h-[500px] overflow-hidden bg-[var(--color-background)] fade-up lg:min-h-[650px]"
       >
 
+        <img
+          src="assets/images/home/end.png"
+          alt="SA — quiet luxury essentials"
+          class="absolute inset-0 h-full w-full object-cover object-top grayscale transition-all duration-700 ease-out group-hover:scale-105 group-hover:grayscale-0"
+        />
+
+        <div class="absolute inset-0 bg-black/15"></div>
+
         <div
-          class="flex h-full min-h-[500px] items-center justify-center lg:min-h-[650px]"
+          class="relative flex h-full min-h-[500px] items-center justify-center lg:min-h-[650px]"
         >
 
           <p
-            class="text-xs uppercase tracking-[0.25em] text-[var(--color-muted)]"
+            class="text-xs uppercase tracking-[0.25em] text-white"
           >
             SA / EST. 2026
           </p>
@@ -466,7 +528,7 @@
       <!-- Content -->
 
       <div
-        class="flex min-h-[500px] items-center px-8 py-20 sm:px-12 lg:min-h-[650px] lg:px-20"
+        class="flex min-h-[500px] items-center px-8 py-20 sm:px-12 lg:min-h-[650px] lg:px-20 fade-up fade-up-2"
       >
 
         <div class="max-w-lg">
@@ -524,7 +586,7 @@
   >
 
     <div
-      class="mx-auto max-w-[1440px] px-6 py-24 text-center sm:px-10 lg:px-16 lg:py-36"
+      class="mx-auto max-w-[1440px] px-6 py-24 text-center sm:px-10 lg:px-16 lg:py-36 fade-up"
     >
 
       <p

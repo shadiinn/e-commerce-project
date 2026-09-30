@@ -31,6 +31,7 @@ import {
 import {
   logout
 } from '../../../store/auth/auth.actions';
+import { ToastService } from '../../../core/services/toast.service';
 
 
 @Component({
@@ -52,6 +53,7 @@ export class NavbarComponent {
   private router = inject(Router);
   private store = inject(Store);
   private elementRef = inject(ElementRef);
+  toastService=inject(ToastService);
 
   isMenuOpen = signal(false);
   isAccountMenuOpen = signal(false);
@@ -167,6 +169,7 @@ export class NavbarComponent {
     this.router.navigate(
       ['/']
     );
+    this.toastService.success('Logged Out');
 
   }
 

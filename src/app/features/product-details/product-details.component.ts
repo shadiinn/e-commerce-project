@@ -42,12 +42,11 @@ import {
   selectActiveCartItems
 } from '../../store/cart/cart.selectors';
 
-import {
-  evaluateAddToCart
-} from '../../core/utils/cart.limits';
+import { evaluateAddToCart } from '../../core/utils/cart.limits';
 
 import {
-  selectProductById
+  selectProductById,
+  selectSimilarProducts
 } from '../../store/products/products.selectors';
 
 import {
@@ -58,7 +57,11 @@ import {
   Observable,
   take
 } from 'rxjs';
-import { ToastService } from '../../core/services/toast/toast.service';
+import { ToastService } from '../../core/services/toast.service';
+
+import {
+  ProductCardComponent
+} from '../../shared/components/product-card/product-card.component';
 
 
 @Component({
@@ -68,7 +71,8 @@ import { ToastService } from '../../core/services/toast/toast.service';
 
   imports: [
     RouterLink,
-    AsyncPipe
+    AsyncPipe,
+    ProductCardComponent
   ],
 
   templateUrl: './product-details.component.html',
@@ -118,6 +122,16 @@ export class ProductDetailsComponent
   // =====================================================
 
   isWishlisted$!: Observable<boolean>;
+
+
+  // =====================================================
+  // SIMILAR PRODUCTS (same category, current product excluded)
+  // =====================================================
+
+  similarProducts$: Observable<Product[]> =
+    this.store.select(
+      selectSimilarProducts('', '')
+    );
 
 
   // =====================================================
@@ -243,6 +257,19 @@ export class ProductDetailsComponent
 
 
         // -------------------------------------------------
+        // SIMILAR PRODUCTS
+        // -------------------------------------------------
+
+        this.similarProducts$ =
+          this.store.select(
+            selectSimilarProducts(
+              product.category,
+              product.id
+            )
+          );
+
+
+        // -------------------------------------------------
         // SELECT FIRST VARIANT
         // -------------------------------------------------
 
@@ -336,6 +363,37 @@ export class ProductDetailsComponent
 
     this.selectedImage.set(
       image
+    );
+
+  }
+
+
+  // =====================================================
+  // IMAGE ARROWS (previous / next within the selected variant)
+  // =====================================================
+
+  goToImage(
+    direction: 1 | -1
+  ): void {
+
+    const images =
+      this.selectedVariant()?.images ?? [];
+
+    if (images.length < 2) {
+      return;
+    }
+
+    const currentIndex =
+      images.indexOf(
+        this.selectedImage()
+      );
+
+    const nextIndex =
+      (currentIndex + direction + images.length) %
+      images.length;
+
+    this.selectedImage.set(
+      images[nextIndex]
     );
 
   }

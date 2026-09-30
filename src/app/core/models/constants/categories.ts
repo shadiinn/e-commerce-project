@@ -1,5 +1,3 @@
-
-
 export const CATEGORIES = [
   { name: 'Shirts', slug: 'shirts' },
   { name: 'Trousers', slug: 'trousers' },

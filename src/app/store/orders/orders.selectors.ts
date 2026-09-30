@@ -10,7 +10,17 @@ export const selectOrdersState =
 
 export const selectOrders = createSelector(
   selectOrdersState,
-  state => state.orders
+
+  // Newest order first. Sorted here (rather than where orders
+  // are loaded/added) so every consumer of selectOrders sees the
+  // same order, regardless of the order they were fetched or
+  // created in.
+  state =>
+    [...state.orders].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+    )
 );
 
 export const selectOrdersLoading = createSelector(

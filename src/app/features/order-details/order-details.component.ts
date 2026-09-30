@@ -1,7 +1,8 @@
 import {
   Component,
   inject,
-  OnInit
+  OnInit,
+  signal
 } from '@angular/core';
 
 import {
@@ -18,12 +19,15 @@ import {
 import { Store } from '@ngrx/store';
 
 import {
+  cancelOrder as cancelOrderAction,
   loadOrderById
 } from '../../store/orders/orders.actions';
 
 import {
   selectOrderById
 } from '../../store/orders/orders.selectors';
+
+import { Order } from '../../core/models/order.model';
 
 @Component({
   selector: 'app-order-details',
@@ -68,4 +72,71 @@ export class OrderDetailsComponent implements OnInit {
       })
     );
   }
+
+
+  // =====================================================
+  // CANCEL ORDER
+  // =====================================================
+
+  canCancel(order: Order): boolean {
+
+    return (
+      order.orderStatus === 'pending' ||
+      order.orderStatus === 'confirmed'
+    );
+
+  }
+
+
+  // Order the confirmation popup is currently open for
+  // (null when the popup is closed)
+  orderPendingCancellation =
+    signal<Order | null>(null);
+
+
+  requestCancelOrder(
+    order: Order
+  ): void {
+
+    if (!this.canCancel(order)) {
+      return;
+    }
+
+    this.orderPendingCancellation.set(
+      order
+    );
+
+  }
+
+
+  dismissCancelPopup(): void {
+
+    this.orderPendingCancellation.set(
+      null
+    );
+
+  }
+
+
+  confirmCancelOrder(): void {
+
+    const order =
+      this.orderPendingCancellation();
+
+    if (!order) {
+      return;
+    }
+
+    this.store.dispatch(
+      cancelOrderAction({
+        id: order.id
+      })
+    );
+
+    this.orderPendingCancellation.set(
+      null
+    );
+
+  }
+
 }

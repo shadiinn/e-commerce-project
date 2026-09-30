@@ -2,7 +2,7 @@ import {
   Component,
   inject
 } from '@angular/core';
-import { ToastService } from '../../../core/services/toast/toast.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 
 @Component({

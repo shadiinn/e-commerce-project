@@ -42,55 +42,16 @@ import {
   selectCurrentUser
 } from '../../store/auth/auth.selectors';
 
+import { Address } from '../../core/models/address.model';
 
-// =====================================================
-// VALIDATION PATTERNS
-// =====================================================
+import {
+  AddressStorageService
+} from '../../core/services/address-storage.service';
 
-// First / last name: letters and single spaces (same as auth form)
-const PERSON_NAME_PATTERN =
-  /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+import {
+  AddressFormComponent
+} from '../../shared/components/address-form/address-form.component';
 
-// Street address / apartment: letters (plus spaces and . , ' - / & ( )),
-// no numbers
-const ADDRESS_TEXT_PATTERN =
-  /^[A-Za-z][A-Za-z\s.,'\-\/&()]*$/;
-
-// City / state: letters with spaces, no numbers
-const PLACE_NAME_PATTERN =
-  /^[A-Za-z]+(?:[\s.'-]+[A-Za-z]+)*\s*$/;
-
-
-// =====================================================
-// SAVED ADDRESS
-// =====================================================
-
-interface SavedAddress {
-
-  id: string;
-
-  firstName: string;
-
-  lastName: string;
-
-  address: string;
-
-  apartment: string;
-
-  city: string;
-
-  state: string;
-
-  postalCode: string;
-
-  country: string;
-
-}
-
-
-// =====================================================
-// COMPONENT
-// =====================================================
 
 @Component({
   selector: 'app-checkout',
@@ -100,7 +61,8 @@ interface SavedAddress {
   imports: [
     AsyncPipe,
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
+    AddressFormComponent
   ],
 
   templateUrl: './checkout.component.html',
@@ -115,9 +77,14 @@ export class CheckoutComponent
   // DEPENDENCIES
   // =====================================================
 
-  private store = inject(Store);
+  private store =
+    inject(Store);
 
-  private fb = inject(FormBuilder);
+  private fb =
+    inject(FormBuilder);
+
+  private addressStorage =
+    inject(AddressStorageService);
 
 
   // =====================================================
@@ -149,11 +116,11 @@ export class CheckoutComponent
 
 
   // =====================================================
-  // SAVED ADDRESSES
+  // ADDRESS STATE
   // =====================================================
 
   savedAddresses =
-    signal<SavedAddress[]>([]);
+    signal<Address[]>([]);
 
 
   selectedAddressId =
@@ -164,16 +131,8 @@ export class CheckoutComponent
     signal(false);
 
 
-  editingAddressId =
-    signal<string | null>(null);
-
-
-  // =====================================================
-  // ADDRESS STORAGE
-  // =====================================================
-
-  private readonly ADDRESS_STORAGE_PREFIX =
-    'sa_saved_addresses_';
+  editingAddress =
+    signal<Address | null>(null);
 
 
   // =====================================================
@@ -181,11 +140,7 @@ export class CheckoutComponent
   // =====================================================
 
   checkoutForm =
-    this.fb.group({
-
-      // -----------------------------------------------
-      // CONTACT
-      // -----------------------------------------------
+    this.fb.nonNullable.group({
 
       email: [
         '',
@@ -205,66 +160,36 @@ export class CheckoutComponent
         ]
       ],
 
-
-      // -----------------------------------------------
-      // SHIPPING ADDRESS
-      // -----------------------------------------------
+      // These values are patched from
+      // the selected saved address.
 
       firstName: [
         '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PERSON_NAME_PATTERN
-          )
-        ]
+        Validators.required
       ],
 
       lastName: [
         '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PERSON_NAME_PATTERN
-          )
-        ]
+        Validators.required
       ],
 
       address: [
         '',
-        [
-          Validators.required,
-          Validators.pattern(
-            ADDRESS_TEXT_PATTERN
-          )
-        ]
+        Validators.required
       ],
 
       apartment: [
-        '',
-        Validators.pattern(
-          ADDRESS_TEXT_PATTERN
-        )
+        ''
       ],
 
       city: [
         '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PLACE_NAME_PATTERN
-          )
-        ]
+        Validators.required
       ],
 
       state: [
         '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PLACE_NAME_PATTERN
-          )
-        ]
+        Validators.required
       ],
 
       postalCode: [
@@ -282,11 +207,6 @@ export class CheckoutComponent
         Validators.required
       ],
 
-
-      // -----------------------------------------------
-      // PAYMENT
-      // -----------------------------------------------
-
       paymentMethod: [
         'cod',
         Validators.required
@@ -301,10 +221,6 @@ export class CheckoutComponent
 
   ngOnInit(): void {
 
-    // -------------------------------------------------
-    // LOAD CURRENT LOGGED-IN USER
-    // -------------------------------------------------
-
     this.store
       .select(selectCurrentUser)
       .pipe(take(1))
@@ -314,10 +230,6 @@ export class CheckoutComponent
           return;
         }
 
-
-        // ---------------------------------------------
-        // PREFILL CONTACT INFORMATION + NAME (FROM REGISTER)
-        // ---------------------------------------------
 
         this.checkoutForm.patchValue({
 
@@ -336,18 +248,10 @@ export class CheckoutComponent
         });
 
 
-        // ---------------------------------------------
-        // LOAD SAVED ADDRESSES
-        // ---------------------------------------------
-
         this.loadSavedAddresses();
 
       });
 
-
-    // -------------------------------------------------
-    // RELOAD SAVED ADDRESSES WHEN EMAIL CHANGES
-    // -------------------------------------------------
 
     this.checkoutForm
       .controls.email
@@ -362,41 +266,17 @@ export class CheckoutComponent
 
 
   // =====================================================
-  // ADDRESS STORAGE KEY
+  // LOAD ADDRESSES
   // =====================================================
 
-  private getAddressStorageKey(): string | null {
+  private loadSavedAddresses(): void {
 
     const email =
-      this.checkoutForm.controls.email.value
-        ?.trim()
-        .toLowerCase();
+      this.checkoutForm.controls.email.value;
 
 
     if (!email) {
 
-      return null;
-
-    }
-
-
-    return `${this.ADDRESS_STORAGE_PREFIX}${email}`;
-
-  }
-
-
-  // =====================================================
-  // LOAD SAVED ADDRESSES
-  // =====================================================
-
-  loadSavedAddresses(): void {
-
-    const key =
-      this.getAddressStorageKey();
-
-
-    if (!key) {
-
       this.savedAddresses.set([]);
 
       this.selectedAddressId.set(null);
@@ -406,91 +286,41 @@ export class CheckoutComponent
     }
 
 
-    const stored =
-      localStorage.getItem(key);
-
-
-    if (!stored) {
-
-      this.savedAddresses.set([]);
-
-      this.selectedAddressId.set(null);
-
-      return;
-
-    }
-
-
-    try {
-
-      const addresses =
-        JSON.parse(
-          stored
-        ) as SavedAddress[];
-
-
-      this.savedAddresses.set(
-        addresses.slice(0, 2)
+    const addresses =
+      this.addressStorage.getAddresses(
+        email
       );
 
 
-      const selectedId =
-        this.selectedAddressId();
-
-
-      const stillExists =
-        addresses.some(
-          address =>
-            address.id === selectedId
-        );
-
-
-      if (!stillExists) {
-
-        this.selectedAddressId.set(
-          null
-        );
-
-      }
-
-    } catch {
-
-      this.savedAddresses.set([]);
-
-      this.selectedAddressId.set(null);
-
-    }
-
-  }
-
-
-  // =====================================================
-  // SAVE ADDRESSES TO LOCAL STORAGE
-  // =====================================================
-
-  private persistAddresses(): void {
-
-    const key =
-      this.getAddressStorageKey();
-
-
-    if (!key) {
-      return;
-    }
-
-
-    localStorage.setItem(
-      key,
-      JSON.stringify(
-        this.savedAddresses()
-      )
+    this.savedAddresses.set(
+      addresses
     );
 
+
+    const selectedId =
+      this.selectedAddressId();
+
+
+    const selectedStillExists =
+      addresses.some(
+        address =>
+          address.id === selectedId
+      );
+
+
+    if (!selectedStillExists) {
+
+      this.selectedAddressId.set(
+        null
+      );
+
+    }
+
   }
 
 
   // =====================================================
-  // OPEN ADD ADDRESS FORM
+  // OPEN ADD ADDRESS
   // =====================================================
 
   openAddAddress(): void {
@@ -504,7 +334,7 @@ export class CheckoutComponent
     }
 
 
-    this.editingAddressId.set(
+    this.editingAddress.set(
       null
     );
 
@@ -512,49 +342,6 @@ export class CheckoutComponent
     this.selectedAddressId.set(
       null
     );
-
-
-    // -----------------------------------------------
-    // GET CURRENT USER
-    // -----------------------------------------------
-
-    this.store
-      .select(selectCurrentUser)
-      .pipe(take(1))
-      .subscribe(user => {
-
-        this.checkoutForm.patchValue({
-
-          // -----------------------------------------
-          // PREFILL USER INFORMATION
-          // -----------------------------------------
-
-          firstName:
-            user?.firstName ?? '',
-
-          lastName:
-            user?.lastName ?? '',
-
-
-          // -----------------------------------------
-          // NEW ADDRESS FIELDS
-          // -----------------------------------------
-
-          address: '',
-
-          apartment: '',
-
-          city: '',
-
-          state: '',
-
-          postalCode: '',
-
-          country: 'India'
-
-        });
-
-      });
 
 
     this.isAddressFormOpen.set(
@@ -565,118 +352,21 @@ export class CheckoutComponent
 
 
   // =====================================================
-  // SELECT SAVED ADDRESS
-  // =====================================================
-
-  selectAddress(
-    address: SavedAddress
-  ): void {
-
-    this.selectedAddressId.set(
-      address.id
-    );
-
-
-    this.isAddressFormOpen.set(
-      false
-    );
-
-
-    this.editingAddressId.set(
-      null
-    );
-
-
-    this.checkoutForm.patchValue({
-
-      firstName:
-        address.firstName,
-
-      lastName:
-        address.lastName,
-
-      address:
-        address.address,
-
-      apartment:
-        address.apartment,
-
-      city:
-        address.city,
-
-      state:
-        address.state,
-
-      postalCode:
-        address.postalCode,
-
-      country:
-        address.country
-
-    });
-
-
-    // Saved before the stricter rules (e.g. street contains
-    // numbers)? Open it for editing so the errors are visible.
-    if (!this.areAddressFieldsValid()) {
-
-      this.editAddress(address);
-
-    }
-
-  }
-
-
-  // =====================================================
-  // EDIT SAVED ADDRESS
+  // EDIT ADDRESS
   // =====================================================
 
   editAddress(
-    address: SavedAddress
+    address: Address
   ): void {
 
-    this.editingAddressId.set(
-      address.id
+    this.editingAddress.set(
+      address
     );
 
 
     this.selectedAddressId.set(
       address.id
     );
-
-
-    this.checkoutForm.patchValue({
-
-      firstName:
-        address.firstName,
-
-      lastName:
-        address.lastName,
-
-      address:
-        address.address,
-
-      apartment:
-        address.apartment,
-
-      city:
-        address.city,
-
-      state:
-        address.state,
-
-      postalCode:
-        address.postalCode,
-
-      country:
-        address.country
-
-    });
-
-
-    // Show validation messages right away for addresses that
-    // no longer satisfy the current rules
-    this.markAddressFieldsTouched();
 
 
     this.isAddressFormOpen.set(
@@ -687,291 +377,154 @@ export class CheckoutComponent
 
 
   // =====================================================
-  // ADDRESS FIELD HELPERS
+  // ADDRESS SAVED
   // =====================================================
 
-  private readonly ADDRESS_FIELDS = [
-
-    'firstName',
-
-    'lastName',
-
-    'address',
-
-    'apartment',
-
-    'city',
-
-    'state',
-
-    'postalCode',
-
-    'country'
-
-  ] as const;
-
-
-  private areAddressFieldsValid(): boolean {
-
-    return this.ADDRESS_FIELDS.every(
-      field =>
-        this.checkoutForm.controls[field].valid
-    );
-
-  }
-
-
-  private markAddressFieldsTouched(): void {
-
-    for (
-      const field of this.ADDRESS_FIELDS
-    ) {
-
-      this.checkoutForm
-        .controls[field]
-        .markAsTouched();
-
-    }
-
-  }
-
-
-  // =====================================================
-  // POSTAL CODE: DIGITS ONLY, MAX 6
-  // =====================================================
-
-  onPostalCodeInput(
-    event: Event
+  onAddressSaved(
+    address: Address
   ): void {
 
-    const input =
-      event.target as HTMLInputElement;
-
-    const digits =
-      input.value
-        .replace(/\D/g, '')
-        .slice(0, 6);
-
-    if (input.value !== digits) {
-
-      input.value = digits;
-
-      this.checkoutForm.controls
-        .postalCode
-        .setValue(digits);
-
-    }
-
-  }
-
-
-  // =====================================================
-  // SAVE ADDRESS
-  // =====================================================
-
-  saveAddress(): void {
-
-    const addressFields = [
-
-      'firstName',
-
-      'lastName',
-
-      'address',
-
-      'apartment',
-
-      'city',
-
-      'state',
-
-      'postalCode',
-
-      'country'
-
-    ] as const;
-
-
-    let invalid = false;
-
-
-    for (
-      const field of addressFields
-    ) {
-
-      const control =
-        this.checkoutForm.controls[field];
-
-
-      if (control.invalid) {
-
-        control.markAsTouched();
-
-        invalid = true;
-
-      }
-
-    }
-
-
-    if (invalid) {
-      return;
-    }
-
-
-    const formValue =
-      this.checkoutForm.getRawValue();
-
-
-    // =================================================
-    // EDIT EXISTING ADDRESS
-    // =================================================
-
     const editingId =
-      this.editingAddressId();
+      this.editingAddress()?.id;
 
+
+    let updatedAddresses: Address[];
+
+
+    // =================================================
+    // UPDATE
+    // =================================================
 
     if (editingId) {
 
-      const updatedAddresses =
+      updatedAddresses =
         this.savedAddresses().map(
-          address => {
-
-            if (
-              address.id !== editingId
-            ) {
-
-              return address;
-
-            }
-
-
-            return {
-
-              ...address,
-
-              firstName:
-                formValue.firstName!,
-
-              lastName:
-                formValue.lastName!,
-
-              address:
-                formValue.address!,
-
-              apartment:
-                formValue.apartment ?? '',
-
-              city:
-                formValue.city!,
-
-              state:
-                formValue.state!,
-
-              postalCode:
-                formValue.postalCode!,
-
-              country:
-                formValue.country!
-
-            };
-
-          }
+          existingAddress =>
+            existingAddress.id === editingId
+              ? address
+              : existingAddress
         );
 
+    }
 
-      this.savedAddresses.set(
-        updatedAddresses
-      );
+    // =================================================
+    // ADD
+    // =================================================
 
+    else {
 
-      this.selectedAddressId.set(
-        editingId
-      );
+      if (
+        this.savedAddresses().length >= 2
+      ) {
 
+        return;
 
-      this.persistAddresses();
-
-
-      this.isAddressFormOpen.set(
-        false
-      );
+      }
 
 
-      this.editingAddressId.set(
-        null
-      );
-
-
-      return;
+      updatedAddresses = [
+        ...this.savedAddresses(),
+        address
+      ];
 
     }
 
 
-    // =================================================
-    // ADD NEW ADDRESS
-    // =================================================
-
-    if (
-      this.savedAddresses().length >= 2
-    ) {
-
-      return;
-
-    }
-
-
-    const newAddress: SavedAddress = {
-
-      id:
-        this.generateAddressId(),
-
-      firstName:
-        formValue.firstName!,
-
-      lastName:
-        formValue.lastName!,
-
-      address:
-        formValue.address!,
-
-      apartment:
-        formValue.apartment ?? '',
-
-      city:
-        formValue.city!,
-
-      state:
-        formValue.state!,
-
-      postalCode:
-        formValue.postalCode!,
-
-      country:
-        formValue.country!
-
-    };
-
-
-    this.savedAddresses.update(
-      addresses => [
-        ...addresses,
-        newAddress
-      ]
+    this.savedAddresses.set(
+      updatedAddresses
     );
 
 
     this.selectedAddressId.set(
-      newAddress.id
+      address.id
     );
 
 
     this.persistAddresses();
 
 
+    this.patchCheckoutAddress(
+      address
+    );
+
+
+    this.editingAddress.set(
+      null
+    );
+
+
     this.isAddressFormOpen.set(
       false
     );
+
+  }
+
+
+  // =====================================================
+  // SELECT ADDRESS
+  // =====================================================
+
+  selectAddress(
+    address: Address
+  ): void {
+
+    this.selectedAddressId.set(
+      address.id
+    );
+
+
+    this.patchCheckoutAddress(
+      address
+    );
+
+
+    this.isAddressFormOpen.set(
+      false
+    );
+
+
+    this.editingAddress.set(
+      null
+    );
+
+  }
+
+
+  // =====================================================
+  // PATCH CHECKOUT ADDRESS
+  // =====================================================
+
+  private patchCheckoutAddress(
+    address: Address
+  ): void {
+
+    this.checkoutForm.patchValue({
+
+      firstName:
+        address.firstName,
+
+      lastName:
+        address.lastName,
+
+      address:
+        address.address,
+
+      apartment:
+        address.apartment,
+
+      city:
+        address.city,
+
+      state:
+        address.state,
+
+      postalCode:
+        address.postalCode,
+
+      country:
+        address.country
+
+    });
 
   }
 
@@ -982,60 +535,12 @@ export class CheckoutComponent
 
   cancelAddressForm(): void {
 
-    const selectedId =
-      this.selectedAddressId();
-
-
-    if (selectedId) {
-
-      const selectedAddress =
-        this.savedAddresses().find(
-          address =>
-            address.id === selectedId
-        );
-
-
-      if (selectedAddress) {
-
-        this.checkoutForm.patchValue({
-
-          firstName:
-            selectedAddress.firstName,
-
-          lastName:
-            selectedAddress.lastName,
-
-          address:
-            selectedAddress.address,
-
-          apartment:
-            selectedAddress.apartment,
-
-          city:
-            selectedAddress.city,
-
-          state:
-            selectedAddress.state,
-
-          postalCode:
-            selectedAddress.postalCode,
-
-          country:
-            selectedAddress.country
-
-        });
-
-      }
-
-    }
-
-
     this.isAddressFormOpen.set(
       false
     );
 
 
-    this.editingAddressId.set(
+    this.editingAddress.set(
       null
     );
 
@@ -1043,14 +548,27 @@ export class CheckoutComponent
 
 
   // =====================================================
-  // GENERATE ADDRESS ID
+  // PERSIST ADDRESSES
   // =====================================================
 
-  private generateAddressId(): string {
+  private persistAddresses(): void {
 
-    return `address-${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 8)}`;
+    const email =
+      this.checkoutForm.controls.email.value;
+
+
+    if (!email) {
+      return;
+    }
+
+
+    this.addressStorage.saveAddresses(
+
+      email,
+
+      this.savedAddresses()
+
+    );
 
   }
 
@@ -1077,9 +595,7 @@ export class CheckoutComponent
       .subscribe(items => {
 
         if (!items.length) {
-
           return;
-
         }
 
 
@@ -1120,34 +636,34 @@ export class CheckoutComponent
           shippingAddress: {
 
             firstName:
-              formValue.firstName!,
+              formValue.firstName,
 
             lastName:
-              formValue.lastName!,
+              formValue.lastName,
 
             address:
-              formValue.address!,
+              formValue.address,
 
             apartment:
-              formValue.apartment ?? '',
+              formValue.apartment,
 
             city:
-              formValue.city!,
+              formValue.city,
 
             state:
-              formValue.state!,
+              formValue.state,
 
             postalCode:
-              formValue.postalCode!,
+              formValue.postalCode,
 
             country:
-              formValue.country!,
+              formValue.country,
 
             phone:
-              formValue.phone!,
+              formValue.phone,
 
             email:
-              formValue.email!
+              formValue.email
 
           },
 

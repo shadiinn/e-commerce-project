@@ -31,6 +31,7 @@ import {
   selectAuthError,
   selectAuthLoading
 } from '../../store/auth/auth.selectors';
+import { ToastService } from '../../core/services/toast.service';
 
 
 @Component({
@@ -62,6 +63,8 @@ export class AuthComponent {
   private router = inject(Router);
 
   private location = inject(Location);
+  toastService=inject(ToastService);
+
 
 
   // =====================================================
@@ -360,7 +363,7 @@ export class AuthComponent {
       })
 
     );
-
+    this.toastService.success('Login Successful');
   }
 
 
@@ -409,6 +412,7 @@ export class AuthComponent {
       })
 
     );
+    this.toastService.success('Registration Successful');
 
   }
 

@@ -1,7 +1,9 @@
 import {
   Component,
   computed,
-  inject
+  ElementRef,
+  inject,
+  ViewChild
 } from '@angular/core';
 
 import {
@@ -17,7 +19,7 @@ import {
 } from '@angular/core/rxjs-interop';
 
 import {
-  selectAllProducts
+  selectFeaturedProducts
 } from '../../store/products/products.selectors';
 
 
@@ -36,24 +38,12 @@ export class HomeComponent {
 
 
   // =========================================================
-  // PRODUCTS
-  // =========================================================
-
-  products = toSignal(
-    this.store.select(selectAllProducts),
-    {
-      initialValue: []
-    }
-  );
-
-
-  // =========================================================
-  // NEW ARRIVALS
+  // FEATURED PRODUCTS
   // =========================================================
   //
-  // We use products marked with isNew === true.
-  //
-  // Only the first 4 products are displayed on the Home page.
+  // What counts as "featured" and how many come back is
+  // entirely decided in selectFeaturedProducts (products.selectors.ts)
+  // — this component just displays whatever it returns.
   //
   // The image is taken from:
   //
@@ -63,11 +53,16 @@ export class HomeComponent {
   //
   // =========================================================
 
-  newArrivals = computed(() => {
+  private featuredProductsRaw = toSignal(
+    this.store.select(selectFeaturedProducts),
+    {
+      initialValue: []
+    }
+  );
 
-    return this.products()
-      .filter(product => product.isNew)
-      .slice(0, 4)
+  featuredProducts = computed(() => {
+
+    return this.featuredProductsRaw()
       .map(product => ({
 
         id: product.id,
@@ -82,5 +77,37 @@ export class HomeComponent {
       }));
 
   });
+
+
+  // =========================================================
+  // SWIPE / SCROLL CONTROLS
+  // =========================================================
+  //
+  // Touch/trackpad swiping works natively through the scroll
+  // container's own CSS (overflow-x-auto + scroll-snap). These
+  // arrow buttons are just a convenience for mouse users.
+  //
+  // =========================================================
+
+  @ViewChild('featuredScroller')
+  private featuredScroller?: ElementRef<HTMLDivElement>;
+
+  scrollFeatured(
+    direction: 1 | -1
+  ): void {
+
+    const el =
+      this.featuredScroller?.nativeElement;
+
+    if (!el) {
+      return;
+    }
+
+    el.scrollBy({
+      left: el.clientWidth * 0.85 * direction,
+      behavior: 'smooth'
+    });
+
+  }
 
 }

@@ -64,7 +64,7 @@ import {
 
 import {
   ToastService
-} from '../../core/services/toast/toast.service';
+} from '../../core/services/toast.service';
 
 import {
   loadCart,

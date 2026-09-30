@@ -1,59 +1,121 @@
 <section class="min-h-screen bg-brand-background">
 
-  <div class="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+  <div
+    class="mx-auto max-w-5xl px-6 py-16 sm:py-20"
+  >
 
     @if (currentUser$ | async; as user) {
 
-      <!-- Header -->
 
-      <div class="border-b border-brand-border pb-8">
+      <!-- ================================================= -->
+      <!-- HEADER -->
+      <!-- ================================================= -->
 
-        <p
-          class="text-xs uppercase tracking-[0.25em] text-brand-muted"
+      <div
+        class="flex flex-col gap-6 border-b border-brand-border pb-8 sm:flex-row sm:items-end sm:justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-xs uppercase tracking-[0.25em] text-brand-muted"
+          >
+            Account
+          </p>
+
+          <h1
+            class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
+          >
+            My Account
+          </h1>
+
+          <p
+            class="mt-3 text-sm text-brand-muted"
+          >
+            Manage your personal information and account details.
+          </p>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <button
+          type="button"
+          (click)="logout()"
+          routerLink="/"
+          class="shrink-0 bg-brand-text px-7 py-3 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
         >
-          Account
-        </p>
-
-        <h1
-          class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
-        >
-          My Account
-        </h1>
-
-        <p
-          class="mt-3 text-sm text-brand-muted"
-        >
-          Manage your personal information and account details.
-        </p>
+          Log Out
+        </button>
 
       </div>
 
 
-      <!-- Welcome -->
+      <!-- ================================================= -->
+      <!-- WELCOME -->
+      <!-- ================================================= -->
 
-      <div class="mt-10">
+      <div
+        class="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center"
+      >
 
-        <p
-          class="text-xs uppercase tracking-[0.2em] text-brand-muted"
-        >
-          Welcome back
-        </p>
-
-        <h2
-          class="mt-3 text-2xl font-light text-brand-text"
-        >
-          {{ user.firstName }} {{ user.lastName }}
-        </h2>
-
-      </div>
-
-
-      <!-- Personal Information -->
-
-      <div class="mt-12">
+        <!-- PROFILE IMAGE -->
 
         <div
-          class="border-b border-brand-border pb-4"
+          class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface"
+        >
+
+          @if (user.profileImage) {
+
+            <img
+              [src]="user.profileImage"
+              alt="Profile picture"
+              class="h-full w-full object-cover"
+            />
+
+          } @else {
+
+            <span
+              class="text-lg font-light tracking-wide text-brand-text"
+            >
+              {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+            </span>
+
+          }
+
+        </div>
+
+
+        <div>
+
+          <p
+            class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+          >
+            Welcome back
+          </p>
+
+          <h2
+            class="mt-3 text-2xl font-light text-brand-text"
+          >
+            {{ user.firstName }} {{ user.lastName }}
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- PERSONAL INFORMATION -->
+      <!-- ================================================= -->
+
+      <div
+        class="mt-12"
+      >
+
+        <div
+          class="flex items-end justify-between border-b border-brand-border pb-4"
         >
 
           <h2
@@ -62,96 +124,637 @@
             Personal Information
           </h2>
 
+
+          @if (!isEditingProfile()) {
+
+            <button
+              type="button"
+              (click)="startEditingProfile()"
+              class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+            >
+              Edit
+            </button>
+
+          }
+
         </div>
 
 
-        <div
-          class="divide-y divide-brand-border border-b border-brand-border"
-        >
-
-          <!-- Name -->
-
-          <div
-            class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between"
-          >
-
-            <p
-              class="text-xs uppercase tracking-[0.12em] text-brand-muted"
-            >
-              Name
-            </p>
-
-            <p
-              class="text-sm text-brand-text sm:text-right"
-            >
-              {{ user.firstName }}
-              {{ user.lastName }}
-            </p>
-
-          </div>
+        @if (!isEditingProfile()) {
 
 
-          <!-- Email -->
+          <!-- ================================================= -->
+          <!-- VIEW MODE -->
+          <!-- ================================================= -->
 
           <div
-            class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between"
+            class="divide-y divide-brand-border border-b border-brand-border"
           >
 
-            <p
-              class="text-xs uppercase tracking-[0.12em] text-brand-muted"
+            <!-- NAME -->
+
+            <div
+              class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between"
             >
-              Email
-            </p>
 
-            <p
-              class="text-sm text-brand-text sm:text-right"
-            >
-              {{ user.email }}
-            </p>
-
-          </div>
-
-
-          <!-- Phone -->
-
-          <div
-            class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between"
-          >
-
-            <p
-              class="text-xs uppercase tracking-[0.12em] text-brand-muted"
-            >
-              Phone
-            </p>
-
-            @if (user.phone) {
+              <p
+                class="text-xs uppercase tracking-[0.12em] text-brand-muted"
+              >
+                Name
+              </p>
 
               <p
                 class="text-sm text-brand-text sm:text-right"
               >
-                {{ user.phone }}
+                {{ user.firstName }}
+                {{ user.lastName }}
               </p>
 
-            } @else {
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div
+              class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between"
+            >
 
               <p
-                class="text-sm text-brand-muted sm:text-right"
+                class="text-xs uppercase tracking-[0.12em] text-brand-muted"
               >
-                Not provided
+                Email
               </p>
+
+              <p
+                class="text-sm text-brand-text sm:text-right"
+              >
+                {{ user.email }}
+              </p>
+
+            </div>
+
+
+            <!-- PHONE -->
+
+            <div
+              class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between"
+            >
+
+              <p
+                class="text-xs uppercase tracking-[0.12em] text-brand-muted"
+              >
+                Phone
+              </p>
+
+              @if (user.phone) {
+
+                <p
+                  class="text-sm text-brand-text sm:text-right"
+                >
+                  {{ user.phone }}
+                </p>
+
+              } @else {
+
+                <p
+                  class="text-sm text-brand-muted sm:text-right"
+                >
+                  Not provided
+                </p>
+
+              }
+
+            </div>
+
+          </div>
+
+
+        } @else {
+
+
+          <!-- ================================================= -->
+          <!-- EDIT MODE -->
+          <!-- ================================================= -->
+
+          <form
+            [formGroup]="profileForm"
+            class="border-b border-brand-border py-7"
+          >
+
+
+            <!-- PROFILE IMAGE -->
+
+            <div
+              class="flex flex-col gap-5 sm:flex-row sm:items-center"
+            >
+
+              <div
+                class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface"
+              >
+
+                @if (profileImagePreview()) {
+
+                  <img
+                    [src]="profileImagePreview()!"
+                    alt="Profile picture preview"
+                    class="h-full w-full object-cover"
+                  />
+
+                } @else {
+
+                  <span
+                    class="text-xl font-light text-brand-text"
+                  >
+                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                  </span>
+
+                }
+
+              </div>
+
+
+              <div>
+
+                <p
+                  class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text"
+                >
+                  Profile Picture
+                </p>
+
+                <p
+                  class="mt-2 text-xs text-brand-muted"
+                >
+                  Upload a profile picture for your account.
+                </p>
+
+
+                <div
+                  class="mt-4 flex flex-wrap gap-3"
+                >
+
+                  <label
+                    class="cursor-pointer border border-brand-border px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:border-brand-text"
+                  >
+
+                    Choose Photo
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      class="hidden"
+                      (change)="onProfileImageSelected($event)"
+                    />
+
+                  </label>
+
+
+                  @if (profileImagePreview()) {
+
+                    <button
+                      type="button"
+                      (click)="removeProfileImage()"
+                      class="px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+                    >
+                      Remove
+                    </button>
+
+                  }
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <div
+              class="mt-8 grid gap-5 sm:grid-cols-2"
+            >
+
+              <!-- FIRST NAME -->
+
+              <div>
+
+                <label
+                  for="profileFirstName"
+                  class="text-[11px] text-brand-muted"
+                >
+                  First Name
+                </label>
+
+                <input
+                  id="profileFirstName"
+                  type="text"
+                  formControlName="firstName"
+                  class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                />
+
+                @if (
+                  profileForm.controls.firstName.touched &&
+                  profileForm.controls.firstName.invalid
+                ) {
+
+                  <p
+                    class="mt-2 text-[10px] text-red-600"
+                  >
+                    Enter a valid first name.
+                  </p>
+
+                }
+
+              </div>
+
+
+              <!-- LAST NAME -->
+
+              <div>
+
+                <label
+                  for="profileLastName"
+                  class="text-[11px] text-brand-muted"
+                >
+                  Last Name
+                </label>
+
+                <input
+                  id="profileLastName"
+                  type="text"
+                  formControlName="lastName"
+                  class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+                />
+
+                @if (
+                  profileForm.controls.lastName.touched &&
+                  profileForm.controls.lastName.invalid
+                ) {
+
+                  <p
+                    class="mt-2 text-[10px] text-red-600"
+                  >
+                    Enter a valid last name.
+                  </p>
+
+                }
+
+              </div>
+
+
+              <!-- EMAIL -->
+
+              <div>
+
+                <label
+                  for="profileEmail"
+                  class="text-[11px] text-brand-muted"
+                >
+                  Email
+                </label>
+
+                <input
+                  id="profileEmail"
+                  type="email"
+                  [value]="user.email"
+                  readonly
+                  class="mt-2 w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-muted outline-none"
+                />
+
+                <p
+                  class="mt-2 text-[10px] text-brand-muted"
+                >
+                  Email cannot be changed.
+                </p>
+
+              </div>
+
+
+              <!-- PHONE -->
+
+              <div>
+
+                <label
+                  for="profilePhone"
+                  class="text-[11px] text-brand-muted"
+                >
+                  Phone
+                </label>
+
+                <input
+                  id="profilePhone"
+                  type="tel"
+                  inputmode="numeric"
+                  formControlName="phone"
+                  placeholder="10 digit mobile number"
+                  class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+                />
+
+                @if (
+                  profileForm.controls.phone.touched &&
+                  profileForm.controls.phone.invalid
+                ) {
+
+                  <p
+                    class="mt-2 text-[10px] text-red-600"
+                  >
+                    Enter a valid 10 digit phone number.
+                  </p>
+
+                }
+
+              </div>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            @if (authError$ | async; as error) {
+
+              <div
+                class="mt-6 border border-red-200 bg-red-50 px-4 py-3"
+              >
+
+                <p
+                  class="text-xs text-red-600"
+                >
+                  {{ error }}
+                </p>
+
+              </div>
+
+            }
+
+
+            <!-- ACTIONS -->
+
+            <div
+              class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+            >
+
+              <button
+                type="button"
+                (click)="cancelEditingProfile()"
+                class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+              >
+                Cancel
+              </button>
+
+
+              <button
+                type="button"
+                (click)="saveProfile()"
+                [disabled]="authLoading$ | async"
+                class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+
+                @if (authLoading$ | async) {
+                  Saving...
+                } @else {
+                  Save Changes
+                }
+
+              </button>
+
+            </div>
+
+          </form>
+
+        }
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- SAVED ADDRESSES -->
+      <!-- ================================================= -->
+
+      <div
+        class="mt-12"
+      >
+
+        <div
+          class="flex items-end justify-between border-b border-brand-border pb-4"
+        >
+
+          <div>
+
+            <h2
+              class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text"
+            >
+              Saved Addresses
+            </h2>
+
+            <p
+              class="mt-2 text-xs text-brand-muted"
+            >
+              Manage the addresses you use for checkout.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SAVED ADDRESSES -->
+        <!-- ================================================= -->
+
+        @if (savedAddresses().length > 0) {
+
+          <div
+            class="mt-6 space-y-3"
+          >
+
+            @for (
+              address of savedAddresses();
+              track address.id
+            ) {
+
+              <div
+                class="group border border-brand-border p-5 transition-colors duration-200 hover:border-brand-text"
+              >
+
+                <div
+                  class="flex items-start justify-between gap-5"
+                >
+
+                  <div>
+
+                    <p
+                      class="text-sm font-medium text-brand-text"
+                    >
+                      {{ address.firstName }}
+                      {{ address.lastName }}
+                    </p>
+
+                    <p
+                      class="mt-2 text-xs leading-5 text-brand-muted"
+                    >
+
+                      {{ address.address }}
+
+                      @if (address.apartment) {
+
+                        <span>
+                          , {{ address.apartment }}
+                        </span>
+
+                      }
+
+                      <br />
+
+                      {{ address.city }},
+                      {{ address.state }}
+                      {{ address.postalCode }}
+
+                      <br />
+
+                      {{ address.country }}
+
+                    </p>
+
+                  </div>
+
+
+                  <span
+                    class="shrink-0 text-[9px] font-medium uppercase tracking-[0.15em] text-brand-muted"
+                  >
+                    Saved
+                  </span>
+
+                </div>
+
+
+                <!-- EDIT -->
+
+                <div
+                  class="mt-4 border-t border-brand-border pt-4"
+                >
+
+                  <button
+                    type="button"
+                    (click)="editAddress(address)"
+                    class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+                  >
+                    Edit Address
+                  </button>
+
+                </div>
+
+              </div>
 
             }
 
           </div>
 
-        </div>
+        }
+
+
+        <!-- ================================================= -->
+        <!-- ADD ADDRESS -->
+        <!-- ================================================= -->
+
+        @if (
+          !isAddressFormOpen() &&
+          savedAddresses().length < 2
+        ) {
+
+          <div
+            class="mt-5"
+          >
+
+            <button
+              type="button"
+              (click)="openAddAddress()"
+              class="group flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
+            >
+
+              <span
+                class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+              ></span>
+
+              Add New Address
+
+              <span
+                class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
+              ></span>
+
+            </button>
+
+          </div>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- REUSABLE ADDRESS FORM -->
+        <!-- ================================================= -->
+
+        @if (isAddressFormOpen()) {
+
+          <div class="mt-7">
+
+            <app-address-form
+              [address]="editingAddress()"
+              [firstName]="user.firstName"
+              [lastName]="user.lastName"
+              (saved)="onAddressSaved($event)"
+              (cancelled)="cancelAddressForm()"
+            />
+
+          </div>
+
+        }
+
+
+        <!-- ================================================= -->
+        <!-- NO ADDRESS -->
+        <!-- ================================================= -->
+
+        @if (
+          savedAddresses().length === 0 &&
+          !isAddressFormOpen()
+        ) {
+
+          <div
+            class="mt-6 border border-dashed border-brand-border p-8 text-center"
+          >
+
+            <p
+              class="text-sm font-light text-brand-text"
+            >
+              No saved address
+            </p>
+
+            <p
+              class="mt-2 text-xs leading-5 text-brand-muted"
+            >
+              Add a shipping address to use it during checkout.
+            </p>
+
+            <button
+              type="button"
+              (click)="openAddAddress()"
+              class="mt-5 bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
+            >
+              Add Address
+            </button>
+
+          </div>
+
+        }
 
       </div>
 
 
-      <!-- Quick Links -->
+      <!-- ================================================= -->
+      <!-- QUICK LINKS -->
+      <!-- ================================================= -->
 
-      <div class="mt-12">
+      <div
+        class="mt-12"
+      >
 
         <div
           class="border-b border-brand-border pb-4"
@@ -170,7 +773,7 @@
           class="divide-y divide-brand-border border-b border-brand-border"
         >
 
-          <!-- Orders -->
+          <!-- ORDERS -->
 
           <a
             routerLink="/orders"
@@ -202,7 +805,7 @@
           </a>
 
 
-          <!-- Wishlist -->
+          <!-- WISHLIST -->
 
           <a
             routerLink="/wishlist"
@@ -236,47 +839,6 @@
         </div>
 
       </div>
-
-
-    } @else {
-
-      <!-- No User -->
-
-      <div
-        class="flex min-h-[60vh] items-center justify-center text-center"
-      >
-
-        <div>
-
-          <p
-            class="text-xs uppercase tracking-[0.25em] text-brand-muted"
-          >
-            Account
-          </p>
-
-          <h1
-            class="mt-4 text-2xl font-light text-brand-text"
-          >
-            Please sign in
-          </h1>
-
-          <p
-            class="mx-auto mt-3 max-w-md text-sm leading-6 text-brand-muted"
-          >
-            Sign in to view and manage your account.
-          </p>
-
-          <a
-            routerLink="/login"
-            class="mt-8 inline-flex bg-brand-text px-8 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
-          >
-            Sign In
-          </a>
-
-        </div>
-
-      </div>
-
     }
 
   </div>

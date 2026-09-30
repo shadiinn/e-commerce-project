@@ -20,7 +20,7 @@ import {
   selectIsAuthenticated
 } from '../../../store/auth/auth.selectors';
 import { take } from 'rxjs';
-import { ToastService } from '../../../core/services/toast/toast.service';
+import { ToastService } from '../../../core/services/toast.service';
 import {
   selectActiveCartItems
 } from '../../../store/cart/cart.selectors';

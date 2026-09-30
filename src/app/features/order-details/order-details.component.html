@@ -408,7 +408,86 @@
           Continue Shopping
         </a>
 
+
+        <!-- Cancel Order -->
+
+        @if (canCancel(order)) {
+
+          <button
+            type="button"
+            (click)="requestCancelOrder(order)"
+            class="border border-red-300 px-8 py-4 text-center text-xs font-medium uppercase tracking-[0.15em] text-red-600 transition-colors hover:border-red-600"
+          >
+            Cancel Order
+          </button>
+
+        }
+
       </div>
+
+
+      <!-- ================================================= -->
+      <!-- CANCEL ORDER — CONFIRMATION POPUP -->
+      <!-- ================================================= -->
+
+      @if (orderPendingCancellation(); as pendingOrder) {
+
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
+          (click)="dismissCancelPopup()"
+        >
+
+          <div
+            class="w-full max-w-sm border border-brand-border bg-brand-background p-7"
+            (click)="$event.stopPropagation()"
+          >
+
+            <p
+              class="text-xs uppercase tracking-[0.2em] text-brand-muted"
+            >
+              Cancel Order
+            </p>
+
+            <h2
+              class="mt-3 text-lg font-medium text-brand-text"
+            >
+              Cancel {{ pendingOrder.orderNumber }}?
+            </h2>
+
+            <p
+              class="mt-3 text-sm leading-6 text-brand-muted"
+            >
+              This can't be undone. Your order will be
+              marked as cancelled.
+            </p>
+
+            <div
+              class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+            >
+
+              <button
+                type="button"
+                (click)="dismissCancelPopup()"
+                class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+              >
+                Keep Order
+              </button>
+
+              <button
+                type="button"
+                (click)="confirmCancelOrder()"
+                class="bg-red-600 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-90"
+              >
+                Yes, Cancel Order
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      }
 
 
     } @else {
