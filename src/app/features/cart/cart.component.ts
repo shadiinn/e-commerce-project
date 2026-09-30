@@ -1,94 +1,53 @@
-import {
-  AsyncPipe
-} from '@angular/common';
-
-import {
-  Component,
-  inject
-} from '@angular/core';
-
-import {
-  Router,
-  RouterLink
-} from '@angular/router';
-
-import {
-  Store
-} from '@ngrx/store';
-
+import {AsyncPipe} from '@angular/common';
+import {Component,inject} from '@angular/core';
+import {Router,RouterLink} from '@angular/router';
+import {Store} from '@ngrx/store';
 import {
   selectCartItemsWithProducts,
   selectCartItemCount,
   selectCartSubtotal
 } from '../../store/cart/cart.selectors';
-
 import {
   increaseQuantity,
   decreaseQuantity,
   removeFromCart,
   clearCart,
-
   increaseGuestQuantity,
   decreaseGuestQuantity,
   removeGuestItem,
   clearGuestCart
 } from '../../store/cart/cart.actions';
-
-import {
-  selectIsAuthenticated
-} from '../../store/auth/auth.selectors';
-
-import {
-  startCheckout
-} from '../../store/checkout/checkout.actions';
-
-import {
-  take
-} from 'rxjs';
-
+import {selectIsAuthenticated} from '../../store/auth/auth.selectors';
+import {startCheckout} from '../../store/checkout/checkout.actions';
+import {take} from 'rxjs';
 import {
   checkQuantityLimit,
   getSizeStock,
   quantityLimitNote
 } from '../../core/utils/cart.limits';
 
-
 @Component({
   selector: 'app-cart',
-
   standalone: true,
-
   imports: [
     RouterLink,
     AsyncPipe
   ],
-
   templateUrl: './cart.component.html',
-
   styleUrl: './cart.component.css'
 })
 export class CartComponent {
 
-  private store =
-    inject(Store);
+  private store =inject(Store);
+  private router =inject(Router);
 
-  private router =
-    inject(Router);
-
-
-  // =====================================================
   // AUTHENTICATION
-  // =====================================================
 
-  isAuthenticated$ =
-    this.store.select(
+  isAuthenticated$ =this.store.select(
       selectIsAuthenticated
-    );
+  );
 
-
-  // =====================================================
   // CART ITEMS
-  // =====================================================
 
   cartItems$ =
     this.store.select(

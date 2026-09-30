@@ -33,9 +33,7 @@ import {
   tap
 } from 'rxjs';
 
-import {
-  AuthService
-} from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 import { AuthStorageService } from '../../core/services/auth-storage.service';
 

@@ -71,7 +71,7 @@
           <p
             class="mt-1 text-[10px] text-red-600"
           >
-            Enter a valid first name.
+            letters only
           </p>
 
         }
@@ -103,7 +103,7 @@
           <p
             class="mt-1 text-[10px] text-red-600"
           >
-            Enter a valid last name.
+            letters only
           </p>
 
         }
@@ -312,8 +312,9 @@
 
         <input
           type="text"
+          readonly
           formControlName="country"
-          class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+          class="mt-2 w-full cursor-not-allowed border border-brand-border bg-gray-100 px-3 py-3 text-sm text-brand-muted outline-none"
         />
 
         @if (
@@ -352,7 +353,8 @@
 
       <button
         type="submit"
-        class="bg-brand-text px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-80"
+        [disabled]="addressForm.invalid"
+        class="bg-brand-text px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {{ address() ? 'Update Address' : 'Save Address' }}
       </button>

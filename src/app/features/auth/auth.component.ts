@@ -159,7 +159,7 @@ export class AuthComponent {
       [
         Validators.required,
         Validators.pattern(
-          /^[0-9]{10}$/
+          /^[6-9]\d{9}$/
         )
       ]
     ],
@@ -170,7 +170,7 @@ export class AuthComponent {
         Validators.required,
         Validators.minLength(6),
         Validators.pattern(
-          /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/
+          /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])\S{6,}$/
         )
       ]
     ],
@@ -413,6 +413,7 @@ export class AuthComponent {
 
     );
     this.toastService.success('Registration Successful');
+    this.showLogin();
 
   }
 

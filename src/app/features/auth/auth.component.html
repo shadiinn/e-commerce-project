@@ -110,7 +110,7 @@
                             }
                           </span>
                         } @else {
-                          <button type="button" class="text-[9px] text-[#77736e] transition-colors hover:text-[#151515]">Forgot password?</button>
+                          <!-- <button type="button" class="text-[9px] text-[#77736e] transition-colors hover:text-[#151515]">Forgot password?</button> -->
                         }
                       </div>
                       <div class="relative">
@@ -136,12 +136,8 @@
                       </div>
                     </div>
 
-                    <button type="submit" [disabled]="loading$ | async" class="w-full border border-[#151515] bg-[#151515] px-5 py-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 hover:bg-white hover:text-[#151515] disabled:cursor-not-allowed disabled:opacity-50 mt-1">
-                      @if (loading$ | async) {
-                        Signing in...
-                      } @else {
+                    <button type="submit" [disabled]="loginForm.invalid" class="w-full border border-[#151515] bg-[#151515] px-5 py-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 hover:bg-white hover:text-[#151515] disabled:cursor-not-allowed disabled:opacity-50 mt-1">
                         Sign In
-                      }
                     </button>
 
                   </form>
@@ -232,8 +228,6 @@
                               Required
                             } @else if (registerForm.get('email')?.hasError('email')) {
                               Enter a valid email
-                            } @else if (registerForm.get('email')?.hasError('emailExists')) {
-                              Already registered
                             }
                           </span>
                         }
@@ -257,7 +251,7 @@
                           </span>
                         }
                       </div>
-                      <input id="phone" type="tel" formControlName="phone" placeholder="9876543210" autocomplete="tel"
+                      <input id="phone" type="tel" formControlName="phone" placeholder="9876543210" autocomplete="tel" maxlength="10"
                         [style.border-bottom-color]="(registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid) ? '#dc2626' : null"
                         [attr.aria-invalid]="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid"
                         class="w-full border-0 border-b border-[#d8d3cd] bg-transparent px-0 py-2 text-[12px] text-[#151515] outline-none placeholder:text-[#aaa6a1] focus:border-[#151515] transition-colors duration-200">
@@ -274,7 +268,7 @@
                               Password must contain at least 6 characters.
                             } @else if (registerForm.get('password')?.hasError('pattern')) {
                               Password must contain an uppercase letter &amp;<br>
-                              a number &amp; a special character.
+                              a number &amp; a special character &amp; no spaces.
                             }
                           </span>
                         }
@@ -338,12 +332,8 @@
                       </div>
                     </div>
 
-                    <button type="submit" [disabled]="loading$ | async" class="w-full border border-[#151515] bg-[#151515] px-5 py-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 hover:bg-white hover:text-[#151515] disabled:cursor-not-allowed disabled:opacity-50 mt-2">
-                      @if (loading$ | async) {
-                        Creating Account...
-                      } @else {
+                    <button type="submit" [disabled]="registerForm.invalid" class="w-full border border-[#151515] bg-[#151515] px-5 py-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-200 hover:bg-white hover:text-[#151515] disabled:cursor-not-allowed disabled:opacity-50 mt-2">
                         Create Account
-                      }
                     </button>
 
                   </form>
