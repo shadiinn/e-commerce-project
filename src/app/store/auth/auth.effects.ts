@@ -22,7 +22,9 @@ import {
   restoreAuth,
   restoreAuthSuccess,
 
-  logout
+  logout,
+  registrationEmailAvailable,
+  checkRegistrationEmail
 } from './auth.actions';
 
 import {
@@ -487,5 +489,54 @@ export class AuthEffects {
       }
 
     );
+
+  checkRegistrationEmail$ = createEffect(() =>
+    this.actions$.pipe(
+
+      ofType(checkRegistrationEmail),
+
+      switchMap(({ email }) =>
+
+        this.authService
+          .checkEmailExists(email)
+          .pipe(
+
+            switchMap(users => {
+
+              if (users.length > 0) {
+
+                return of(
+                  registerFailure({
+                    error:
+                      'An account with this email already exists.'
+                  })
+                );
+
+              }
+
+              return of(
+                registrationEmailAvailable({
+                  email
+                })
+              );
+
+            }),
+
+            catchError(error =>
+              of(
+                registerFailure({
+                  error:
+                    error.message ??
+                    'Unable to verify email'
+                })
+              )
+            )
+
+          )
+
+      )
+
+    )
+  );
 
 }

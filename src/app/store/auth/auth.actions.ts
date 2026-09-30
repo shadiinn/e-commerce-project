@@ -162,3 +162,12 @@ export const loginDataMergeComplete = createAction(
   }>()
 
 );
+export const checkRegistrationEmail = createAction(
+  '[Auth] Check Registration Email',
+  props<{ email: string }>()
+);
+
+export const registrationEmailAvailable = createAction(
+  '[Auth] Registration Email Available',
+  props<{ email: string }>()
+);

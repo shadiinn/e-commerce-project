@@ -17,7 +17,9 @@ import {
   updateProfileFailure,
 
   logout,
-  restoreAuthSuccess
+  restoreAuthSuccess,
+  checkRegistrationEmail,
+  registrationEmailAvailable
 } from './auth.actions';
 
 import {
@@ -91,19 +93,21 @@ export const authReducer = createReducer(
   // REGISTER
   // =====================================================
 
-  on(
-    register,
+on(
+  register,
 
-    state => ({
+  state => ({
 
-      ...state,
+    ...state,
 
-      loading: true,
+    loading: true,
 
-      error: null
+    error: null,
 
-    })
-  ),
+    registrationEmailAvailable: false
+
+  })
+),
 
 
   on(
@@ -228,6 +232,38 @@ export const authReducer = createReducer(
       error: null
 
     })
-  )
+  ),
+// =====================================================
+// CHECK REGISTRATION EMAIL
+// =====================================================
 
+on(
+  checkRegistrationEmail,
+
+  state => ({
+
+    ...state,
+
+    registrationEmailAvailable: false,
+
+    error: null
+
+  })
+),
+
+
+on(
+  registrationEmailAvailable,
+
+  state => ({
+
+    ...state,
+
+    registrationEmailAvailable: true,
+
+    error: null
+
+  })
+)
 );
+

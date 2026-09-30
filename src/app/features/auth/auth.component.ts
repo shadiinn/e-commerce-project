@@ -3,6 +3,7 @@ import { AsyncPipe, Location } from '@angular/common';
 import {
   Component,
   inject,
+  OnInit,
   signal
 } from '@angular/core';
 
@@ -23,15 +24,29 @@ import {
 import { Store } from '@ngrx/store';
 
 import {
+  Actions,
+  ofType
+} from '@ngrx/effects';
+
+import {
+  checkRegistrationEmail,
   login,
-  register
+  register,
+  registrationEmailAvailable
 } from '../../store/auth/auth.actions';
 
 import {
   selectAuthError,
   selectAuthLoading
 } from '../../store/auth/auth.selectors';
+
 import { ToastService } from '../../core/services/toast.service';
+
+import { OtpService } from '../../core/services/otp.service';
+
+import {
+  OtpVerificationComponent
+} from './otp-verification/otp-verification.component';
 
 
 @Component({
@@ -41,14 +56,15 @@ import { ToastService } from '../../core/services/toast.service';
 
   imports: [
     ReactiveFormsModule,
-    AsyncPipe
+    AsyncPipe,
+    OtpVerificationComponent
   ],
 
   templateUrl: './auth.component.html',
 
   styleUrl: './auth.component.css'
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit {
 
   // =====================================================
   // DEPENDENCIES
@@ -63,8 +79,12 @@ export class AuthComponent {
   private router = inject(Router);
 
   private location = inject(Location);
-  toastService=inject(ToastService);
 
+  private actions$ = inject(Actions);
+
+  private otpService = inject(OtpService);
+
+  toastService = inject(ToastService);
 
 
   // =====================================================
@@ -78,6 +98,21 @@ export class AuthComponent {
   showRegisterPassword = signal(false);
 
   showConfirmPassword = signal(false);
+
+  showOtp = signal(false);
+
+
+  // =====================================================
+  // TEMPORARY REGISTRATION DATA
+  // =====================================================
+
+  pendingRegistration: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+  } | null = null;
 
 
   // =====================================================
@@ -184,7 +219,8 @@ export class AuthComponent {
 
   }, {
 
-    validators: this.passwordMatchValidator()
+    validators:
+      this.passwordMatchValidator()
 
   });
 
@@ -227,14 +263,95 @@ export class AuthComponent {
 
 
   // =====================================================
-  // INITIAL MODE
+  // NG ON INIT
   // =====================================================
 
-  constructor() {
+  ngOnInit(): void {
+
+    // ---------------------------------------------------
+    // INITIAL AUTH MODE
+    // ---------------------------------------------------
 
     this.isRegisterMode.set(
       this.router.url.startsWith('/register')
     );
+
+
+    // ---------------------------------------------------
+    // EMAIL CHECK SUCCESS
+    // ---------------------------------------------------
+
+    this.actions$
+      .pipe(
+        ofType(
+          registrationEmailAvailable
+        )
+      )
+      .subscribe(() => {
+
+        if (!this.pendingRegistration) {
+
+          return;
+
+        }
+
+
+        const user =
+          this.pendingRegistration;
+
+
+        // ------------------------------------------------
+        // SEND OTP
+        // ------------------------------------------------
+
+        this.otpService
+          .sendOtp(
+            user.email,
+            user.firstName
+          )
+          .subscribe({
+
+            next: otpSent => {
+
+              if (!otpSent) {
+
+                this.pendingRegistration = null;
+
+                this.toastService.error(
+                  'Unable to send verification code. Please try again.'
+                );
+
+                return;
+
+              }
+
+
+              // ------------------------------------------
+              // SHOW OTP POPUP
+              // ------------------------------------------
+
+              this.showOtp.set(true);
+
+            },
+
+            error: error => {
+
+              console.error(
+                'OTP sending failed:',
+                error
+              );
+
+              this.pendingRegistration = null;
+
+              this.toastService.error(
+                'Unable to send verification code. Please try again.'
+              );
+
+            }
+
+          });
+
+      });
 
   }
 
@@ -363,7 +480,7 @@ export class AuthComponent {
       })
 
     );
-    this.toastService.success('Login Successful');
+
   }
 
 
@@ -372,6 +489,10 @@ export class AuthComponent {
   // =====================================================
 
   submitRegister(): void {
+
+    // ---------------------------------------------------
+    // VALIDATE FORM
+    // ---------------------------------------------------
 
     if (this.registerForm.invalid) {
 
@@ -382,38 +503,118 @@ export class AuthComponent {
     }
 
 
+    // ---------------------------------------------------
+    // GET FORM DATA
+    // ---------------------------------------------------
+
     const value =
       this.registerForm.getRawValue();
 
+
+    // ---------------------------------------------------
+    // SAVE TEMPORARY REGISTRATION
+    // ---------------------------------------------------
+
+    this.pendingRegistration = {
+
+      firstName:
+        value.firstName!.trim(),
+
+      lastName:
+        value.lastName!.trim(),
+
+      email:
+        value.email!.trim(),
+
+      password:
+        value.password!,
+
+      phone:
+        value.phone!.trim()
+
+    };
+
+
+    // ---------------------------------------------------
+    // CHECK EMAIL THROUGH NGRX
+    // ---------------------------------------------------
+
+    this.store.dispatch(
+
+      checkRegistrationEmail({
+
+        email:
+          this.pendingRegistration.email
+
+      })
+
+    );
+
+  }
+
+
+  // =====================================================
+  // OTP VERIFIED
+  // =====================================================
+
+  onOtpVerified(): void {
+
+    // ---------------------------------------------------
+    // SAFETY CHECK
+    // ---------------------------------------------------
+
+    if (!this.pendingRegistration) {
+
+      this.showOtp.set(false);
+
+      return;
+
+    }
+
+
+    // ---------------------------------------------------
+    // CLOSE OTP
+    // ---------------------------------------------------
+
+    this.showOtp.set(false);
+
+
+    // ---------------------------------------------------
+    // REGISTER USER
+    // ---------------------------------------------------
 
     this.store.dispatch(
 
       register({
 
-        user: {
-
-          firstName:
-            value.firstName!,
-
-          lastName:
-            value.lastName!,
-
-          email:
-            value.email!,
-
-          password:
-            value.password!,
-
-          phone:
-            value.phone!
-
-        }
+        user:
+          this.pendingRegistration
 
       })
 
     );
-    this.toastService.success('Registration Successful');
-    this.showLogin();
+
+
+    // ---------------------------------------------------
+    // CLEAR TEMPORARY DATA
+    // ---------------------------------------------------
+
+    this.pendingRegistration = null;
+
+  }
+
+
+  // =====================================================
+  // OTP CANCELLED
+  // =====================================================
+
+  onOtpCancelled(): void {
+
+    this.showOtp.set(false);
+
+    this.pendingRegistration = null;
+
+    this.otpService.clearOtp();
 
   }
 

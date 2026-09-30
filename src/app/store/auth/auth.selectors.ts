@@ -33,3 +33,8 @@ export const selectAuthError =
     selectAuthState,
     state => state.error
   );
+  export const selectRegistrationEmailAvailable =
+  createSelector(
+    selectAuthState,
+    state => state.registrationEmailAvailable
+  );

@@ -5,11 +5,13 @@ export interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  registrationEmailAvailable:boolean;
 }
 
 export const initialAuthState: AuthState = {
   user: null,
   isAuthenticated: false,
   loading: false,
-  error: null
+  error: null,
+  registrationEmailAvailable: false
 };

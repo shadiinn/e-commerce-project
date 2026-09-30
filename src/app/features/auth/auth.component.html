@@ -251,7 +251,7 @@
                           </span>
                         }
                       </div>
-                      <input id="phone" type="tel" formControlName="phone" placeholder="9876543210" autocomplete="tel" maxlength="10"
+                      <input id="phone" type="tel" formControlName="phone" placeholder="Enter your phone number" autocomplete="tel" maxlength="10"
                         [style.border-bottom-color]="(registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid) ? '#dc2626' : null"
                         [attr.aria-invalid]="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid"
                         class="w-full border-0 border-b border-[#d8d3cd] bg-transparent px-0 py-2 text-[12px] text-[#151515] outline-none placeholder:text-[#aaa6a1] focus:border-[#151515] transition-colors duration-200">
@@ -428,5 +428,15 @@
     </div>
 
   </div>
+  @if (showOtp()) {
+
+    <app-otp-verification
+      [email]="pendingRegistration?.email ?? ''"
+      [name]="pendingRegistration?.firstName ?? ''"
+      (verified)="onOtpVerified()"
+      (cancelled)="onOtpCancelled()"
+    />
+
+  }
 
 </div>
