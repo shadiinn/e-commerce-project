@@ -1,610 +1,155 @@
-import {
-  Component,
-  inject,
-  OnInit,
-  signal
-} from '@angular/core';
-import { AsyncPipe} from '@angular/common';
-import {RouterLink} from '@angular/router';
-import { Store} from '@ngrx/store';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {BehaviorSubject,take} from 'rxjs';
-import {selectCurrentUser} from '../../store/auth/auth.selectors';
-import {logout,restoreAuthSuccess} from '../../store/auth/auth.actions';
-import { AuthService } from '../../core/services/auth.service';
-import { AuthStorageService } from '../../core/services/auth-storage.service';
-import {User} from '../../core/models/user.model';
-import {AuthUser} from '../../core/models/auth-user.model';
-import { Address } from '../../core/models/address.model';
-import {AddressStorageService} from '../../core/services/address-storage.service';
-import {AddressFormComponent} from '../../shared/components/address-form/address-form.component';
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 
+import { selectAuthLoading, selectCurrentUser } from '../../store/auth/auth.selectors';
+import {
+  logout,
+  updateProfile,
+  updateProfileFailure,
+  updateProfileSuccess
+} from '../../store/auth/auth.actions';
+import { AuthUser } from '../../core/models/auth-user.model';
+import { AddressFormComponent } from '../../shared/components/address-form/address-form.component';
 
-const PERSON_NAME_PATTERN =/^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+const NAME_PATTERN = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
 const PHONE_PATTERN = /^[0-9]{10}$/;
+
+// Profile photos are resized to this many pixels (longest side) before saving.
+const PHOTO_MAX_SIZE = 300;
 
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [
-    AsyncPipe,
-    RouterLink,
-    ReactiveFormsModule,
-    AddressFormComponent
-  ],
+  imports: [RouterLink, ReactiveFormsModule, AddressFormComponent],
   templateUrl: './account.component.html',
   styleUrl: './account.component.css'
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent {
 
+  private store = inject(Store);
+  private actions$ = inject(Actions);
+  private fb = inject(FormBuilder);
 
-  private store =inject(Store);
-  private authService =inject(AuthService);
-  private authStorage =inject(AuthStorageService);
-  private addressStorage =inject(AddressStorageService);
-  private fb =inject(FormBuilder);
+  currentUser = toSignal(this.store.select(selectCurrentUser), { initialValue: null });
+  saving = toSignal(this.store.select(selectAuthLoading), { initialValue: false });
 
-  // USER
+  // Profile popup state
+  isEditingProfile = signal(false);
+  photo = signal<string | null>(null);
+  profileError = signal('');
 
-  currentUser$ =
-    this.store.select(
-      selectCurrentUser
-    );
+  profileFields = [
+    { name: 'firstName', label: 'First Name', type: 'text', error: 'Enter a valid first name.' },
+    { name: 'lastName', label: 'Last Name', type: 'text', error: 'Enter a valid last name.' },
+    { name: 'email', label: 'Email', type: 'email', error: '', note: 'Email cannot be changed.' },
+    { name: 'phone', label: 'Phone', type: 'tel', error: 'Enter a valid 10 digit phone number.', placeholder: '10 digit mobile number' }
+  ];
 
-  // PROFILE STATE
+  profileForm = this.fb.nonNullable.group({
+    firstName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
+    lastName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
+    email: [{ value: '', disabled: true }],
+    phone: ['', Validators.pattern(PHONE_PATTERN)]
+  });
 
-  isEditingProfile =signal(false);
-  profileImagePreview =signal<string | null>(null);
-  private profileImage =signal<string | null>(null);
-
-  // AUTH UI STATE
-
-  private authLoadingSubject =new BehaviorSubject<boolean>(false);
-  authLoading$ =this.authLoadingSubject.asObservable();
-  private authErrorSubject =new BehaviorSubject<string | null>(null);
-  authError$ =this.authErrorSubject.asObservable();
-
-  // PROFILE FORM
- 
-  profileForm =this.fb.nonNullable.group({
-
-      firstName: ['',
-        [
-          Validators.required,
-          Validators.pattern(PERSON_NAME_PATTERN)
-        ]
-      ],
-      lastName: ['',
-        [
-          Validators.required,
-          Validators.pattern(PERSON_NAME_PATTERN)
-        ]
-      ],
-      phone: [
-        '',
-        [
-          Validators.pattern(PHONE_PATTERN)
-        ]
-      ]
-    });
-
-  // ADDRESS STATE
-
-  savedAddresses =signal<Address[]>([]);
-  editingAddress =signal<Address | null>(null);
-  isAddressFormOpen =signal(false);
-
-  // INIT
- 
-  ngOnInit(): void {
-
-    this.loadAddresses();
-
-  }
-
-  // START EDITING PROFILE
-
-  startEditingProfile(): void {
-    this.authErrorSubject.next(null);
-    this.currentUser$
-      .pipe(take(1))
-      .subscribe(user => {
-
-        if (!user) {
-          return;
+  constructor() {
+    // Close the popup when the save succeeds, show a message when it fails
+    this.actions$
+      .pipe(ofType(updateProfileSuccess, updateProfileFailure), takeUntilDestroyed())
+      .subscribe(action => {
+        if ('error' in action) {
+          this.profileError.set('Unable to update your profile. Please try again.');
+        } else {
+          this.isEditingProfile.set(false);
         }
-
-        this.profileForm.patchValue({
-          firstName:user.firstName,
-          lastName:user.lastName,
-          phone:user.phone ?? ''
-        });
-
-        this.profileImage.set(
-          user.profileImage ?? null
-        );
-
-        this.profileImagePreview.set(
-          user.profileImage ?? null
-        );
-
-        this.isEditingProfile.set(
-          true
-        );
-
       });
-
   }
 
 
-  // =====================================================
-  // CANCEL PROFILE EDITING
-  // =====================================================
+  // ---------- PROFILE ----------
 
-  cancelEditingProfile(): void {
+  openProfile(user: AuthUser): void {
+    this.profileForm.reset({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone ?? ''
+    });
+    this.photo.set(user.profileImage ?? null);
+    this.profileError.set('');
+    this.isEditingProfile.set(true);
+  }
 
-    this.authErrorSubject.next(null);
-
-    this.profileForm.reset();
-
-    this.profileImage.set(null);
-
-    this.profileImagePreview.set(null);
-
+  closeProfile(): void {
     this.isEditingProfile.set(false);
-
   }
 
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ''; // lets the same file be chosen again
 
-  // =====================================================
-  // PROFILE IMAGE SELECTED
-  // =====================================================
-
-  onProfileImageSelected(
-    event: Event
-  ): void {
-
-    const input =
-      event.target as HTMLInputElement;
-
-
-    const file =
-      input.files?.[0];
-
-
-    if (!file) {
-      return;
-    }
-
+    if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-
-      this.authErrorSubject.next(
-        'Please select a valid image file.'
-      );
-
+      this.profileError.set('Please select a valid image file.');
       return;
-
     }
 
+    this.profileError.set('');
 
-    /*
-     * Keep the image reasonably small because
-     * we are storing it as Base64 in db.json.
-     */
+    const reader = new FileReader();
+    reader.onload = () => this.resizePhoto(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
-    if (file.size > 2 * 1024 * 1024) {
+  // A raw photo as Base64 is too large to save (json-server request and
+  // localStorage), so it is shrunk to a small JPEG first.
+  private resizePhoto(dataUrl: string): void {
+    const img = new Image();
 
-      this.authErrorSubject.next(
-        'Profile image must be smaller than 2 MB.'
-      );
-
-      return;
-
-    }
-
-
-    const reader =
-      new FileReader();
-
-
-    reader.onload = () => {
-
-      const result =
-        reader.result;
-
-
-      if (typeof result !== 'string') {
-        return;
-      }
-
-
-      this.profileImage.set(
-        result
-      );
-
-
-      this.profileImagePreview.set(
-        result
-      );
-
-
-      this.authErrorSubject.next(null);
-
+    img.onload = () => {
+      const scale = Math.min(1, PHOTO_MAX_SIZE / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      this.photo.set(canvas.toDataURL('image/jpeg', 0.8));
     };
 
-
-    reader.readAsDataURL(file);
-
+    img.onerror = () => this.profileError.set('Could not read this image. Please try another one.');
+    img.src = dataUrl;
   }
-
-
-  // =====================================================
-  // REMOVE PROFILE IMAGE
-  // =====================================================
-
-  removeProfileImage(): void {
-
-    this.profileImage.set(null);
-
-    this.profileImagePreview.set(null);
-
-  }
-
-
-  // =====================================================
-  // SAVE PROFILE
-  // =====================================================
 
   saveProfile(): void {
+    const user = this.currentUser();
 
-    if (this.profileForm.invalid) {
-
+    if (this.profileForm.invalid || !user) {
       this.profileForm.markAllAsTouched();
-
       return;
-
     }
 
+    const { firstName, lastName, phone } = this.profileForm.getRawValue();
+    this.profileError.set('');
 
-    this.currentUser$
-      .pipe(take(1))
-      .subscribe(user => {
-
-        if (!user) {
-          return;
+    this.store.dispatch(
+      updateProfile({
+        id: user.id,
+        changes: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim(),
+          profileImage: this.photo()
         }
-
-
-        this.authLoadingSubject.next(true);
-
-        this.authErrorSubject.next(null);
-
-
-        const formValue =
-          this.profileForm.getRawValue();
-
-
-        const changes:
-          Partial<User> = {
-
-            firstName:
-              formValue.firstName.trim(),
-
-            lastName:
-              formValue.lastName.trim(),
-
-            phone:
-              formValue.phone.trim(),
-
-            profileImage:
-              this.profileImage()
-
-          };
-
-
-        this.authService
-          .updateUser(
-            user.id,
-            changes
-          )
-          .pipe(take(1))
-          .subscribe({
-
-            next: updatedUser => {
-
-              const authUser:
-                AuthUser = {
-
-                  id:
-                    updatedUser.id,
-
-                  firstName:
-                    updatedUser.firstName,
-
-                  lastName:
-                    updatedUser.lastName,
-
-                  email:
-                    updatedUser.email,
-
-                  phone:
-                    updatedUser.phone,
-
-                  profileImage:
-                    updatedUser.profileImage
-
-                };
-
-
-              /*
-               * Update localStorage so the profile
-               * survives a browser refresh.
-               */
-
-              this.authStorage.saveUser(
-                authUser
-              );
-
-
-              /*
-               * Update the NgRx auth state.
-               */
-
-              this.store.dispatch(
-                restoreAuthSuccess({
-                  user: authUser
-                })
-              );
-
-
-              this.authLoadingSubject.next(false);
-
-              this.isEditingProfile.set(false);
-
-              this.profileForm.reset();
-
-            },
-
-
-            error: error => {
-
-              console.error(
-                'Profile update failed:',
-                error
-              );
-
-
-              this.authLoadingSubject.next(false);
-
-
-              this.authErrorSubject.next(
-                'Unable to update your profile. Please try again.'
-              );
-
-            }
-
-          });
-
-      });
-
-  }
-
-
-  // =====================================================
-  // LOAD ADDRESSES
-  // =====================================================
-
-  private loadAddresses(): void {
-
-    this.currentUser$
-      .pipe(take(1))
-      .subscribe(user => {
-
-        if (!user) {
-
-          this.savedAddresses.set([]);
-
-          return;
-
-        }
-
-
-        const addresses =
-          this.addressStorage.getAddresses(
-            user.email
-          );
-
-
-        this.savedAddresses.set(
-          addresses
-        );
-
-      });
-
-  }
-
-
-  // =====================================================
-  // ADD ADDRESS
-  // =====================================================
-
-  openAddAddress(): void {
-
-    if (
-      this.savedAddresses().length >= 2
-    ) {
-
-      return;
-
-    }
-
-
-    this.editingAddress.set(
-      null
+      })
     );
-
-
-    this.isAddressFormOpen.set(
-      true
-    );
-
-  }
-
-
-  // =====================================================
-  // EDIT ADDRESS
-  // =====================================================
-
-  editAddress(
-    address: Address
-  ): void {
-
-    this.editingAddress.set(
-      address
-    );
-
-
-    this.isAddressFormOpen.set(
-      true
-    );
-
-  }
-
-
-  // =====================================================
-  // ADDRESS SAVED
-  // =====================================================
-
-  onAddressSaved(
-    address: Address
-  ): void {
-
-    let updatedAddresses: Address[];
-
-
-    const editingId =
-      this.editingAddress()?.id;
-
-
-    // =================================================
-    // UPDATE EXISTING ADDRESS
-    // =================================================
-
-    if (editingId) {
-
-      updatedAddresses =
-        this.savedAddresses().map(
-          existingAddress =>
-            existingAddress.id === editingId
-              ? address
-              : existingAddress
-        );
-
-    }
-
-    // =================================================
-    // ADD NEW ADDRESS
-    // =================================================
-
-    else {
-
-      if (
-        this.savedAddresses().length >= 2
-      ) {
-
-        return;
-
-      }
-
-
-      updatedAddresses = [
-        ...this.savedAddresses(),
-        address
-      ];
-
-    }
-
-
-    this.saveAddresses(
-      updatedAddresses
-    );
-
-
-    this.editingAddress.set(
-      null
-    );
-
-
-    this.isAddressFormOpen.set(
-      false
-    );
-
-  }
-
-
-  // =====================================================
-  // SAVE ADDRESSES
-  // =====================================================
-
-  private saveAddresses(
-    addresses: Address[]
-  ): void {
-
-    this.currentUser$
-      .pipe(take(1))
-      .subscribe(user => {
-
-        if (!user) {
-          return;
-        }
-
-
-        this.addressStorage.saveAddresses(
-
-          user.email,
-
-          addresses
-
-        );
-
-
-        this.savedAddresses.set(
-          addresses
-        );
-
-      });
-
-  }
-
-
-  // =====================================================
-  // CANCEL ADDRESS FORM
-  // =====================================================
-
-  cancelAddressForm(): void {
-
-    this.editingAddress.set(
-      null
-    );
-
-
-    this.isAddressFormOpen.set(
-      false
-    );
-
   }
 
   logout(): void {
-
-    this.store.dispatch(
-      logout()
-    );
-
+    this.store.dispatch(logout());
   }
-
 }

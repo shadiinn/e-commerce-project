@@ -1,7 +1,8 @@
-import {AsyncPipe} from '@angular/common';
-import {Component,inject} from '@angular/core';
-import {Router,RouterLink} from '@angular/router';
-import {Store} from '@ngrx/store';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router, RouterLink } from '@angular/router';
+import { Store } from '@ngrx/store';
+
 import {
   selectCartItemsWithProducts,
   selectCartItemCount,
@@ -17,315 +18,104 @@ import {
   removeGuestItem,
   clearGuestCart
 } from '../../store/cart/cart.actions';
-import {selectIsAuthenticated} from '../../store/auth/auth.selectors';
-import {startCheckout} from '../../store/checkout/checkout.actions';
-import {take} from 'rxjs';
-import {
-  checkQuantityLimit,
-  getSizeStock,
-  quantityLimitNote
-} from '../../core/utils/cart.limits';
+import { selectIsAuthenticated } from '../../store/auth/auth.selectors';
+import { startCheckout } from '../../store/checkout/checkout.actions';
+import { checkQuantityLimit, getSizeStock, quantityLimitNote } from '../../core/utils/cart.limits';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [
-    RouterLink,
-    AsyncPipe
-  ],
+  imports: [RouterLink, ConfirmDialogComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })
 export class CartComponent {
 
-  private store =inject(Store);
-  private router =inject(Router);
+  private store = inject(Store);
+  private router = inject(Router);
 
-  // AUTHENTICATION
+  private isAuthenticated = toSignal(this.store.select(selectIsAuthenticated), { initialValue: false });
 
-  isAuthenticated$ =this.store.select(
-      selectIsAuthenticated
-  );
+  items = toSignal(this.store.select(selectCartItemsWithProducts), { initialValue: [] });
+  count = toSignal(this.store.select(selectCartItemCount), { initialValue: 0 });
+  subtotal = toSignal(this.store.select(selectCartSubtotal), { initialValue: 0 });
 
-  // CART ITEMS
+  // id of the cart item waiting for the "remove?" confirmation
+  itemToRemove = signal<string | null>(null);
 
-  cartItems$ =
-    this.store.select(
-      selectCartItemsWithProducts
+
+  // ---------- STOCK LIMITS ----------
+
+  private limitOf(item: any) {
+    const stock = getSizeStock(item.product, item.variant?.id, item.size);
+    return { stock, limit: checkQuantityLimit(item.quantity, stock) };
+  }
+
+  canIncrease(item: any): boolean {
+    return this.limitOf(item).limit === 'OK';
+  }
+
+  // Message shown when the item can't be increased further ('' when it still can)
+  limitNote(item: any): string {
+    const { stock, limit } = this.limitOf(item);
+    return limit === 'OK' ? '' : quantityLimitNote(limit, stock);
+  }
+
+
+  // ---------- CART ACTIONS ----------
+
+  increase(cartItemId: string): void {
+    this.store.dispatch(
+      this.isAuthenticated() ? increaseQuantity({ cartItemId }) : increaseGuestQuantity({ cartItemId })
     );
+  }
 
+  // Going below 1 asks for confirmation instead of silently removing the item
+  decrease(item: { id?: string; quantity: number }): void {
+    const cartItemId = item.id!;
 
-  // =====================================================
-  // CART ITEM COUNT
-  // =====================================================
+    if (item.quantity > 1) {
+      this.store.dispatch(
+        this.isAuthenticated() ? decreaseQuantity({ cartItemId }) : decreaseGuestQuantity({ cartItemId })
+      );
+    } else {
+      this.itemToRemove.set(cartItemId);
+    }
+  }
 
-  cartItemCount$ =
-    this.store.select(
-      selectCartItemCount
+  remove(cartItemId: string): void {
+    this.store.dispatch(
+      this.isAuthenticated() ? removeFromCart({ cartItemId }) : removeGuestItem({ cartItemId })
     );
-
-
-  // =====================================================
-  // CART SUBTOTAL
-  // =====================================================
-
-  cartSubtotal$ =
-    this.store.select(
-      selectCartSubtotal
-    );
-
-
-  // =====================================================
-  // CHECK IF QUANTITY CAN INCREASE
-  // =====================================================
-
-  canIncreaseQuantity(item: any): boolean {
-
-    const stock =
-      getSizeStock(
-        item.product,
-        item.variant?.id,
-        item.size
-      );
-
-    return (
-      checkQuantityLimit(
-        item.quantity,
-        stock
-      ) === 'OK'
-    );
-
   }
 
-
-  // =====================================================
-  // MESSAGE SHOWN WHEN THIS ITEM CAN'T BE INCREASED FURTHER
-  // (empty string when it's still under the limit)
-  // =====================================================
-
-  quantityLimitNote(item: any): string {
-
-    const stock =
-      getSizeStock(
-        item.product,
-        item.variant?.id,
-        item.size
-      );
-
-    const limit =
-      checkQuantityLimit(
-        item.quantity,
-        stock
-      );
-
-    return limit === 'OK'
-      ? ''
-      : quantityLimitNote(limit, stock);
-
+  confirmRemove(): void {
+    const cartItemId = this.itemToRemove();
+    if (cartItemId) this.remove(cartItemId);
+    this.itemToRemove.set(null);
   }
-
-
-  // =====================================================
-  // INCREASE QUANTITY
-  // =====================================================
-
-  increaseQuantity(
-    cartItemId: string
-  ): void {
-
-    this.isAuthenticated$
-      .pipe(take(1))
-      .subscribe(
-        isAuthenticated => {
-
-          if (isAuthenticated) {
-
-            this.store.dispatch(
-              increaseQuantity({
-                cartItemId
-              })
-            );
-
-            return;
-
-          }
-
-
-          this.store.dispatch(
-            increaseGuestQuantity({
-              cartItemId
-            })
-          );
-
-        }
-      );
-
-  }
-
-
-  // =====================================================
-  // DECREASE QUANTITY
-  // =====================================================
-
-  decreaseQuantity(
-    cartItemId: string
-  ): void {
-
-    this.isAuthenticated$
-      .pipe(take(1))
-      .subscribe(
-        isAuthenticated => {
-
-          if (isAuthenticated) {
-
-            this.store.dispatch(
-              decreaseQuantity({
-                cartItemId
-              })
-            );
-
-            return;
-
-          }
-
-
-          this.store.dispatch(
-            decreaseGuestQuantity({
-              cartItemId
-            })
-          );
-
-        }
-      );
-
-  }
-
-
-  // =====================================================
-  // REMOVE ITEM
-  // =====================================================
-
-  removeItem(
-    cartItemId: string
-  ): void {
-
-    this.isAuthenticated$
-      .pipe(take(1))
-      .subscribe(
-        isAuthenticated => {
-
-          if (isAuthenticated) {
-
-            this.store.dispatch(
-              removeFromCart({
-                cartItemId
-              })
-            );
-
-            return;
-
-          }
-
-
-          this.store.dispatch(
-            removeGuestItem({
-              cartItemId
-            })
-          );
-
-        }
-      );
-
-  }
-
-
-  // =====================================================
-  // CLEAR CART
-  // =====================================================
 
   clearCart(): void {
-
-    this.isAuthenticated$
-      .pipe(take(1))
-      .subscribe(
-        isAuthenticated => {
-
-          if (isAuthenticated) {
-
-            this.store.dispatch(
-              clearCart()
-            );
-
-            return;
-
-          }
-
-
-          this.store.dispatch(
-            clearGuestCart()
-          );
-
-        }
-      );
-
+    this.store.dispatch(this.isAuthenticated() ? clearCart() : clearGuestCart());
   }
-
-
-  // =====================================================
-  // PROCEED TO CHECKOUT
-  // =====================================================
 
   proceedToCheckout(): void {
+    const items = this.items();
+    if (!items.length) return;
 
-    this.cartItems$
-      .pipe(take(1))
-      .subscribe(items => {
+    this.store.dispatch(
+      startCheckout({
+        mode: 'cart',
+        items: items.map(item => ({
+          productId: item.product.id,
+          variantId: item.variant.id,
+          size: item.size,
+          quantity: item.quantity
+        }))
+      })
+    );
 
-        if (!items.length) {
-
-          return;
-
-        }
-
-
-        const checkoutItems =
-          items.map(item => ({
-
-            productId:
-              item.product.id,
-
-            variantId:
-              item.variant.id,
-
-            size:
-              item.size,
-
-            quantity:
-              item.quantity
-
-          }));
-
-
-        this.store.dispatch(
-
-          startCheckout({
-
-            mode: 'cart',
-
-            items:
-              checkoutItems
-
-          })
-
-        );
-
-
-        this.router.navigate([
-          '/checkout'
-        ]);
-
-      });
-
+    this.router.navigate(['/checkout']);
   }
-
 }

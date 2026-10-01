@@ -1,181 +1,61 @@
-import { Injectable } from '@angular/core';
-import emailjs from '@emailjs/browser';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, map, of } from 'rxjs';
 
-import {
-  Observable,
-  from,
-  map,
-  catchError,
-  of
-} from 'rxjs';
+const EMAILJS_URL = 'https://api.emailjs.com/api/v1.0/email/send';
+const SERVICE_ID = 'shadiinn';
+const TEMPLATE_ID = 'template_kims9uf';
+const PUBLIC_KEY = 'gtRMFHmQdSrdcMrUh';
 
-@Injectable({
-  providedIn: 'root'
-})
+// How long a code stays valid
+const OTP_LIFETIME_MS = 90 * 1000;
+
+@Injectable({ providedIn: 'root' })
 export class OtpService {
 
-  private readonly SERVICE_ID = 'shadiinn';
+  private http = inject(HttpClient);
 
-  private readonly TEMPLATE_ID = 'template_kims9uf';
+  private otp: string | null = null;
+  private expiresAt = 0;
 
-  private readonly PUBLIC_KEY = 'gtRMFHmQdSrdcMrUh';
+  // Generates a 4-digit code and emails it. Emits true on success, false on failure.
+  sendOtp(email: string, name: string): Observable<boolean> {
+    this.otp = Math.floor(1000 + Math.random() * 9000).toString();
+    this.expiresAt = Date.now() + OTP_LIFETIME_MS;
 
-  private generatedOtp: string | null = null;
-
-  private expiresAt: number | null = null;
-
-
-  // =====================================================
-  // GENERATE OTP
-  // =====================================================
-
-  private generateOtp(): string {
-
-    return Math.floor(
-      1000 + Math.random() * 9000
-    ).toString();
-
-  }
-
-
-  // =====================================================
-  // SEND OTP
-  // =====================================================
-
-  sendOtp(
-    email: string,
-    name: string
-  ): Observable<boolean> {
-
-    const otp = this.generateOtp();
-
-    this.generatedOtp = otp;
-
-    this.expiresAt =
-      Date.now() + 90 * 1000;
-
-
-    return from(
-
-      emailjs.send(
-
-        this.SERVICE_ID,
-
-        this.TEMPLATE_ID,
-
+    return this.http
+      .post(
+        EMAILJS_URL,
         {
-          email,
-          name,
-          passcode: otp,
-          time: '1 minute 30 seconds'
+          service_id: SERVICE_ID,
+          template_id: TEMPLATE_ID,
+          user_id: PUBLIC_KEY,
+          template_params: { email, name, passcode: this.otp, time: '1 minute 30 seconds' }
         },
-
-        {
-          publicKey: this.PUBLIC_KEY
-        }
-
+        { responseType: 'text' }
       )
-
-    ).pipe(
-
-      map(() => true),
-
-      catchError(error => {
-
-        console.error(
-          'OTP email failed:',
-          error
-        );
-
-        this.generatedOtp = null;
-
-        this.expiresAt = null;
-
-        return of(false);
-
-      })
-
-    );
-
+      .pipe(
+        map(() => true),
+        catchError(error => {
+          console.error('OTP email failed:', error);
+          this.clearOtp();
+          return of(false);
+        })
+      );
   }
 
+  verifyOtp(enteredOtp: string): boolean {
+    const expired = Date.now() > this.expiresAt;
+    const valid = !!this.otp && !expired && enteredOtp === this.otp;
 
-  // =====================================================
-  // VERIFY OTP
-  // =====================================================
+    // A used or expired code can't be used again
+    if (valid || expired) this.clearOtp();
 
-  verifyOtp(
-    enteredOtp: string
-  ): boolean {
-
-    if (
-      !this.generatedOtp ||
-      !this.expiresAt
-    ) {
-
-      return false;
-
-    }
-
-
-    if (
-      Date.now() > this.expiresAt
-    ) {
-
-      this.generatedOtp = null;
-
-      this.expiresAt = null;
-
-      return false;
-
-    }
-
-
-    if (
-      enteredOtp === this.generatedOtp
-    ) {
-
-      this.generatedOtp = null;
-
-      this.expiresAt = null;
-
-      return true;
-
-    }
-
-
-    return false;
-
+    return valid;
   }
-
-
-  // =====================================================
-  // CHECK EXPIRATION
-  // =====================================================
-
-  isExpired(): boolean {
-
-    if (!this.expiresAt) {
-
-      return true;
-
-    }
-
-    return Date.now() > this.expiresAt;
-
-  }
-
-
-  // =====================================================
-  // CLEAR OTP
-  // =====================================================
 
   clearOtp(): void {
-
-    this.generatedOtp = null;
-
-    this.expiresAt = null;
-
+    this.otp = null;
+    this.expiresAt = 0;
   }
-
 }

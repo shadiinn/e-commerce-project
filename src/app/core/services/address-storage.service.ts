@@ -1,50 +1,28 @@
 import { Injectable } from '@angular/core';
 import { Address } from '../models/address.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+const MAX_ADDRESSES = 2;
+
+@Injectable({ providedIn: 'root' })
 export class AddressStorageService {
 
-  private readonly storage_id ='sa_saved_addresses_';
-
-  // STORAGE KEY
-
-  private getStorageKey(email: string): string {
-    return `${this.storage_id}${email.trim().toLowerCase()}`;
+  private key(email: string): string {
+    return `sa_saved_addresses_${email.trim().toLowerCase()}`;
   }
 
-  // GET ADDRESSES
-
   getAddresses(email: string): Address[] {
-    if (!email.trim()) {
-      return [];
-    }
-    const stored =localStorage.getItem(
-        this.getStorageKey(email)
-    );
-    if (!stored) {
-      return [];
-    }
+    if (!email.trim()) return [];
+
     try {
-      const addresses =JSON.parse(stored) as Address[];
-      return addresses.slice(0, 2);
+      const saved = JSON.parse(localStorage.getItem(this.key(email)) ?? '[]') as Address[];
+      return saved.slice(0, MAX_ADDRESSES);
     } catch {
       return [];
     }
   }
 
-  // SAVE ADDRESSES
-
-  saveAddresses(email: string,addresses: Address[]): void {
-    if (!email.trim()) {
-      return;
-    }
-    localStorage.setItem(
-      this.getStorageKey(email),
-      JSON.stringify(
-        addresses.slice(0, 2)
-      )
-    );
+  saveAddresses(email: string, addresses: Address[]): void {
+    if (!email.trim()) return;
+    localStorage.setItem(this.key(email), JSON.stringify(addresses.slice(0, MAX_ADDRESSES)));
   }
 }

@@ -53,7 +53,6 @@ export class NavbarComponent {
   private router = inject(Router);
   private store = inject(Store);
   private elementRef = inject(ElementRef);
-  toastService=inject(ToastService);
 
   isMenuOpen = signal(false);
   isAccountMenuOpen = signal(false);
@@ -169,8 +168,6 @@ export class NavbarComponent {
     this.router.navigate(
       ['/']
     );
-    this.toastService.success('Logged Out');
-
   }
 
 }

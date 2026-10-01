@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AuthUser } from '../models/auth-user.model';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,11 +8,13 @@ import { AuthUser } from '../models/auth-user.model';
 export class AuthStorageService {
 
   private readonly STORAGE_KEY = 'sa_auth_user';
+  toastservice=inject(ToastService)
   saveUser(user: AuthUser): void {
     localStorage.setItem(
       this.STORAGE_KEY,
       JSON.stringify(user)
     );
+    this.toastservice.success("Logged In Successfully")
   }
 
   getUser(): AuthUser | null {
@@ -31,5 +34,6 @@ export class AuthStorageService {
     localStorage.removeItem(
       this.STORAGE_KEY
     );
+    this.toastservice.success("Logged Out Successfully")
   }
 }

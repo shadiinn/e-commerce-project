@@ -1,0 +1,32 @@
+ 
+    <div
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-5"
+      (click)="cancelled.emit()"
+    >
+      <div
+        class="w-full max-w-sm bg-white p-7 shadow-xl"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 class="text-base font-medium text-brand-text">{{ title() }}</h2>
+        <p class="mt-2 text-sm leading-6 text-brand-muted">{{ message() }}</p>
+
+        <div class="mt-7 flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="cancelled.emit()"
+            class="border border-brand-border px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:border-brand-text"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            (click)="confirmed.emit()"
+            class="bg-brand-text px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-80"
+          >
+            {{ confirmText() }}
+          </button>
+        </div>
+      </div>
+    </div>
+  

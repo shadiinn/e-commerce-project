@@ -17,6 +17,7 @@ import { OrdersEffects } from './store/orders/orders.effects';
 import { authReducer } from './store/auth/auth.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { withInMemoryScrolling } from '@angular/router';
+import { CheckoutEffects } from './store/checkout/checkout.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,6 +38,6 @@ export const appConfig: ApplicationConfig = {
       orders: ordersReducer,
       auth: authReducer
     }),
-    provideEffects(ProductsEffects,CartEffects,WishlistEffects,OrdersEffects,AuthEffects)
+    provideEffects(ProductsEffects,CartEffects,WishlistEffects,CheckoutEffects,OrdersEffects,AuthEffects)
   ]
 };

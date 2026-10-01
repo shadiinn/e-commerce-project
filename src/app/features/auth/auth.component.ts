@@ -1,111 +1,66 @@
 import { AsyncPipe, Location } from '@angular/common';
-
-import {
-  Component,
-  inject,
-  OnInit,
-  signal
-} from '@angular/core';
-
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
-  ValidatorFn,
   Validators
 } from '@angular/forms';
-
-import {
-  ActivatedRoute,
-  Router
-} from '@angular/router';
-
+import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-
-import {
-  Actions,
-  ofType
-} from '@ngrx/effects';
+import { Actions, ofType } from '@ngrx/effects';
 
 import {
   checkRegistrationEmail,
   login,
   register,
+  registerSuccess,
   registrationEmailAvailable
 } from '../../store/auth/auth.actions';
-
-import {
-  selectAuthError,
-  selectAuthLoading
-} from '../../store/auth/auth.selectors';
-
+import { selectAuthError } from '../../store/auth/auth.selectors';
 import { ToastService } from '../../core/services/toast.service';
-
 import { OtpService } from '../../core/services/otp.service';
+import { OtpVerificationComponent } from './otp-verification/otp-verification.component';
 
-import {
-  OtpVerificationComponent
-} from './otp-verification/otp-verification.component';
+const NAME_PATTERN = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])\S{6,}$/;
 
+function passwordsMatch(form: AbstractControl): ValidationErrors | null {
+  const password = form.get('password')?.value;
+  const confirm = form.get('confirmPassword')?.value;
+  return !password || !confirm || password === confirm ? null : { passwordMismatch: true };
+}
 
 @Component({
   selector: 'app-auth',
-
   standalone: true,
-
-  imports: [
-    ReactiveFormsModule,
-    AsyncPipe,
-    OtpVerificationComponent
-  ],
-
+  imports: [ReactiveFormsModule, AsyncPipe, OtpVerificationComponent],
   templateUrl: './auth.component.html',
-
   styleUrl: './auth.component.css'
 })
-export class AuthComponent implements OnInit {
-
-  // =====================================================
-  // DEPENDENCIES
-  // =====================================================
+export class AuthComponent {
 
   private fb = inject(FormBuilder);
-
   private store = inject(Store);
-
   private route = inject(ActivatedRoute);
-
   private router = inject(Router);
-
   private location = inject(Location);
-
   private actions$ = inject(Actions);
-
   private otpService = inject(OtpService);
+  private toast = inject(ToastService);
 
-  toastService = inject(ToastService);
+  error$ = this.store.select(selectAuthError);
 
-
-  // =====================================================
-  // UI STATE
-  // =====================================================
-
-  isRegisterMode = signal(false);
-
+  // UI state
+  isRegisterMode = signal(this.router.url.startsWith('/register'));
   showLoginPassword = signal(false);
-
   showRegisterPassword = signal(false);
-
   showConfirmPassword = signal(false);
-
   showOtp = signal(false);
 
-
-  // =====================================================
-  // TEMPORARY REGISTRATION DATA
-  // =====================================================
-
+  // Registration details kept until the email is verified with the OTP
   pendingRegistration: {
     firstName: string;
     lastName: string;
@@ -115,507 +70,138 @@ export class AuthComponent implements OnInit {
   } | null = null;
 
 
-  // =====================================================
-  // AUTH STATE
-  // =====================================================
-
-  loading$ =
-    this.store.select(
-      selectAuthLoading
-    );
-
-  error$ =
-    this.store.select(
-      selectAuthError
-    );
-
-
-  // =====================================================
-  // LOGIN FORM
-  // =====================================================
+  // ---------- FORMS ----------
 
   loginForm = this.fb.group({
-
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.email
-      ]
-    ],
-
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(6)
-      ]
-    ]
-
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
+  registerForm = this.fb.group(
+    {
+      firstName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
+      lastName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.pattern(PASSWORD_PATTERN)]],
+      confirmPassword: ['', Validators.required]
+    },
+    { validators: passwordsMatch }
+  );
 
-  // =====================================================
-  // REGISTER FORM
-  // =====================================================
-
-  registerForm = this.fb.group({
-
-    firstName: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(
-          /^[A-Za-z]+(?:\s[A-Za-z]+)*$/
-        )
-      ]
-    ],
-
-    lastName: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(
-          /^[A-Za-z]+(?:\s[A-Za-z]+)*$/
-        )
-      ]
-    ],
-
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.email
-      ]
-    ],
-
-    phone: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(
-          /^[6-9]\d{9}$/
-        )
-      ]
-    ],
-
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(6),
-        Validators.pattern(
-          /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])\S{6,}$/
-        )
-      ]
-    ],
-
-    confirmPassword: [
-      '',
-      [
-        Validators.required
-      ]
-    ]
-
-  }, {
-
-    validators:
-      this.passwordMatchValidator()
-
-  });
-
-
-  // =====================================================
-  // PASSWORD MATCH VALIDATOR
-  // =====================================================
-
-  private passwordMatchValidator(): ValidatorFn {
-
-    return (
-      control: AbstractControl
-    ): ValidationErrors | null => {
-
-      const password =
-        control.get('password')?.value;
-
-      const confirmPassword =
-        control.get('confirmPassword')?.value;
-
-
-      if (!password || !confirmPassword) {
-
-        return null;
-
-      }
-
-
-      return password === confirmPassword
-
-        ? null
-
-        : {
-            passwordMismatch: true
-          };
-
-    };
-
-  }
-
-
-  // =====================================================
-  // NG ON INIT
-  // =====================================================
-
-  ngOnInit(): void {
-
-    // ---------------------------------------------------
-    // INITIAL AUTH MODE
-    // ---------------------------------------------------
-
-    this.isRegisterMode.set(
-      this.router.url.startsWith('/register')
-    );
-
-
-    // ---------------------------------------------------
-    // EMAIL CHECK SUCCESS
-    // ---------------------------------------------------
-
+  constructor() {
+    // Email is not registered yet -> send the OTP and open the verification popup
     this.actions$
-      .pipe(
-        ofType(
-          registrationEmailAvailable
-        )
-      )
+      .pipe(ofType(registrationEmailAvailable), takeUntilDestroyed())
+      .subscribe(() => this.sendOtp());
+
+    // Registered successfully -> slide back to the login form
+    this.actions$
+      .pipe(ofType(registerSuccess), takeUntilDestroyed())
       .subscribe(() => {
-
-        if (!this.pendingRegistration) {
-
-          return;
-
-        }
-
-
-        const user =
-          this.pendingRegistration;
-
-
-        // ------------------------------------------------
-        // SEND OTP
-        // ------------------------------------------------
-
-        this.otpService
-          .sendOtp(
-            user.email,
-            user.firstName
-          )
-          .subscribe({
-
-            next: otpSent => {
-
-              if (!otpSent) {
-
-                this.pendingRegistration = null;
-
-                this.toastService.error(
-                  'Unable to send verification code. Please try again.'
-                );
-
-                return;
-
-              }
-
-
-              // ------------------------------------------
-              // SHOW OTP POPUP
-              // ------------------------------------------
-
-              this.showOtp.set(true);
-
-            },
-
-            error: error => {
-
-              console.error(
-                'OTP sending failed:',
-                error
-              );
-
-              this.pendingRegistration = null;
-
-              this.toastService.error(
-                'Unable to send verification code. Please try again.'
-              );
-
-            }
-
-          });
-
+        this.registerForm.reset();
+        this.showLogin();
       });
-
   }
 
 
-  // =====================================================
-  // PASSWORD VISIBILITY
-  // =====================================================
+  // ---------- PASSWORD VISIBILITY ----------
 
   toggleLoginPassword(): void {
-
-    this.showLoginPassword.update(
-      value => !value
-    );
-
+    this.showLoginPassword.update(v => !v);
   }
-
 
   toggleRegisterPassword(): void {
-
-    this.showRegisterPassword.update(
-      value => !value
-    );
-
+    this.showRegisterPassword.update(v => !v);
   }
-
 
   toggleConfirmPassword(): void {
-
-    this.showConfirmPassword.update(
-      value => !value
-    );
-
+    this.showConfirmPassword.update(v => !v);
   }
 
 
-  // =====================================================
-  // GO TO REGISTER
-  // =====================================================
+  // ---------- LOGIN / REGISTER SWITCH ----------
 
   showRegister(): void {
-
-    this.isRegisterMode.set(true);
-
-
-    const returnUrl =
-      this.route.snapshot
-        .queryParamMap
-        .get('returnUrl');
-
-
-    const url =
-      returnUrl
-        ? `/register?returnUrl=${encodeURIComponent(returnUrl)}`
-        : '/register';
-
-
-    this.location.replaceState(url);
-
+    this.switchMode(true);
   }
-
-
-  // =====================================================
-  // GO TO LOGIN
-  // =====================================================
 
   showLogin(): void {
+    this.switchMode(false);
+  }
 
-    this.isRegisterMode.set(false);
+  private switchMode(toRegister: boolean): void {
+    this.isRegisterMode.set(toRegister);
 
+    const path = toRegister ? '/register' : '/login';
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
 
-    const returnUrl =
-      this.route.snapshot
-        .queryParamMap
-        .get('returnUrl');
-
-
-    const url =
-      returnUrl
-        ? `/login?returnUrl=${encodeURIComponent(returnUrl)}`
-        : '/login';
-
-
-    this.location.replaceState(url);
-
+    this.location.replaceState(returnUrl ? `${path}?returnUrl=${encodeURIComponent(returnUrl)}` : path);
   }
 
 
-  // =====================================================
-  // LOGIN
-  // =====================================================
+  // ---------- LOGIN ----------
 
   submitLogin(): void {
-
     if (this.loginForm.invalid) {
-
       this.loginForm.markAllAsTouched();
-
       return;
-
     }
 
+    const { email, password } = this.loginForm.getRawValue();
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
 
-    const {
-      email,
-      password
-    } =
-      this.loginForm.getRawValue();
-
-
-    const returnUrl =
-      this.route.snapshot
-        .queryParamMap
-        .get('returnUrl') ?? '/';
-
-
-    this.store.dispatch(
-
-      login({
-
-        email: email!,
-
-        password: password!,
-
-        returnUrl
-
-      })
-
-    );
-
+    this.store.dispatch(login({ email: email!, password: password!, returnUrl }));
   }
 
 
-  // =====================================================
-  // REGISTER
-  // =====================================================
+  // ---------- REGISTER (email check -> OTP -> register) ----------
 
   submitRegister(): void {
-
-    // ---------------------------------------------------
-    // VALIDATE FORM
-    // ---------------------------------------------------
-
     if (this.registerForm.invalid) {
-
       this.registerForm.markAllAsTouched();
-
       return;
-
     }
 
-
-    // ---------------------------------------------------
-    // GET FORM DATA
-    // ---------------------------------------------------
-
-    const value =
-      this.registerForm.getRawValue();
-
-
-    // ---------------------------------------------------
-    // SAVE TEMPORARY REGISTRATION
-    // ---------------------------------------------------
+    const value = this.registerForm.getRawValue();
 
     this.pendingRegistration = {
-
-      firstName:
-        value.firstName!.trim(),
-
-      lastName:
-        value.lastName!.trim(),
-
-      email:
-        value.email!.trim(),
-
-      password:
-        value.password!,
-
-      phone:
-        value.phone!.trim()
-
+      firstName: value.firstName!.trim(),
+      lastName: value.lastName!.trim(),
+      email: value.email!.trim(),
+      phone: value.phone!.trim(),
+      password: value.password!
     };
 
-
-    // ---------------------------------------------------
-    // CHECK EMAIL THROUGH NGRX
-    // ---------------------------------------------------
-
-    this.store.dispatch(
-
-      checkRegistrationEmail({
-
-        email:
-          this.pendingRegistration.email
-
-      })
-
-    );
-
+    this.store.dispatch(checkRegistrationEmail({ email: this.pendingRegistration.email }));
   }
 
+  private sendOtp(): void {
+    const user = this.pendingRegistration;
+    if (!user) return;
 
-  // =====================================================
-  // OTP VERIFIED
-  // =====================================================
+    this.otpService.sendOtp(user.email, user.firstName).subscribe(sent => {
+      if (sent) {
+        this.showOtp.set(true);
+      } else {
+        this.pendingRegistration = null;
+        this.toast.error('Unable to send verification code. Please try again.');
+      }
+    });
+  }
 
   onOtpVerified(): void {
-
-    // ---------------------------------------------------
-    // SAFETY CHECK
-    // ---------------------------------------------------
-
-    if (!this.pendingRegistration) {
-
-      this.showOtp.set(false);
-
-      return;
-
-    }
-
-
-    // ---------------------------------------------------
-    // CLOSE OTP
-    // ---------------------------------------------------
-
     this.showOtp.set(false);
 
-
-    // ---------------------------------------------------
-    // REGISTER USER
-    // ---------------------------------------------------
-
-    this.store.dispatch(
-
-      register({
-
-        user:
-          this.pendingRegistration
-
-      })
-
-    );
-
-
-    // ---------------------------------------------------
-    // CLEAR TEMPORARY DATA
-    // ---------------------------------------------------
-
-    this.pendingRegistration = null;
-
+    if (this.pendingRegistration) {
+      this.store.dispatch(register({ user: this.pendingRegistration }));
+      this.pendingRegistration = null;
+    }
   }
-
-
-  // =====================================================
-  // OTP CANCELLED
-  // =====================================================
 
   onOtpCancelled(): void {
-
     this.showOtp.set(false);
-
     this.pendingRegistration = null;
-
     this.otpService.clearOtp();
-
   }
-
 }

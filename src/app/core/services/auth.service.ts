@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
+import { ToastService } from './toast.service';
 
 
 @Injectable({
@@ -11,6 +12,7 @@ export class AuthService {
 
   private http = inject(HttpClient);
   private readonly API_URL ='http://localhost:3000/users';
+  toastservice=inject(ToastService)
 
   // LOGIN
 
@@ -32,6 +34,7 @@ export class AuthService {
   // REGISTER
 
   register(user: Omit<User, 'id'>): Observable<User> {
+    this.toastservice.success("Registration Successful")
     return this.http.post<User>(
       this.API_URL,
       user

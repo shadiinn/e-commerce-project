@@ -1,351 +1,57 @@
-<div
-  class="border border-brand-border bg-brand-surface p-6"
->
+<!-- ================================================= -->
+<!-- ADDRESS FORM (reused for "edit" and "add new")    -->
+<!-- ================================================= -->
 
-  <!-- ================================================= -->
-  <!-- HEADER -->
-  <!-- ================================================= -->
-
-  <div
-    class="flex items-center justify-between border-b border-brand-border pb-4"
-  >
-
-    <div>
-
-      <p
-        class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
-      >
-        Address
-      </p>
-
-      <h3
-        class="mt-1 text-sm font-medium text-brand-text"
-      >
-        {{ address() ? 'Edit Address' : 'Add Address' }}
-      </h3>
-
-    </div>
-
-  </div>
-
-
-  <!-- ================================================= -->
-  <!-- FORM -->
-  <!-- ================================================= -->
+<ng-template #formTemplate>
 
   <form
-    [formGroup]="addressForm"
+    [formGroup]="form"
     (ngSubmit)="save()"
-    class="mt-6 space-y-5"
+    class="mt-3 border border-brand-border bg-brand-surface p-6"
   >
 
-    <!-- ================================================= -->
-    <!-- FIRST / LAST NAME -->
-    <!-- ================================================= -->
-
-    <div
-      class="grid gap-5 sm:grid-cols-2"
-    >
-
-      <!-- FIRST NAME -->
-
-      <div>
-
-        <label
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-        >
-          First Name
-        </label>
-
-        <input
-          type="text"
-          formControlName="firstName"
-          class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-        />
-
-        @if (
-          addressForm.controls.firstName.touched &&
-          addressForm.controls.firstName.invalid
-        ) {
-
-          <p
-            class="mt-1 text-[10px] text-red-600"
-          >
-            letters only
-          </p>
-
-        }
-
-      </div>
-
-
-      <!-- LAST NAME -->
-
-      <div>
-
-        <label
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-        >
-          Last Name
-        </label>
-
-        <input
-          type="text"
-          formControlName="lastName"
-          class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-        />
-
-        @if (
-          addressForm.controls.lastName.touched &&
-          addressForm.controls.lastName.invalid
-        ) {
-
-          <p
-            class="mt-1 text-[10px] text-red-600"
-          >
-            letters only
-          </p>
-
-        }
-
-      </div>
-
+    <div class="border-b border-brand-border pb-4">
+      <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted">Address</p>
+      <h3 class="mt-1 text-sm font-medium text-brand-text">
+        {{ editingId() === 'new' ? 'Add Address' : 'Edit Address' }}
+      </h3>
     </div>
 
+    <div class="mt-6 grid gap-5 sm:grid-cols-2">
 
-    <!-- ================================================= -->
-    <!-- ADDRESS -->
-    <!-- ================================================= -->
+      @for (f of fields; track f.name) {
 
-    <div>
+        <div [class]="f.full ? 'sm:col-span-2' : ''">
 
-      <label
-        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-      >
-        Address
-      </label>
+          <label class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted">
+            {{ f.label }}
+          </label>
 
-      <input
-        type="text"
-        formControlName="address"
-        placeholder="Street address"
-        class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-      />
+          <input
+            type="text"
+            [formControlName]="f.name"
+            [placeholder]="f.placeholder ?? ''"
+            [readOnly]="f.name === 'country'"
+            [attr.inputmode]="f.name === 'postalCode' ? 'numeric' : null"
+            [class]="f.name === 'country' ? 'cursor-not-allowed bg-gray-100 text-brand-muted' : 'bg-brand-surface text-brand-text'"
+            class="mt-2 w-full border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-text"
+          />
 
-      @if (
-        addressForm.controls.address.touched &&
-        addressForm.controls.address.invalid
-      ) {
+          @if (form.get(f.name)?.touched && form.get(f.name)?.invalid) {
+            <p class="mt-1 text-[10px] text-red-600">{{ f.error }}</p>
+          }
 
-        <p
-          class="mt-1 text-[10px] text-red-600"
-        >
-          Enter a valid address.
-        </p>
+        </div>
 
       }
 
     </div>
 
-
-    <!-- ================================================= -->
-    <!-- APARTMENT -->
-    <!-- ================================================= -->
-
-    <div>
-
-      <label
-        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-      >
-        Apartment / Landmark
-      </label>
-
-      <input
-        type="text"
-        formControlName="apartment"
-        placeholder="Optional"
-        class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-      />
-
-      @if (
-        addressForm.controls.apartment.touched &&
-        addressForm.controls.apartment.invalid
-      ) {
-
-        <p
-          class="mt-1 text-[10px] text-red-600"
-        >
-          Enter a valid value.
-        </p>
-
-      }
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- CITY / STATE -->
-    <!-- ================================================= -->
-
-    <div
-      class="grid gap-5 sm:grid-cols-2"
-    >
-
-      <!-- CITY -->
-
-      <div>
-
-        <label
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-        >
-          City
-        </label>
-
-        <input
-          type="text"
-          formControlName="city"
-          class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-        />
-
-        @if (
-          addressForm.controls.city.touched &&
-          addressForm.controls.city.invalid
-        ) {
-
-          <p
-            class="mt-1 text-[10px] text-red-600"
-          >
-            Enter a valid city.
-          </p>
-
-        }
-
-      </div>
-
-
-      <!-- STATE -->
-
-      <div>
-
-        <label
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-        >
-          State
-        </label>
-
-        <input
-          type="text"
-          formControlName="state"
-          class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-        />
-
-        @if (
-          addressForm.controls.state.touched &&
-          addressForm.controls.state.invalid
-        ) {
-
-          <p
-            class="mt-1 text-[10px] text-red-600"
-          >
-            Enter a valid state.
-          </p>
-
-        }
-
-      </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- POSTAL / COUNTRY -->
-    <!-- ================================================= -->
-
-    <div
-      class="grid gap-5 sm:grid-cols-2"
-    >
-
-      <!-- POSTAL CODE -->
-
-      <div>
-
-        <label
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-        >
-          Postal Code
-        </label>
-
-        <input
-          type="text"
-          inputmode="numeric"
-          maxlength="6"
-          formControlName="postalCode"
-          (input)="onPostalCodeInput($event)"
-          class="mt-2 w-full border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-        />
-
-        @if (
-          addressForm.controls.postalCode.touched &&
-          addressForm.controls.postalCode.invalid
-        ) {
-
-          <p
-            class="mt-1 text-[10px] text-red-600"
-          >
-            Enter a valid 6-digit postal code.
-          </p>
-
-        }
-
-      </div>
-
-
-      <!-- COUNTRY -->
-
-      <div>
-
-        <label
-          class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted"
-        >
-          Country
-        </label>
-
-        <input
-          type="text"
-          readonly
-          formControlName="country"
-          class="mt-2 w-full cursor-not-allowed border border-brand-border bg-gray-100 px-3 py-3 text-sm text-brand-muted outline-none"
-        />
-
-        @if (
-          addressForm.controls.country.touched &&
-          addressForm.controls.country.invalid
-        ) {
-
-          <p
-            class="mt-1 text-[10px] text-red-600"
-          >
-            Country is required.
-          </p>
-
-        }
-
-      </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- ACTIONS -->
-    <!-- ================================================= -->
-
-    <div
-      class="flex justify-end gap-3 border-t border-brand-border pt-5"
-    >
+    <div class="mt-6 flex justify-end gap-3 border-t border-brand-border pt-5">
 
       <button
         type="button"
-        (click)="cancel()"
+        (click)="editingId.set(null)"
         class="border border-brand-border px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:border-brand-text"
       >
         Cancel
@@ -353,14 +59,182 @@
 
       <button
         type="submit"
-        [disabled]="addressForm.invalid"
+        [disabled]="form.invalid"
         class="bg-brand-text px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {{ address() ? 'Update Address' : 'Save Address' }}
+        {{ editingId() === 'new' ? 'Save Address' : 'Update Address' }}
       </button>
 
     </div>
 
   </form>
 
+</ng-template>
+
+
+<!-- ================================================= -->
+<!-- SAVED ADDRESSES (form opens right under the one   -->
+<!-- being edited)                                     -->
+<!-- ================================================= -->
+
+<div class="space-y-3">
+
+  @for (a of addresses(); track a.id) {
+
+    <div
+      class="border p-5 transition-colors duration-200"
+      [class]="isSelected(a) ? 'border-brand-text bg-brand-surface' : 'border-brand-border hover:border-brand-text'"
+    >
+
+      <div class="flex items-start gap-4">
+
+        @if (selectable()) {
+          <button
+            type="button"
+            (click)="pick(a)"
+            aria-label="Select address"
+            class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-brand-text"
+          >
+            @if (isSelected(a)) {
+              <span class="h-2 w-2 rounded-full bg-brand-text"></span>
+            }
+          </button>
+        }
+
+        <div
+          class="min-w-0 flex-1"
+          [class.cursor-pointer]="selectable()"
+          (click)="pick(a)"
+        >
+          <div class="flex items-start justify-between gap-4">
+
+            <div>
+              <p class="text-sm font-medium text-brand-text">{{ a.firstName }} {{ a.lastName }}</p>
+
+              <p class="mt-2 text-xs leading-5 text-brand-muted">
+                {{ a.apartment ? a.address + ', ' + a.apartment : a.address }}<br />
+                {{ a.city }}, {{ a.state }} {{ a.postalCode }}<br />
+                {{ a.country }}
+              </p>
+            </div>
+
+            <div class="flex shrink-0 flex-col items-end gap-1 text-[9px] font-medium uppercase tracking-[0.15em]">
+              @if (a.isDefault) {
+                <span class="border border-brand-text px-2 py-1 text-brand-text">Default</span>
+              }
+              @if (isSelected(a)) {
+                <span class="text-brand-text">Selected</span>
+              }
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      @if (editingId() !== a.id) {
+
+        <div
+          class="mt-4 flex items-center gap-6 border-t border-brand-border pt-4"
+          [class.pl-8]="selectable()"
+        >
+
+          <button
+            type="button"
+            (click)="edit(a)"
+            class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors hover:text-brand-text"
+          >
+            Edit Address
+          </button>
+
+          <button
+            type="button"
+            (click)="deletingId.set(a.id)"
+            class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors hover:text-red-600"
+          >
+            Delete Address
+          </button>
+
+          @if (!a.isDefault) {
+            <button
+              type="button"
+              (click)="setDefault(a.id)"
+              class="ml-auto text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors hover:text-brand-text"
+            >
+              Set as Default
+            </button>
+          }
+
+        </div>
+
+      }
+
+    </div>
+
+    @if (editingId() === a.id) {
+      <ng-container [ngTemplateOutlet]="formTemplate"></ng-container>
+    }
+
+  }
+
 </div>
+
+
+<!-- ================================================= -->
+<!-- ADD NEW / EMPTY STATE                             -->
+<!-- ================================================= -->
+
+@if (editingId() === 'new') {
+
+  <ng-container [ngTemplateOutlet]="formTemplate"></ng-container>
+
+} @else if (!editingId()) {
+
+  @if (addresses().length === 0) {
+
+    <div class="mt-6 border border-dashed border-brand-border p-8 text-center">
+      <p class="text-sm font-light text-brand-text">No saved address</p>
+      <p class="mt-2 text-xs leading-5 text-brand-muted">
+        Add a shipping address to use it during checkout.
+      </p>
+      <button
+        type="button"
+        (click)="add()"
+        class="mt-5 bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-80"
+      >
+        Add Address
+      </button>
+    </div>
+
+  } @else if (canAdd()) {
+
+    <div class="mt-5">
+      <button
+        type="button"
+        (click)="add()"
+        class="group flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
+      >
+        <span class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"></span>
+        Add New Address
+        <span class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"></span>
+      </button>
+    </div>
+
+  }
+
+}
+
+
+<!-- ================================================= -->
+<!-- DELETE CONFIRMATION                               -->
+<!-- ================================================= -->
+
+@if (deletingId()) {
+  <app-confirm-dialog
+    title="Delete address?"
+    message="This address will be removed from your saved addresses. This cannot be undone."
+    confirmText="Delete"
+    (confirmed)="confirmDelete()"
+    (cancelled)="deletingId.set(null)"
+  />
+}

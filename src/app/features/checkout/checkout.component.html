@@ -1,39 +1,23 @@
 <section class="min-h-screen bg-brand-background">
 
-  <div
-    class="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-10 lg:py-20"
-  >
+  <div class="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-10 lg:py-20">
 
     <!-- ================================================= -->
     <!-- HEADER -->
     <!-- ================================================= -->
 
-    <div
-      class="border-b border-brand-border pb-7"
-    >
-
-      <p
-        class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted"
-      >
-        Complete Your Purchase
-      </p>
-
-      <h1
-        class="mt-3 text-3xl font-light tracking-tight text-brand-text sm:text-4xl"
-      >
-        Checkout
-      </h1>
-
+    <div class="border-b border-brand-border pb-7">
+      <p class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted">Complete Your Purchase</p>
+      <h1 class="mt-3 text-3xl font-light tracking-tight text-brand-text sm:text-4xl">Checkout</h1>
     </div>
 
 
-    <!-- ================================================= -->
-    <!-- CHECKOUT -->
-    <!-- ================================================= -->
-
-    <form
+    <!--
+      A <div> (not a <form>) is used on purpose: the address component has its
+      own <form> and forms must not be nested.
+    -->
+    <div
       [formGroup]="checkoutForm"
-      (ngSubmit)="placeOrder()"
       class="mt-10 grid gap-14 lg:grid-cols-[1fr_380px] lg:gap-16"
     >
 
@@ -43,320 +27,41 @@
 
       <div class="space-y-12">
 
-
-        <!-- ================================================= -->
-        <!-- SHIPPING ADDRESS -->
-        <!-- ================================================= -->
+        <!-- STEP 01: SHIPPING ADDRESS -->
 
         <section>
 
-          <div
-            class="flex items-end justify-between border-b border-brand-border pb-5"
-          >
-
-            <div>
-
-              <p
-                class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
-              >
-                Step 01
-              </p>
-
-              <h2
-                class="mt-2 text-lg font-medium text-brand-text"
-              >
-                Shipping Address
-              </h2>
-
-            </div>
-
+          <div class="border-b border-brand-border pb-5">
+            <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted">Step 01</p>
+            <h2 class="mt-2 text-lg font-medium text-brand-text">Shipping Address</h2>
           </div>
 
-
-          <!-- =============================================== -->
-          <!-- SAVED ADDRESSES -->
-          <!-- =============================================== -->
-
-          @if (savedAddresses().length > 0) {
-
-            <div class="mt-6 space-y-3">
-
-              @for (
-                address of savedAddresses();
-                track address.id
-              ) {
-
-                <div
-                  class="group border p-5 transition-colors duration-200"
-                  [class.border-brand-text]="
-                    selectedAddressId() === address.id
-                  "
-                  [class.bg-brand-surface]="
-                    selectedAddressId() === address.id
-                  "
-                  [class.border-brand-border]="
-                    selectedAddressId() !== address.id
-                  "
-                >
-
-                  <div
-                    class="flex items-start gap-4"
-                  >
-
-                    <!-- SELECT -->
-
-                    <button
-                      type="button"
-                      (click)="selectAddress(address)"
-                      class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-brand-text"
-                      [attr.aria-label]="'Select address'"
-                    >
-
-                      @if (
-                        selectedAddressId() === address.id
-                      ) {
-
-                        <span
-                          class="h-2 w-2 rounded-full bg-brand-text"
-                        ></span>
-
-                      }
-
-                    </button>
-
-
-                    <!-- ADDRESS DETAILS -->
-
-                    <button
-                      type="button"
-                      (click)="selectAddress(address)"
-                      class="min-w-0 flex-1 text-left"
-                    >
-
-                      <div
-                        class="flex items-start justify-between gap-4"
-                      >
-
-                        <div>
-
-                          <p
-                            class="text-sm font-medium text-brand-text"
-                          >
-                            {{ address.firstName }}
-                            {{ address.lastName }}
-                          </p>
-
-                          <p
-                            class="mt-2 text-xs leading-5 text-brand-muted"
-                          >
-
-                            {{ address.address }}
-
-                            @if (address.apartment) {
-
-                              <span>
-                                , {{ address.apartment }}
-                              </span>
-
-                            }
-
-                            <br />
-
-                            {{ address.city }},
-                            {{ address.state }}
-                            {{ address.postalCode }}
-
-                            <br />
-
-                            {{ address.country }}
-
-                          </p>
-
-                        </div>
-
-
-                        <!-- SELECTED -->
-
-                        @if (
-                          selectedAddressId() === address.id
-                        ) {
-
-                          <span
-                            class="shrink-0 text-[9px] font-medium uppercase tracking-[0.15em] text-brand-text"
-                          >
-                            Selected
-                          </span>
-
-                        }
-
-                      </div>
-
-                    </button>
-
-                  </div>
-
-
-                  <!-- EDIT -->
-
-                  <div
-                    class="mt-4 border-t border-brand-border pt-4 pl-8"
-                  >
-
-                    <button
-                      type="button"
-                      (click)="editAddress(address)"
-                      class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
-                    >
-                      Edit Address
-                    </button>
-
-                  </div>
-
-                </div>
-
-              }
-
-            </div>
-
-          }
-
-
-          <!-- ================================================= -->
-          <!-- ADD ADDRESS -->
-          <!-- ================================================= -->
-
-          @if (
-            !isAddressFormOpen() &&
-            savedAddresses().length < 2
-          ) {
-
-            <div class="mt-5">
-
-              <button
-                type="button"
-                (click)="openAddAddress()"
-                class="group flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text"
-              >
-
-                <span
-                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
-                ></span>
-
-                Add New Address
-
-                <span
-                  class="h-px w-5 shrink-0 bg-brand-text transition-all duration-200 group-hover:w-8"
-                ></span>
-
-              </button>
-
-            </div>
-
-          }
-
-
-          <!-- ================================================= -->
-          <!-- REUSABLE ADDRESS FORM -->
-          <!-- ================================================= -->
-
-          @if (isAddressFormOpen()) {
-
-            <div class="mt-7">
-
-              <app-address-form
-                [address]="editingAddress()"
-                [firstName]="checkoutForm.controls.firstName.value"
-                [lastName]="checkoutForm.controls.lastName.value"
-                (saved)="onAddressSaved($event)"
-                (cancelled)="cancelAddressForm()"
-              />
-
-            </div>
-
-          }
-
-
-          <!-- ================================================= -->
-          <!-- NO ADDRESS MESSAGE -->
-          <!-- ================================================= -->
-
-          @if (
-            savedAddresses().length === 0 &&
-            !isAddressFormOpen()
-          ) {
-
-            <div
-              class="mt-6 border border-dashed border-brand-border p-8 text-center"
-            >
-
-              <p
-                class="text-sm font-light text-brand-text"
-              >
-                No saved address
-              </p>
-
-              <p
-                class="mt-2 text-xs leading-5 text-brand-muted"
-              >
-                Add a shipping address to continue
-                with your order.
-              </p>
-
-              <button
-                type="button"
-                (click)="openAddAddress()"
-                class="mt-5 bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
-              >
-                Add Address
-              </button>
-
-            </div>
-
-          }
+          <div class="mt-6">
+            <app-address-form
+              #addressBook
+              [email]="user()?.email ?? ''"
+              [firstName]="user()?.firstName ?? ''"
+              [lastName]="user()?.lastName ?? ''"
+              [selectable]="true"
+            />
+          </div>
 
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- CONTACT INFORMATION -->
-        <!-- ================================================= -->
+        <!-- STEP 02: CONTACT -->
 
         <section>
 
-          <div
-            class="border-b border-brand-border pb-5"
-          >
-
-            <p
-              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
-            >
-              Step 02
-            </p>
-
-            <h2
-              class="mt-2 text-lg font-medium text-brand-text"
-            >
-              Contact Information
-            </h2>
-
+          <div class="border-b border-brand-border pb-5">
+            <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted">Step 02</p>
+            <h2 class="mt-2 text-lg font-medium text-brand-text">Contact Information</h2>
           </div>
 
-
-          <div
-            class="mt-6 grid gap-5 sm:grid-cols-2"
-          >
-
-            <!-- EMAIL -->
+          <div class="mt-6 grid gap-5 sm:grid-cols-2">
 
             <div>
-
-              <label
-                for="email"
-                class="text-[11px] text-brand-muted"
-              >
-                Email Address
-              </label>
-
+              <label for="email" class="text-[11px] text-brand-muted">Email Address</label>
               <input
                 id="email"
                 type="email"
@@ -364,34 +69,13 @@
                 placeholder="you@example.com"
                 class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
               />
-
-              @if (
-                checkoutForm.controls.email.touched &&
-                checkoutForm.controls.email.invalid
-              ) {
-
-                <p
-                  class="mt-2 text-[10px] text-red-600"
-                >
-                  Please enter a valid email address.
-                </p>
-
+              @if (checkoutForm.controls.email.touched && checkoutForm.controls.email.invalid) {
+                <p class="mt-2 text-[10px] text-red-600">Please enter a valid email address.</p>
               }
-
             </div>
 
-
-            <!-- PHONE -->
-
             <div>
-
-              <label
-                for="phone"
-                class="text-[11px] text-brand-muted"
-              >
-                Phone Number
-              </label>
-
+              <label for="phone" class="text-[11px] text-brand-muted">Phone Number</label>
               <input
                 id="phone"
                 type="tel"
@@ -399,20 +83,9 @@
                 placeholder="10 digit mobile number"
                 class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
               />
-
-              @if (
-                checkoutForm.controls.phone.touched &&
-                checkoutForm.controls.phone.invalid
-              ) {
-
-                <p
-                  class="mt-2 text-[10px] text-red-600"
-                >
-                  Please enter a valid 10 digit phone number.
-                </p>
-
+              @if (checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid) {
+                <p class="mt-2 text-[10px] text-red-600">Please enter a valid 10 digit phone number.</p>
               }
-
             </div>
 
           </div>
@@ -420,173 +93,61 @@
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- DELIVERY -->
-        <!-- ================================================= -->
+        <!-- STEP 03: DELIVERY -->
 
         <section>
 
-          <div
-            class="border-b border-brand-border pb-5"
-          >
-
-            <p
-              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
-            >
-              Step 03
-            </p>
-
-            <h2
-              class="mt-2 text-lg font-medium text-brand-text"
-            >
-              Delivery
-            </h2>
-
+          <div class="border-b border-brand-border pb-5">
+            <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted">Step 03</p>
+            <h2 class="mt-2 text-lg font-medium text-brand-text">Delivery</h2>
           </div>
 
-
-          <div
-            class="mt-6 border border-brand-text bg-brand-surface p-5"
-          >
-
-            <div
-              class="flex items-start justify-between gap-5"
-            >
-
+          <div class="mt-6 border border-brand-text bg-brand-surface p-5">
+            <div class="flex items-start justify-between gap-5">
               <div>
-
                 <div class="flex items-center gap-3">
-
-                  <span
-                    class="flex h-4 w-4 items-center justify-center rounded-full border border-brand-text"
-                  >
-
-                    <span
-                      class="h-2 w-2 rounded-full bg-brand-text"
-                    ></span>
-
+                  <span class="flex h-4 w-4 items-center justify-center rounded-full border border-brand-text">
+                    <span class="h-2 w-2 rounded-full bg-brand-text"></span>
                   </span>
-
-                  <p
-                    class="text-sm font-medium text-brand-text"
-                  >
-                    Standard Delivery
-                  </p>
-
+                  <p class="text-sm font-medium text-brand-text">Standard Delivery</p>
                 </div>
-
-                <p
-                  class="mt-2 pl-7 text-xs leading-5 text-brand-muted"
-                >
-                  Delivered within 3–7 business days
-                </p>
-
+                <p class="mt-2 pl-7 text-xs leading-5 text-brand-muted">Delivered within 3–7 business days</p>
               </div>
-
-              <p
-                class="shrink-0 text-sm text-brand-text"
-              >
-                Free
-              </p>
-
+              <p class="shrink-0 text-sm text-brand-text">Free</p>
             </div>
-
           </div>
 
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- PAYMENT -->
-        <!-- ================================================= -->
+        <!-- STEP 04: PAYMENT -->
 
         <section>
 
-          <div
-            class="border-b border-brand-border pb-5"
-          >
-
-            <p
-              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
-            >
-              Step 04
-            </p>
-
-            <h2
-              class="mt-2 text-lg font-medium text-brand-text"
-            >
-              Payment
-            </h2>
-
+          <div class="border-b border-brand-border pb-5">
+            <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted">Step 04</p>
+            <h2 class="mt-2 text-lg font-medium text-brand-text">Payment</h2>
           </div>
 
+          <div class="mt-6 space-y-3">
 
-          <div
-            class="mt-6 space-y-3"
-          >
-
-            <!-- COD -->
-
-            <label
-              class="flex cursor-pointer items-start gap-4 border border-brand-text bg-brand-surface p-5"
-            >
-
-              <input
-                type="radio"
-                formControlName="paymentMethod"
-                value="cod"
-                class="mt-1 h-4 w-4 accent-black"
-              />
-
-              <div>
-
-                <p
-                  class="text-sm font-medium text-brand-text"
-                >
-                  Cash on Delivery
-                </p>
-
-                <p
-                  class="mt-1 text-xs leading-5 text-brand-muted"
-                >
-                  Pay when your order is delivered.
-                </p>
-
-              </div>
-
-            </label>
-
-
-            <!-- ONLINE PAYMENT -->
-
-            <label
-              class="flex cursor-pointer items-start gap-4 border border-brand-border bg-brand-surface p-5 transition-colors duration-200 hover:border-brand-text"
-            >
-
-              <input
-                type="radio"
-                formControlName="paymentMethod"
-                value="online"
-                class="mt-1 h-4 w-4 accent-black"
-              />
-
-              <div>
-
-                <p
-                  class="text-sm font-medium text-brand-text"
-                >
-                  Online Payment
-                </p>
-
-                <p
-                  class="mt-1 text-xs leading-5 text-brand-muted"
-                >
-                  Payment gateway integration will be added later.
-                </p>
-
-              </div>
-
-            </label>
+            @for (option of paymentOptions; track option.value) {
+              <label
+                class="flex cursor-pointer items-start gap-4 border bg-brand-surface p-5 transition-colors duration-200 hover:border-brand-text"
+                [class]="checkoutForm.controls.paymentMethod.value === option.value ? 'border-brand-text' : 'border-brand-border'"
+              >
+                <input
+                  type="radio"
+                  formControlName="paymentMethod"
+                  [value]="option.value"
+                  class="mt-1 h-4 w-4 accent-black"
+                />
+                <div>
+                  <p class="text-sm font-medium text-brand-text">{{ option.title }}</p>
+                  <p class="mt-1 text-xs leading-5 text-brand-muted">{{ option.note }}</p>
+                </div>
+              </label>
+            }
 
           </div>
 
@@ -599,120 +160,36 @@
       <!-- RIGHT SIDE — ORDER SUMMARY -->
       <!-- ================================================= -->
 
-      <aside
-        class="h-fit border border-brand-border bg-brand-surface p-6 sm:p-7 lg:sticky lg:top-24"
-      >
+      <aside class="h-fit border border-brand-border bg-brand-surface p-6 sm:p-7 lg:sticky lg:top-24">
 
-        <div
-          class="flex items-center justify-between border-b border-brand-border pb-5"
-        >
-
-          <div>
-
-            <p
-              class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted"
-            >
-              Your Selection
-            </p>
-
-            <h2
-              class="mt-2 text-lg font-medium text-brand-text"
-            >
-              Order Summary
-            </h2>
-
-          </div>
-
+        <div class="border-b border-brand-border pb-5">
+          <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-muted">Your Selection</p>
+          <h2 class="mt-2 text-lg font-medium text-brand-text">Order Summary</h2>
         </div>
 
+        @if (checkoutItems$ | async; as items) {
 
-        <!-- ================================================= -->
-        <!-- CHECKOUT ITEMS -->
-        <!-- ================================================= -->
+          <div class="mt-6 space-y-5">
 
-        @if (
-          checkoutItems$ | async;
-          as items
-        ) {
+            @for (item of items; track item.productId + item.variantId + item.size) {
 
-          <div
-            class="mt-6 space-y-5"
-          >
+              <div class="flex gap-4">
 
-            @for (
-              item of items;
-              track item.productId + item.variantId + item.size
-            ) {
-
-              <div
-                class="flex gap-4"
-              >
-
-                <!-- IMAGE -->
-
-                <div
-                  class="relative h-20 w-16 shrink-0 overflow-hidden bg-brand-background"
-                >
-
-                  <img
-                    [src]="item.variant.images[0]"
-                    [alt]="item.product.name"
-                    class="h-full w-full object-cover"
-                  />
-
-                  <span
-                    class="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center bg-brand-text px-1 text-[9px] text-white"
-                  >
+                <div class="relative h-20 w-16 shrink-0 overflow-hidden bg-brand-background">
+                  <img [src]="item.variant.images[0]" [alt]="item.product.name" class="h-full w-full object-cover" />
+                  <span class="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center bg-brand-text px-1 text-[9px] text-white">
                     {{ item.quantity }}
                   </span>
-
                 </div>
 
-
-                <!-- PRODUCT INFO -->
-
-                <div
-                  class="min-w-0 flex-1"
-                >
-
-                  <p
-                    class="truncate text-sm font-medium text-brand-text"
-                  >
-                    {{ item.product.name }}
-                  </p>
-
-                  <!-- COLOR -->
-
-                  <p
-                    class="mt-1 text-xs text-brand-muted"
-                  >
-                    Color: {{ item.variant.color }}
-                  </p>
-
-                  <!-- SIZE -->
-
-                  <p
-                    class="mt-1 text-xs text-brand-muted"
-                  >
-                    Size: {{ item.size }}
-                  </p>
-
-                  <p
-                    class="mt-2 text-xs text-brand-muted"
-                  >
-                    ₹{{ item.product.price }}
-                    ×
-                    {{ item.quantity }}
-                  </p>
-
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium text-brand-text">{{ item.product.name }}</p>
+                  <p class="mt-1 text-xs text-brand-muted">Color: {{ item.variant.color }}</p>
+                  <p class="mt-1 text-xs text-brand-muted">Size: {{ item.size }}</p>
+                  <p class="mt-2 text-xs text-brand-muted">₹{{ item.product.price }} × {{ item.quantity }}</p>
                 </div>
 
-
-                <!-- ITEM TOTAL -->
-
-                <p
-                  class="shrink-0 text-sm font-medium text-brand-text"
-                >
+                <p class="shrink-0 text-sm font-medium text-brand-text">
                   ₹{{ item.product.price * item.quantity }}
                 </p>
 
@@ -724,107 +201,33 @@
 
         }
 
+        <div class="mt-7 space-y-4 border-t border-brand-border pt-6">
 
-        <!-- ================================================= -->
-        <!-- PRICE -->
-        <!-- ================================================= -->
-
-        <div
-          class="mt-7 space-y-4 border-t border-brand-border pt-6"
-        >
-
-          <!-- SUBTOTAL -->
-
-          <div
-            class="flex justify-between text-sm"
-          >
-
-            <span
-              class="text-brand-muted"
-            >
-              Subtotal
-            </span>
-
-            <span
-              class="text-brand-text"
-            >
-              ₹{{ checkoutSubtotal$ | async }}
-            </span>
-
+          <div class="flex justify-between text-sm">
+            <span class="text-brand-muted">Subtotal</span>
+            <span class="text-brand-text">₹{{ checkoutSubtotal$ | async }}</span>
           </div>
 
-
-          <!-- SHIPPING -->
-
-          <div
-            class="flex justify-between text-sm"
-          >
-
-            <span
-              class="text-brand-muted"
-            >
-              Shipping
-            </span>
-
-            <span
-              class="text-brand-text"
-            >
-              Free
-            </span>
-
+          <div class="flex justify-between text-sm">
+            <span class="text-brand-muted">Shipping</span>
+            <span class="text-brand-text">Free</span>
           </div>
 
         </div>
 
-
-        <!-- ================================================= -->
-        <!-- TOTAL -->
-        <!-- ================================================= -->
-
-        <div
-          class="mt-6 border-t border-brand-border pt-6"
-        >
-
-          <div
-            class="flex items-center justify-between"
-          >
-
-            <span
-              class="text-sm font-medium text-brand-text"
-            >
-              Total
-            </span>
-
-            <span
-              class="text-lg font-medium text-brand-text"
-            >
-              ₹{{ checkoutSubtotal$ | async }}
-            </span>
-
-          </div>
-
+        <div class="mt-6 flex items-center justify-between border-t border-brand-border pt-6">
+          <span class="text-sm font-medium text-brand-text">Total</span>
+          <span class="text-lg font-medium text-brand-text">₹{{ checkoutSubtotal$ | async }}</span>
         </div>
-
-
-        <!-- ================================================= -->
-        <!-- PLACE ORDER -->
-        <!-- ================================================= -->
 
         <button
-          type="submit"
-          [disabled]="
-            checkoutForm.invalid ||
-            savedAddresses().length === 0
-          "
+          type="button"
+          (click)="placeOrder(addressBook.selectedAddress())"
+          [disabled]="checkoutForm.invalid || !addressBook.selectedAddress()"
           class="mt-7 w-full bg-brand-text px-6 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Place Order
         </button>
-
-
-        <!-- ================================================= -->
-        <!-- RETURN TO CART -->
-        <!-- ================================================= -->
 
         <a
           routerLink="/cart"
@@ -836,7 +239,7 @@
 
       </aside>
 
-    </form>
+    </div>
 
   </div>
 

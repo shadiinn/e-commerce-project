@@ -389,33 +389,6 @@ export class AuthEffects {
 
 
   // =====================================================
-  // REGISTER SUCCESS NAVIGATION
-  // =====================================================
-
-  registerSuccessNavigation$ = createEffect(() =>
-
-    this.actions$.pipe(
-
-      ofType(registerSuccess),
-
-      tap(() => {
-
-        this.router.navigate([
-          '/login'
-        ]);
-
-      })
-
-    ),
-
-    {
-      dispatch: false
-    }
-
-  );
-
-
-  // =====================================================
   // LOGIN → MERGE GUEST CART
   // =====================================================
 
@@ -434,7 +407,7 @@ export class AuthEffects {
       )
 
     )
-
+    
   );
 
 

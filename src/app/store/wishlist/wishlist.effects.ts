@@ -65,6 +65,7 @@ import {
 import {
   GuestWishlistService
 } from '../../core/services/guest-wishlist.service';
+import { ToastService } from '../../core/services/toast.service';
 
 
 @Injectable()
@@ -81,6 +82,7 @@ export class WishlistEffects {
 
   private guestWishlistService =
     inject(GuestWishlistService);
+
 
 
   // =====================================================
@@ -248,7 +250,7 @@ export class WishlistEffects {
                       productId: product.id
                     })
                   );
-
+                  
                 }
 
 
@@ -439,7 +441,7 @@ export class WishlistEffects {
       ofType(
         removeGuestWishlistItem
       ),
-
+      
       tap(({ productId }) => {
 
         this.guestWishlistService

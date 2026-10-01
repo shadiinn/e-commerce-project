@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -6,6 +7,7 @@ import { Injectable } from '@angular/core';
 export class GuestWishlistService {
 
   private readonly STORAGE_KEY = 'sa_guest_wishlist';
+  toastservice=inject(ToastService)
 
   // GET GUEST WISHLIST
 
@@ -35,6 +37,7 @@ export class GuestWishlistService {
     }
     wishlist.push(productId);
     this.saveWishlist(wishlist);
+    this.toastservice.success("Product Added To Wishlist")
   }
 
   // REMOVE PRODUCT
@@ -45,6 +48,7 @@ export class GuestWishlistService {
         id => id !== productId
     );
     this.saveWishlist(updatedWishlist);
+    this.toastservice.success("Product Removed From Wishlist")
   }
 
   // CLEAR WISHLIST

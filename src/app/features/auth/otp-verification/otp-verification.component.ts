@@ -2,516 +2,150 @@ import {
   Component,
   ElementRef,
   OnDestroy,
-  ViewChildren,
   QueryList,
+  ViewChildren,
+  computed,
   inject,
   input,
   output,
   signal
 } from '@angular/core';
 
-import {
-  FormsModule
-} from '@angular/forms';
+import { OtpService } from '../../../core/services/otp.service';
 
-import {
-  OtpService
-} from '../../../core/services/otp.service';
-
+const OTP_LENGTH = 4;
+const OTP_SECONDS = 90;
 
 @Component({
   selector: 'app-otp-verification',
-
   standalone: true,
-
-  imports: [
-    FormsModule
-  ],
-
   templateUrl: './otp-verification.component.html'
 })
-export class OtpVerificationComponent
-  implements OnDestroy {
+export class OtpVerificationComponent implements OnDestroy {
 
-
-  // =====================================================
-  // DEPENDENCIES
-  // =====================================================
-
-  private otpService =
-    inject(OtpService);
-
-
-  // =====================================================
-  // INPUTS
-  // =====================================================
+  private otpService = inject(OtpService);
 
   email = input.required<string>();
-
   name = input.required<string>();
 
-
-  // =====================================================
-  // OUTPUTS
-  // =====================================================
-
   verified = output<void>();
-
   cancelled = output<void>();
 
+  digits = signal<string[]>(Array(OTP_LENGTH).fill(''));
+  error = signal('');
+  isResending = signal(false);
+  seconds = signal(OTP_SECONDS);
 
-  // =====================================================
-  // OTP INPUTS
-  // =====================================================
+  // mm:ss
+  time = computed(() => {
+    const minutes = Math.floor(this.seconds() / 60);
+    return `${String(minutes).padStart(2, '0')}:${String(this.seconds() % 60).padStart(2, '0')}`;
+  });
 
-  otp = signal<string[]>([
-    '',
-    '',
-    '',
-    ''
-  ]);
+  @ViewChildren('otpInput') private inputs!: QueryList<ElementRef<HTMLInputElement>>;
 
-
-  // =====================================================
-  // UI STATE
-  // =====================================================
-
-  errorMessage =
-    signal<string | null>(null);
-
-  isVerifying =
-    signal(false);
-
-  isResending =
-    signal(false);
-
-  secondsRemaining =
-    signal(90);
-
-
-  // =====================================================
-  // OTP INPUT ELEMENTS
-  // =====================================================
-
-  @ViewChildren('otpInput')
-  otpInputs!: QueryList<
-    ElementRef<HTMLInputElement>
-  >;
-
-
-  // =====================================================
-  // TIMER
-  // =====================================================
-
-  private timerId: ReturnType<
-    typeof setInterval
-  > | null = null;
-
-
-  // =====================================================
-  // INITIALIZATION
-  // =====================================================
+  private timer: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
-
     this.startTimer();
-
   }
 
 
-  // =====================================================
-  // OTP INPUT
-  // =====================================================
+  // ---------- INPUT HANDLING ----------
 
-  onOtpInput(
-    event: Event,
-    index: number
-  ): void {
+  onInput(event: Event, index: number): void {
+    const field = event.target as HTMLInputElement;
+    const digit = field.value.replace(/\D/g, '').slice(-1);
 
-    const input =
-      event.target as HTMLInputElement;
+    field.value = digit; // drops anything that is not a number
+    this.digits.update(list => list.map((d, i) => (i === index ? digit : d)));
+    this.error.set('');
 
-    const value =
-      input.value.replace(/\D/g, '');
-
-    const digit =
-      value.charAt(value.length - 1);
-
-    const currentOtp =
-      [...this.otp()];
-
-    currentOtp[index] =
-      digit;
-
-    this.otp.set(currentOtp);
-
-    this.errorMessage.set(null);
-
-
-    // Move to next input
-
-    if (
-      digit &&
-      index < 3
-    ) {
-
-      this.focusInput(index + 1);
-
-    }
-
+    if (digit && index < OTP_LENGTH - 1) this.focus(index + 1);
   }
 
-
-  // =====================================================
-  // BACKSPACE
-  // =====================================================
-
-  onKeyDown(
-    event: KeyboardEvent,
-    index: number
-  ): void {
-
-    if (
-      event.key === 'Backspace' &&
-      !this.otp()[index] &&
-      index > 0
-    ) {
-
-      this.focusInput(index - 1);
-
-    }
-
+  onKeyDown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'Backspace' && !this.digits()[index] && index > 0) this.focus(index - 1);
   }
-
-
-  // =====================================================
-  // PASTE OTP
-  // =====================================================
 
   onPaste(event: ClipboardEvent): void {
-
     event.preventDefault();
 
-    const pasted =
-      event.clipboardData
-        ?.getData('text')
-        .replace(/\D/g, '')
-        .slice(0, 4);
+    const pasted = (event.clipboardData?.getData('text') ?? '').replace(/\D/g, '').slice(0, OTP_LENGTH);
+    if (!pasted) return;
 
-    if (!pasted) {
-      return;
-    }
+    this.digits.set(Array.from({ length: OTP_LENGTH }, (_, i) => pasted[i] ?? ''));
+    this.error.set('');
+    this.focus(Math.min(pasted.length, OTP_LENGTH - 1));
+  }
 
-
-    const digits =
-      pasted.split('');
-
-    const newOtp = [
-      '',
-      '',
-      '',
-      ''
-    ];
-
-    digits.forEach(
-      (digit, index) => {
-
-        newOtp[index] =
-          digit;
-
-      }
-    );
-
-    this.otp.set(newOtp);
-
-    this.errorMessage.set(null);
-
-
-    const focusIndex =
-      Math.min(
-        digits.length,
-        4
-      ) - 1;
-
-    if (focusIndex >= 0) {
-
-      this.focusInput(
-        focusIndex
-      );
-
-    }
-
+  private focus(index: number): void {
+    setTimeout(() => this.inputs?.get(index)?.nativeElement.focus());
   }
 
 
-  // =====================================================
-  // FOCUS INPUT
-  // =====================================================
-
-  private focusInput(
-    index: number
-  ): void {
-
-    setTimeout(() => {
-
-      const input =
-        this.otpInputs
-          ?.get(index)
-          ?.nativeElement;
-
-      input?.focus();
-
-    });
-
-  }
-
-
-  // =====================================================
-  // VERIFY OTP
-  // =====================================================
+  // ---------- ACTIONS ----------
 
   verify(): void {
+    const code = this.digits().join('');
 
-    const enteredOtp =
-      this.otp().join('');
-
-
-    if (
-      enteredOtp.length !== 4
-    ) {
-
-      this.errorMessage.set(
-        'Please enter the 4-digit verification code.'
-      );
-
-      return;
-
-    }
-
-
-    if (
-      this.secondsRemaining() === 0
-    ) {
-
-      this.errorMessage.set(
-        'This code has expired. Please request a new code.'
-      );
-
-      return;
-
-    }
-
-
-    this.isVerifying.set(true);
-
-    this.errorMessage.set(null);
-
-
-    const isValid =
-      this.otpService.verifyOtp(
-        enteredOtp
-      );
-
-
-    if (isValid) {
-
+    if (code.length !== OTP_LENGTH) {
+      this.error.set('Please enter the 4-digit verification code.');
+    } else if (this.seconds() === 0) {
+      this.error.set('This code has expired. Please request a new code.');
+    } else if (this.otpService.verifyOtp(code)) {
       this.stopTimer();
-
-      this.isVerifying.set(false);
-
       this.verified.emit();
-
-      return;
-
+    } else {
+      this.error.set('Invalid verification code. Please try again.');
     }
-
-
-    this.isVerifying.set(false);
-
-    this.errorMessage.set(
-      'Invalid verification code. Please try again.'
-    );
-
   }
-
-
-  // =====================================================
-  // RESEND OTP
-  // =====================================================
 
   resend(): void {
-
-    if (
-      this.secondsRemaining() > 0 ||
-      this.isResending()
-    ) {
-
-      return;
-
-    }
-
+    if (this.seconds() > 0 || this.isResending()) return;
 
     this.isResending.set(true);
+    this.error.set('');
 
-    this.errorMessage.set(null);
+    this.otpService.sendOtp(this.email(), this.name()).subscribe(sent => {
+      this.isResending.set(false);
 
+      if (!sent) {
+        this.error.set('Unable to send a new code. Please try again.');
+        return;
+      }
 
-    this.otpService
-      .sendOtp(
-        this.email(),
-        this.name()
-      )
-      .subscribe({
-
-        next: sent => {
-
-          this.isResending.set(false);
-
-
-          if (!sent) {
-
-            this.errorMessage.set(
-              'Unable to send a new code. Please try again.'
-            );
-
-            return;
-
-          }
-
-
-          this.otp.set([
-            '',
-            '',
-            '',
-            ''
-          ]);
-
-          this.secondsRemaining.set(90);
-
-          this.startTimer();
-
-          this.focusInput(0);
-
-        },
-
-        error: () => {
-
-          this.isResending.set(false);
-
-          this.errorMessage.set(
-            'Unable to send a new code. Please try again.'
-          );
-
-        }
-
-      });
-
+      this.digits.set(Array(OTP_LENGTH).fill(''));
+      this.startTimer();
+      this.focus(0);
+    });
   }
-
-  // =====================================================
-  // CANCEL
-  // =====================================================
 
   cancel(): void {
-
     this.stopTimer();
-
     this.otpService.clearOtp();
-
     this.cancelled.emit();
-
   }
 
 
-  // =====================================================
-  // START TIMER
-  // =====================================================
+  // ---------- TIMER ----------
 
   private startTimer(): void {
-
     this.stopTimer();
+    this.seconds.set(OTP_SECONDS);
 
-    this.secondsRemaining.set(90);
-
-
-    this.timerId =
-      setInterval(() => {
-
-        const remaining =
-          this.secondsRemaining();
-
-
-        if (remaining <= 1) {
-
-          this.secondsRemaining.set(0);
-
-          this.stopTimer();
-
-          return;
-
-        }
-
-
-        this.secondsRemaining.set(
-          remaining - 1
-        );
-
-      }, 1000);
-
+    this.timer = setInterval(() => {
+      this.seconds.update(s => s - 1);
+      if (this.seconds() <= 0) this.stopTimer();
+    }, 1000);
   }
-
-
-  // =====================================================
-  // STOP TIMER
-  // =====================================================
 
   private stopTimer(): void {
-
-    if (this.timerId !== null) {
-
-      clearInterval(
-        this.timerId
-      );
-
-      this.timerId = null;
-
-    }
-
+    if (this.timer !== null) clearInterval(this.timer);
+    this.timer = null;
   }
-
-
-  // =====================================================
-  // FORMAT TIMER
-  // =====================================================
-
-  formattedTime(): string {
-
-    const total =
-      this.secondsRemaining();
-
-    const minutes =
-      Math.floor(total / 60);
-
-    const seconds =
-      total % 60;
-
-    return `${minutes
-      .toString()
-      .padStart(2, '0')}:${seconds
-      .toString()
-      .padStart(2, '0')}`;
-
-  }
-
-
-  // =====================================================
-  // CLEANUP
-  // =====================================================
 
   ngOnDestroy(): void {
-
     this.stopTimer();
-
   }
-
 }

@@ -1,358 +1,186 @@
-import {
-  Component,
-  input,
-  output,
-  OnChanges,
-  SimpleChanges
-} from '@angular/core';
-
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Address } from '../../../core/models/address.model';
+import { AddressStorageService } from '../../../core/services/address-storage.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
+const NAME_PATTERN = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+const TEXT_PATTERN = /^[A-Za-z][A-Za-z\s.,'\-\/&()]*$/;
+const PLACE_PATTERN = /^[A-Za-z]+(?:[\s.'-]+[A-Za-z]+)*\s*$/;
+const MAX_ADDRESSES = 2;
 
-// =====================================================
-// VALIDATION PATTERNS
-// =====================================================
+interface Field {
+  name: string;
+  label: string;
+  error: string;
+  full?: boolean;
+  placeholder?: string;
+}
 
-const PERSON_NAME_PATTERN =
-  /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
-
-const ADDRESS_TEXT_PATTERN =
-  /^[A-Za-z][A-Za-z\s.,'\-\/&()]*$/;
-
-const PLACE_NAME_PATTERN =
-  /^[A-Za-z]+(?:[\s.'-]+[A-Za-z]+)*\s*$/;
-
-
+/**
+ * Saved addresses + address form in one component.
+ * Used on the account page (manage addresses) and on checkout (selectable).
+ */
 @Component({
   selector: 'app-address-form',
-
   standalone: true,
-
-  imports: [
-    ReactiveFormsModule
-  ],
-
+  imports: [ReactiveFormsModule, NgTemplateOutlet, ConfirmDialogComponent],
   templateUrl: './address-form.component.html'
 })
-export class AddressFormComponent
-  implements OnChanges {
+export class AddressFormComponent {
 
+  private storage = inject(AddressStorageService);
+  private fb = inject(FormBuilder);
 
-  // =====================================================
-  // INPUTS
-  // =====================================================
+  // Key used to store the addresses (the logged-in user's email)
+  email = input.required<string>();
 
-  address = input<Address | null>(null);
-
+  // Pre-fill names when adding a new address
   firstName = input('');
   lastName = input('');
 
-
-  // =====================================================
-  // OUTPUTS
-  // =====================================================
-
-  saved = output<Address>();
-
-  cancelled = output<void>();
+  // true on checkout: shows a radio and lets the user pick an address
+  selectable = input(false);
 
 
-  // =====================================================
-  // FORM
-  // =====================================================
+  // ---------- STATE ----------
 
-  private fb = new FormBuilder();
+  private version = signal(0);
+  private pickedId = signal<string | null>(null);
+
+  editingId = signal<string | null>(null);   // an address id, 'new', or null
+  deletingId = signal<string | null>(null);
+
+  // Saved addresses. Older saved data without a default -> first one is default.
+  addresses = computed(() => {
+    this.version();
+    const list = this.storage.getAddresses(this.email());
+    return list.some(a => a.isDefault)
+      ? list
+      : list.map((a, i) => ({ ...a, isDefault: i === 0 }));
+  });
+
+  canAdd = computed(() => this.addresses().length < MAX_ADDRESSES);
+
+  // Address chosen on checkout (falls back to the default address)
+  selectedAddress = computed(() => {
+    const list = this.addresses();
+    return list.find(a => a.id === this.pickedId()) ?? list.find(a => a.isDefault) ?? null;
+  });
 
 
-  addressForm =
-    this.fb.nonNullable.group({
+  // ---------- FORM ----------
 
-      firstName: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PERSON_NAME_PATTERN
-          )
-        ]
-      ],
+  fields: Field[] = [
+    { name: 'firstName', label: 'First Name', error: 'Letters only' },
+    { name: 'lastName', label: 'Last Name', error: 'Letters only' },
+    { name: 'address', label: 'Address', error: 'Enter a valid address.', full: true, placeholder: 'Street address' },
+    { name: 'apartment', label: 'Apartment / Landmark', error: 'Enter a valid value.', full: true, placeholder: 'Optional' },
+    { name: 'city', label: 'City', error: 'Enter a valid city.' },
+    { name: 'state', label: 'State', error: 'Enter a valid state.' },
+    { name: 'postalCode', label: 'Postal Code', error: 'Enter a valid 6-digit postal code.' },
+    { name: 'country', label: 'Country', error: 'Country is required.' }
+  ];
 
-      lastName: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PERSON_NAME_PATTERN
-          )
-        ]
-      ],
+  form = this.fb.nonNullable.group({
+    firstName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
+    lastName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
+    address: ['', [Validators.required, Validators.pattern(TEXT_PATTERN)]],
+    apartment: ['', Validators.pattern(TEXT_PATTERN)],
+    city: ['', [Validators.required, Validators.pattern(PLACE_PATTERN)]],
+    state: ['', [Validators.required, Validators.pattern(PLACE_PATTERN)]],
+    postalCode: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
+    country: ['India', Validators.required]
+  });
 
-      address: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            ADDRESS_TEXT_PATTERN
-          )
-        ]
-      ],
-
-      apartment: [
-        '',
-        Validators.pattern(
-          ADDRESS_TEXT_PATTERN
-        )
-      ],
-
-      city: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PLACE_NAME_PATTERN
-          )
-        ]
-      ],
-
-      state: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            PLACE_NAME_PATTERN
-          )
-        ]
-      ],
-
-      postalCode: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            /^[0-9]{6}$/
-          )
-        ]
-      ],
-
-      country: [
-        'India',
-        Validators.required
-      ]
-
+  constructor() {
+    // Postal code accepts digits only (max 6)
+    this.form.controls.postalCode.valueChanges.subscribe(value => {
+      const digits = value.replace(/\D/g, '').slice(0, 6);
+      if (digits !== value) this.form.controls.postalCode.setValue(digits);
     });
-
-
-  // =====================================================
-  // INPUT CHANGES
-  // =====================================================
-
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
-
-    if (
-      changes['address'] ||
-      changes['firstName'] ||
-      changes['lastName']
-    ) {
-
-      this.setFormValues();
-
-    }
-
   }
 
 
-  // =====================================================
-  // SET FORM VALUES
-  // =====================================================
+  // ---------- ACTIONS ----------
 
-  private setFormValues(): void {
+  isSelected(address: Address): boolean {
+    return this.selectable() && this.selectedAddress()?.id === address.id;
+  }
 
-    const address =
-      this.address();
+  pick(address: Address): void {
+    if (this.selectable()) this.pickedId.set(address.id);
+  }
 
+  add(): void {
+    if (!this.canAdd()) return;
 
-    if (address) {
-
-      this.addressForm.patchValue({
-
-        firstName:
-          address.firstName,
-
-        lastName:
-          address.lastName,
-
-        address:
-          address.address,
-
-        apartment:
-          address.apartment,
-
-        city:
-          address.city,
-
-        state:
-          address.state,
-
-        postalCode:
-          address.postalCode,
-
-        country:
-          address.country
-
-      });
-
-      return;
-
-    }
-
-
-    this.addressForm.reset({
-
-      firstName:
-        this.firstName(),
-
-      lastName:
-        this.lastName(),
-
+    this.form.reset({
+      firstName: this.firstName(),
+      lastName: this.lastName(),
       address: '',
-
       apartment: '',
-
       city: '',
-
       state: '',
-
       postalCode: '',
-
       country: 'India'
-
     });
-
+    this.editingId.set('new');
   }
 
-
-  // =====================================================
-  // POSTAL CODE
-  // =====================================================
-
-  onPostalCodeInput(
-    event: Event
-  ): void {
-
-    const input =
-      event.target as HTMLInputElement;
-
-
-    const digits =
-      input.value
-        .replace(/\D/g, '')
-        .slice(0, 6);
-
-
-    if (
-      input.value !== digits
-    ) {
-
-      input.value = digits;
-
-    }
-
-
-    this.addressForm.controls
-      .postalCode
-      .setValue(digits);
-
+  edit(address: Address): void {
+    this.form.reset({ ...address });
+    this.editingId.set(address.id);
   }
-
-
-  // =====================================================
-  // SAVE
-  // =====================================================
 
   save(): void {
-
-    if (
-      this.addressForm.invalid
-    ) {
-
-      this.addressForm.markAllAsTouched();
-
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
-
     }
 
+    const list = this.addresses();
+    const editing = this.editingId();
+    const values = this.form.getRawValue();
 
-    const value =
-      this.addressForm.getRawValue();
+    if (editing === 'new') {
+      if (!this.canAdd()) return;
 
+      const created: Address = { ...values, id: `address-${Date.now()}`, isDefault: list.length === 0 };
+      this.persist([...list, created]);
+      this.pickedId.set(created.id);
+    } else {
+      const isDefault = list.find(a => a.id === editing)?.isDefault ?? false;
+      this.persist(list.map(a => (a.id === editing ? { ...values, id: a.id, isDefault } : a)));
+      this.pickedId.set(editing);
+    }
 
-    const address: Address = {
-
-      id:
-        this.address()?.id ??
-        this.generateAddressId(),
-
-      firstName:
-        value.firstName,
-
-      lastName:
-        value.lastName,
-
-      address:
-        value.address,
-
-      apartment:
-        value.apartment,
-
-      city:
-        value.city,
-
-      state:
-        value.state,
-
-      postalCode:
-        value.postalCode,
-
-      country:
-        value.country
-
-    };
-
-
-    this.saved.emit(address);
-
+    this.editingId.set(null);
   }
 
-
-  // =====================================================
-  // CANCEL
-  // =====================================================
-
-  cancel(): void {
-
-    this.cancelled.emit();
-
+  setDefault(id: string): void {
+    this.persist(this.addresses().map(a => ({ ...a, isDefault: a.id === id })));
   }
 
+  confirmDelete(): void {
+    const id = this.deletingId();
+    const remaining = this.addresses().filter(a => a.id !== id);
 
-  // =====================================================
-  // ID
-  // =====================================================
+    // If the default address was deleted, the first remaining one becomes default
+    if (remaining.length && !remaining.some(a => a.isDefault)) {
+      remaining[0] = { ...remaining[0], isDefault: true };
+    }
 
-  private generateAddressId(): string {
+    this.persist(remaining);
 
-    return `address-${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 8)}`;
-
+    if (this.editingId() === id) this.editingId.set(null);
+    this.deletingId.set(null);
   }
 
+  private persist(list: Address[]): void {
+    this.storage.saveAddresses(this.email(), list);
+    this.version.update(v => v + 1);
+  }
 }
