@@ -82,7 +82,7 @@
                     <div>
                       <div class="mb-1.5 flex h-3.5 items-center justify-between">
                         <label for="login-email" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Email</label>
-                        @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+                        @if (loginForm.get('email')?.dirty && loginForm.get('email')?.invalid) {
                           <span class="text-[9px] font-medium leading-none text-red-600" role="alert">
                             @if (loginForm.get('email')?.hasError('required')) {
                               Required
@@ -101,7 +101,7 @@
                     <div>
                       <div class="mb-1.5 flex h-3.5 items-center justify-between">
                         <label for="login-password" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Password</label>
-                        @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+                        @if (loginForm.get('password')?.dirty && loginForm.get('password')?.invalid) {
                           <span class="text-[9px] font-medium leading-none text-red-600" role="alert">
                             @if (loginForm.get('password')?.hasError('required')) {
                               Required
@@ -182,7 +182,7 @@
                       <div>
                         <div class="mb-1.5 flex h-3.5 items-center justify-between">
                           <label for="first-name" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">First Name</label>
-                          @if (registerForm.get('firstName')?.touched && registerForm.get('firstName')?.invalid) {
+                          @if (registerForm.get('firstName')?.dirty && registerForm.get('firstName')?.invalid) {
                             <span class="text-[11px] font-medium leading-none text-red-600" role="alert">
                               @if (registerForm.get('firstName')?.hasError('required')) {
                                 Required
@@ -201,7 +201,7 @@
                       <div>
                         <div class="mb-1.5 flex h-3.5 items-center justify-between">
                           <label for="last-name" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Last Name</label>
-                          @if (registerForm.get('lastName')?.touched && registerForm.get('lastName')?.invalid) {
+                          @if (registerForm.get('lastName')?.dirty && registerForm.get('lastName')?.invalid) {
                             <span class="text-[11px] font-medium leading-none text-red-600" role="alert">
                               @if (registerForm.get('lastName')?.hasError('required')) {
                                 Required
@@ -222,7 +222,7 @@
                     <div>
                       <div class="mb-1.5 flex h-3.5 items-center justify-between">
                         <label for="register-email" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Email</label>
-                        @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+                        @if (registerForm.get('email')?.dirty && registerForm.get('email')?.invalid) {
                           <span class="text-[11px] font-medium leading-none text-red-600" role="alert">
                             @if (registerForm.get('email')?.hasError('required')) {
                               Required
@@ -241,12 +241,12 @@
                     <div>
                       <div class="mb-1.5 flex h-3.5 items-center justify-between">
                         <label for="phone" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Phone</label>
-                        @if (registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid) {
+                        @if (registerForm.get('phone')?.dirty && registerForm.get('phone')?.invalid) {
                           <span class="text-[11px] font-medium leading-none text-red-600" role="alert">
                             @if (registerForm.get('phone')?.hasError('required')) {
                               Required
                             } @else if (registerForm.get('phone')?.hasError('pattern')) {
-                              Enter 10 digits
+                              Enter a valid 10 digit phone number <br> that starts with number greater than 5
                             }
                           </span>
                         }
@@ -260,7 +260,7 @@
                     <div>
                       <div class="mb-1.5 flex h-3.5 items-center justify-between">
                         <label for="register-password" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Password</label>
-                        @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+                        @if (registerForm.get('password')?.dirty && registerForm.get('password')?.invalid) {
                           <span class="text-[11px] font-medium leading-none text-red-600" role="alert">
                             @if (registerForm.get('password')?.hasError('required')) {
                               Required
@@ -299,7 +299,7 @@
                     <div>
                       <div class="mb-1.5 flex h-3.5 items-center justify-between">
                         <label for="confirm-password" class="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#151515]">Confirm Password</label>
-                        @if (registerForm.get('confirmPassword')?.touched && (registerForm.get('confirmPassword')?.invalid || registerForm.hasError('passwordMismatch'))) {
+                        @if (registerForm.get('confirmPassword')?.dirty && (registerForm.get('confirmPassword')?.invalid || registerForm.hasError('passwordMismatch'))) {
                           <span class="text-[11px] font-medium leading-none text-red-600" role="alert">
                             @if (registerForm.get('confirmPassword')?.hasError('required')) {
                               Required

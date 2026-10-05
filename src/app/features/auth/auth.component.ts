@@ -24,6 +24,18 @@ import { ToastService } from '../../core/services/toast.service';
 import { OtpService } from '../../core/services/otp.service';
 import { OtpVerificationComponent } from './otp-verification/otp-verification.component';
 
+// Registration details are kept in sessionStorage while the OTP popup is open, so a
+// page refresh can bring the popup back (sessionStorage is erased when the tab closes).
+const PENDING_STORAGE_KEY = 'sa_pending_registration';
+
+interface PendingRegistration {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
 const NAME_PATTERN = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
 const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])\S{6,}$/;
 
@@ -61,13 +73,7 @@ export class AuthComponent {
   showOtp = signal(false);
 
   // Registration details kept until the email is verified with the OTP
-  pendingRegistration: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    password: string;
-  } | null = null;
+  pendingRegistration: PendingRegistration | null = null;
 
 
   // ---------- FORMS ----------
@@ -82,7 +88,7 @@ export class AuthComponent {
       firstName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
       lastName: ['', [Validators.required, Validators.pattern(NAME_PATTERN)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
+      phone: ['', [Validators.required,Validators.pattern(/^[6-9]\d{9}$/) ]],
       password: ['', [Validators.required, Validators.minLength(6), Validators.pattern(PASSWORD_PATTERN)]],
       confirmPassword: ['', Validators.required]
     },
@@ -102,10 +108,36 @@ export class AuthComponent {
         this.registerForm.reset();
         this.showLogin();
       });
+
+    this.restorePendingRegistration();
   }
 
 
-  // ---------- PASSWORD VISIBILITY ----------
+  private restorePendingRegistration(): void {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(PENDING_STORAGE_KEY) ?? 'null') as PendingRegistration | null;
+      if (!saved?.email) return;
+
+      this.pendingRegistration = saved;
+      this.registerForm.patchValue({ ...saved, confirmPassword: saved.password });   // so "Cancel" returns to a filled form
+      this.switchMode(true);
+      this.showOtp.set(true);
+    } catch {
+      sessionStorage.removeItem(PENDING_STORAGE_KEY);
+    }
+  }
+
+  private savePendingRegistration(): void {
+    if (this.pendingRegistration) {
+      sessionStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(this.pendingRegistration));
+    }
+  }
+
+  private clearPendingRegistration(): void {
+    this.pendingRegistration = null;
+    sessionStorage.removeItem(PENDING_STORAGE_KEY);
+  }
+
 
   toggleLoginPassword(): void {
     this.showLoginPassword.update(v => !v);
@@ -120,7 +152,6 @@ export class AuthComponent {
   }
 
 
-  // ---------- LOGIN / REGISTER SWITCH ----------
 
   showRegister(): void {
     this.switchMode(true);
@@ -176,15 +207,16 @@ export class AuthComponent {
     this.store.dispatch(checkRegistrationEmail({ email: this.pendingRegistration.email }));
   }
 
-  private sendOtp(): void {
+  sendOtp(): void {
     const user = this.pendingRegistration;
     if (!user) return;
 
     this.otpService.sendOtp(user.email, user.firstName).subscribe(sent => {
       if (sent) {
+        this.savePendingRegistration();   // from now on a refresh keeps the OTP popup
         this.showOtp.set(true);
       } else {
-        this.pendingRegistration = null;
+        this.clearPendingRegistration();
         this.toast.error('Unable to send verification code. Please try again.');
       }
     });
@@ -195,13 +227,13 @@ export class AuthComponent {
 
     if (this.pendingRegistration) {
       this.store.dispatch(register({ user: this.pendingRegistration }));
-      this.pendingRegistration = null;
+      this.clearPendingRegistration();
     }
   }
 
   onOtpCancelled(): void {
     this.showOtp.set(false);
-    this.pendingRegistration = null;
+    this.clearPendingRegistration();
     this.otpService.clearOtp();
   }
 }

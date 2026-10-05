@@ -252,11 +252,7 @@
 
           <select
             [value]="sortBy()"
-            (change)="
-              sortBy.set(
-                $any($event.target).value
-              )
-            "
+            (change)="changeSort($any($event.target).value)"
             class="cursor-pointer border-0 bg-transparent py-1 pl-1 pr-6 text-[10px] uppercase tracking-[0.1em] text-brand-text outline-none focus:ring-0"
           >
 
@@ -281,6 +277,15 @@
         </div>
 
       </div>
+
+
+
+      <!-- Scroll target: search, category tabs and the page buttons scroll here -->
+
+
+
+      <div id="shop-products" class="scroll-mt-32"></div>
+
 
 
 
@@ -398,7 +403,7 @@
           >
 
             @for (
-              product of sortedProducts();
+              product of productPage().items;
               track product.id
             ) {
 
@@ -409,6 +414,21 @@
             }
 
           </div>
+
+          <!-- ================================================= -->
+          <!-- PAGINATION (shared component) -->
+          <!-- ================================================= -->
+
+          <app-pagination
+            [page]="productPage().page"
+            [totalPages]="productPage().totalPages"
+            [totalItems]="productPage().totalItems"
+            [pageSize]="pageSize"
+            scrollTo="shop-products"
+            (pageChange)="goToPage($event)"
+          />
+
+
 
         }
 

@@ -148,7 +148,7 @@
 
           <button
             type="button"
-            (click)="clearCart()"
+            (click)="showClearCartConfirm.set(true)"
             class="mt-4 w-full text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
           >
             Clear Cart
@@ -189,8 +189,18 @@
 
 
 <!-- ================================================= -->
-<!-- REMOVE CONFIRMATION (when quantity is decreased from 1) -->
+<!-- CONFIRMATION POPUPS: clear cart, and remove item (quantity decreased from 1) -->
 <!-- ================================================= -->
+
+@if (showClearCartConfirm()) {
+  <app-confirm-dialog
+    title="Clear cart?"
+    message="All items will be removed from your bag. This cannot be undone."
+    confirmText="Clear Cart"
+    (confirmed)="confirmClearCart()"
+    (cancelled)="showClearCartConfirm.set(false)"
+  />
+}
 
 @if (itemToRemove()) {
   <app-confirm-dialog

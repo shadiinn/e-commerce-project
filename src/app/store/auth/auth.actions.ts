@@ -149,19 +149,7 @@ export const restoreAuthSuccess = createAction(
 );
 
 
-// =====================================================
-// LOGIN DATA MERGE
-// =====================================================
 
-export const loginDataMergeComplete = createAction(
-
-  '[Auth] Login Data Merge Complete',
-
-  props<{
-    returnUrl?: string;
-  }>()
-
-);
 export const checkRegistrationEmail = createAction(
   '[Auth] Check Registration Email',
   props<{ email: string }>()

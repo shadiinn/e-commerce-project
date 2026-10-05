@@ -1,210 +1,127 @@
 import { Product } from '../models/product.model';
-
 import { CART_LIMITS } from '../models/constants/cart.constants';
 
 
-// =====================================================
-// RESULT OF A QUANTITY CHECK
-// =====================================================
-
-export type QuantityLimit =
-  | 'OK'
-  | 'MAX_QUANTITY'
-  | 'STOCK_LIMIT'
-  | 'OUT_OF_STOCK';
+   export const MAX_PER_ITEM=5;
+   export const MAX_DIFFERENT_PRODUCTS=10;
 
 
-// =====================================================
-// STOCK OF ONE PRODUCT + COLOR + SIZE
-// =====================================================
+export type QuantityLimit = 'OK' | 'MAX_QUANTITY' | 'STOCK_LIMIT' | 'OUT_OF_STOCK';
+
+
+export interface CartLine {
+  productId: string;
+  variantId: string; 
+  size: string;
+  quantity: number;
+}
+
+
+export interface AddToCartCheck {
+  allowed: boolean;
+  message: string;     
+}
 
 export function getSizeStock(
   product: Product | undefined,
-  variantId: string,
-  size: string
+  variantId: string | undefined,
+  size: string | undefined
 ): number {
+  const colour = product?.variants.find(v => v.id === variantId);
+  const sizeInfo = colour?.sizes.find(s => s.size === size);
+  return sizeInfo?.stock ?? 0;
+}
 
-  return (
-    product
-      ?.variants
-      .find(variant => variant.id === variantId)
-      ?.sizes
-      .find(item => item.size === size)
-      ?.stock ?? 0
-  );
-
+export function getMaxQuantity(stock: number): number {
+  return Math.max(0, Math.min(MAX_PER_ITEM, stock));
 }
 
 
-// =====================================================
-// MAX QUANTITY ALLOWED FOR ONE CART ITEM
-// = smaller of the per-item limit and the stock
-// =====================================================
 
-export function getMaxQuantity(
-  stock: number
-): number {
-
-  return Math.max(
-    0,
-    Math.min(
-      CART_LIMITS.MAX_QUANTITY_PER_ITEM,
-      stock
-    )
-  );
-
-}
-
-
-// =====================================================
-// CAN ONE MORE UNIT BE ADDED TO THIS CART ITEM?
-// =====================================================
-
-export function checkQuantityLimit(
-  currentQuantity: number,
-  stock: number
-): QuantityLimit {
-
+export function checkQuantityLimit(currentQuantity: number, stock: number): QuantityLimit {
   if (stock <= 0) {
-
     return 'OUT_OF_STOCK';
-
   }
 
-
-  if (
-    currentQuantity <
-    getMaxQuantity(stock)
-  ) {
-
+  if (currentQuantity < getMaxQuantity(stock)) {
     return 'OK';
-
   }
 
+  if (stock < MAX_PER_ITEM) {
+    return 'STOCK_LIMIT';
+  }
 
-  // Stock is the reason we stopped (less than the per-item limit)
-  return stock <
-    CART_LIMITS.MAX_QUANTITY_PER_ITEM
-
-    ? 'STOCK_LIMIT'
-
-    : 'MAX_QUANTITY';
-
+  return 'MAX_QUANTITY';
 }
 
 
-// =====================================================
-// MESSAGES
-// =====================================================
-
-// Longer text for toasts
-export function quantityLimitMessage(
-  limit: QuantityLimit,
-  stock: number
-): string {
-
-  switch (limit) {
-
-    case 'MAX_QUANTITY':
-
-      return (
-        `Limit reached: you can add up to ` +
-        `${CART_LIMITS.MAX_QUANTITY_PER_ITEM} ` +
-        `of the same item (same color and size).`
-      );
-
-    case 'STOCK_LIMIT':
-
-      return (
-        `Only ${stock} ` +
-        `${stock === 1 ? 'is' : 'are'} ` +
-        `available in this size, and all ` +
-        `${stock === 1 ? 'is' : 'are'} ` +
-        `already in your cart.`
-      );
-
-    case 'OUT_OF_STOCK':
-
-      return 'This size is currently out of stock.';
-
-    default:
-
-      return '';
-
+export function quantityLimitMessage(limit: QuantityLimit, stock: number): string {
+  if (limit === 'OUT_OF_STOCK') {
+    return 'This size is currently out of stock.';
   }
 
-}
-
-
-// Short text shown next to the quantity on the cart page
-export function quantityLimitNote(
-  limit: QuantityLimit,
-  stock: number
-): string {
-
-  switch (limit) {
-
-    case 'MAX_QUANTITY':
-
-      return (
-        `Maximum ` +
-        `${CART_LIMITS.MAX_QUANTITY_PER_ITEM} ` +
-        `per item reached`
-      );
-
-    case 'STOCK_LIMIT':
-
-      return `Only ${stock} in stock`;
-
-    case 'OUT_OF_STOCK':
-
-      return 'Out of stock';
-
-    default:
-
-      return '';
-
+  if (limit === 'STOCK_LIMIT') {
+    return stock === 1
+      ? 'Only 1 is available in this size and it is already in your cart.'
+      : `Only ${stock} are available in this size and all of them are already in your cart.`;
   }
 
+  if (limit === 'MAX_QUANTITY') {
+    return `You can add up to ${MAX_PER_ITEM} of the same item.`;
+  }
+
+  return '';   
 }
 
+export function quantityLimitNote(limit: QuantityLimit, stock: number): string {
+  if (limit === 'OUT_OF_STOCK') {
+    return 'Out of stock';
+  }
+
+  if (limit === 'STOCK_LIMIT') {
+    return `Only ${stock} in stock`;
+  }
+
+  if (limit === 'MAX_QUANTITY') {
+    return `Maximum ${MAX_PER_ITEM} per item`;
+  }
+
+  return '';
+}
 
 export function distinctProductLimitMessage(): string {
+  return `Your cart can hold up to ${MAX_DIFFERENT_PRODUCTS} different products. Remove one to add another.`;
+}
 
-  return (
-    `Your cart can hold up to ` +
-    `${CART_LIMITS.MAX_DISTINCT_PRODUCTS} ` +
-    `different products. Remove one to add another.`
+// Shown after the guest cart is merged into the account cart and something was reduced or skipped
+export const CART_MERGE_TRIMMED_MESSAGE =
+  'Some items from your guest cart were reduced or skipped because of stock or cart limits.';
+
+
+
+export function findCartLine<T extends CartLine>(
+  cartItems: T[],
+  productId: string,
+  variantId: string,
+  size: string
+): T | undefined {
+  return cartItems.find(
+    item =>
+      item.productId === productId &&
+      item.variantId === variantId &&
+      item.size === size
   );
-
 }
 
 
-// =====================================================
-// CAN THIS PRODUCT + COLOR + SIZE BE ADDED TO THE CART?
-// Used before dispatching "add to cart" and again inside
-// the effects, so both always follow the same rules.
-// =====================================================
+export function isOverProductLimit(cartItems: { productId: string }[], productId: string): boolean {
+ 
+  const differentProducts = new Set(cartItems.map(item => item.productId));
 
-export interface AddToCartCheck {
+  const alreadyInCart = differentProducts.has(productId);
+  const cartIsFull = differentProducts.size >= MAX_DIFFERENT_PRODUCTS;
 
-  allowed: boolean;
-
-  message: string;
-
-}
-
-
-interface CartLine {
-
-  productId: string;
-
-  variantId: string;
-
-  size: string;
-
-  quantity: number;
-
+  return !alreadyInCart && cartIsFull;
 }
 
 
@@ -216,89 +133,27 @@ export function evaluateAddToCart(
   stock: number
 ): AddToCartCheck {
 
-  const existingItem =
-    cartItems.find(
-      item =>
-        item.productId === productId &&
-        item.variantId === variantId &&
-        item.size === size
-    );
+  const existingRow = findCartLine(cartItems, productId, variantId, size);
 
+  // CASE A: the item is already in the cart -> only the quantity rules matter
+  if (existingRow) {
+    const limit = checkQuantityLimit(existingRow.quantity, stock);
 
-  // -----------------------------------------------------
-  // ITEM ALREADY IN CART -> limit applies to THIS item only
-  // (another size / color of the same product has its own limit)
-  // -----------------------------------------------------
-
-  if (existingItem) {
-
-    const limit =
-      checkQuantityLimit(
-        existingItem.quantity,
-        stock
-      );
-
-    return limit === 'OK'
-
-      ? { allowed: true, message: '' }
-
-      : {
-          allowed: false,
-          message:
-            quantityLimitMessage(limit, stock)
-        };
-
+    if (limit === 'OK') {
+      return { allowed: true, message: '' };
+    }
+    return { allowed: false, message: quantityLimitMessage(limit, stock) };
   }
 
-
-  // -----------------------------------------------------
-  // NEW CART ITEM
-  // -----------------------------------------------------
-
+  // CASE B: a new item. Check 1: is there any stock?
   if (stock <= 0) {
-
-    return {
-      allowed: false,
-      message:
-        quantityLimitMessage(
-          'OUT_OF_STOCK',
-          stock
-        )
-    };
-
+    return { allowed: false, message: quantityLimitMessage('OUT_OF_STOCK', stock) };
   }
 
-
-  // Only a brand-new PRODUCT counts towards the distinct
-  // product limit. A different size / color of a product that
-  // is already in the cart does not.
-  const distinctProducts =
-    new Set(
-      cartItems.map(
-        item => item.productId
-      )
-    );
-
-
-  if (
-    !distinctProducts.has(productId) &&
-    distinctProducts.size >=
-    CART_LIMITS.MAX_DISTINCT_PRODUCTS
-  ) {
-
-    return {
-      allowed: false,
-      message:
-        distinctProductLimitMessage()
-    };
-
+  // CASE B. Check 2: is there room for one more different product?
+  if (isOverProductLimit(cartItems, productId)) {
+    return { allowed: false, message: distinctProductLimitMessage() };
   }
-
 
   return { allowed: true, message: '' };
-
 }
-
-
-export const CART_MERGE_TRIMMED_MESSAGE =
-  'Some items from your guest cart were not fully added because of cart limits.';

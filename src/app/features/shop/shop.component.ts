@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal
@@ -10,7 +11,8 @@ import { Store } from '@ngrx/store';
 
 import { AsyncPipe } from '@angular/common';
 
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 
 import {
   loadProducts
@@ -23,12 +25,17 @@ import {
 } from '../../store/products/products.selectors';
 
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
+import {
+  PaginationComponent,
+  paginate
+} from '../../shared/components/pagination/pagination.component';
 
 import { CATEGORIES } from '../../core/models/constants/categories';
 
 import {
   ActivatedRoute,
-  Router
+  Router,
+  Scroll
 } from '@angular/router';
 
 
@@ -39,6 +46,7 @@ import {
 
   imports: [
     ProductCardComponent,
+    PaginationComponent,
     AsyncPipe
   ],
 
@@ -53,6 +61,10 @@ export class ShopComponent implements OnInit {
   route = inject(ActivatedRoute);
 
   router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+
+  // true after a search from the navbar, until the page has scrolled to the products
+  private scrollToProductsAfterNavigation = false;
 
   categories = CATEGORIES;
 
@@ -535,10 +547,67 @@ export class ShopComponent implements OnInit {
 
 
   // =========================================================
+  // SCROLL TO THE PRODUCTS
+  // =========================================================
+
+  // Brings the top of the product list into view.
+  // The target is the empty <div id="shop-products"> in the template.
+  private scrollToProducts(smooth = true): void {
+    document
+      .getElementById('shop-products')
+      ?.scrollIntoView({
+        behavior: smooth ? 'smooth' : 'auto',
+        block: 'start'
+      });
+  }
+
+  // =========================================================
+  // PAGINATION  (the buttons come from <app-pagination>)
+  // =========================================================
+
+  // How many products are shown on one page.
+  // 12 fills complete rows on every screen (2, 3 or 4 columns).
+  readonly pageSize = 12;
+
+  // The page the user asked for
+  currentPage =
+    signal(1);
+
+  // One page of the sorted products:
+  // { items, page, totalPages, totalItems }
+  productPage =
+    computed(() =>
+      paginate(
+        this.sortedProducts(),
+        this.currentPage(),
+        this.pageSize
+      )
+    );
+
+  // Called when the user clicks a page button in <app-pagination>
+  goToPage(
+    page: number
+  ): void {
+    this.currentPage.set(page);
+  }
+
+  // Changing the sort order starts again from page 1
+  changeSort(
+    value: string
+  ): void {
+    this.sortBy.set(value);
+    this.currentPage.set(1);
+  }
+
+  // =========================================================
   // HEADER CATEGORY
   // =========================================================
 
   selectAllCategories(): void {
+
+    this.scrollToProducts();
+
+    this.currentPage.set(1);
 
     this.selectedCategories.set([]);
 
@@ -548,6 +617,10 @@ export class ShopComponent implements OnInit {
   selectHeaderCategory(
     category: string
   ): void {
+
+    this.scrollToProducts();
+
+    this.currentPage.set(1);
 
     this.selectedCategories.set([
       category
@@ -680,6 +753,8 @@ export class ShopComponent implements OnInit {
 
   applyFilters(): void {
 
+    this.currentPage.set(1);
+
     this.selectedCategories.set([
       ...this.tempCategories()
     ]);
@@ -736,6 +811,8 @@ export class ShopComponent implements OnInit {
   // =========================================================
 
   clearAllFilters(): void {
+
+    this.currentPage.set(1);
 
     this.selectedCategories.set([]);
 
@@ -805,10 +882,28 @@ export class ShopComponent implements OnInit {
 
   ngOnInit(): void {
 
+    // A search from the navbar is a router navigation, and after EVERY navigation the
+    // router scrolls to the very top. The router tells us about it (Scroll event)
+    // slightly BEFORE it scrolls, so we wait one tick (setTimeout) and scroll to the
+    // products afterwards. Otherwise the router would undo our scroll.
+    this.router.events
+      .pipe(
+        filter((event): event is Scroll => event instanceof Scroll),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        if (this.scrollToProductsAfterNavigation) {
+          this.scrollToProductsAfterNavigation = false;
+          setTimeout(() => this.scrollToProducts(false));
+        }
+      });
+
     this.reloadProducts();
 
     this.route.queryParamMap.subscribe(
       params => {
+
+        this.currentPage.set(1);
 
         const search =
           params.get('search') ?? '';
@@ -862,6 +957,11 @@ export class ShopComponent implements OnInit {
         this.searchTerm.set(
           search
         );
+
+        // A search was made -> scroll to the products after the navigation is done
+        if (search) {
+          this.scrollToProductsAfterNavigation = true;
+        }
 
 
         // -----------------------------------------------------

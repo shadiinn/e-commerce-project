@@ -23,7 +23,7 @@ import {
   initialCartState
 } from './cart.state';
 
-import { CART_LIMITS } from '../../core/models/constants/cart.constants';
+import { MAX_DIFFERENT_PRODUCTS,MAX_PER_ITEM } from '../../core/utils/cart.limits';
 
 
 export const cartReducer = createReducer(
@@ -136,7 +136,7 @@ export const cartReducer = createReducer(
 
       if (
         item.quantity >=
-        CART_LIMITS.MAX_QUANTITY_PER_ITEM
+          MAX_PER_ITEM
       ) {
 
         return state;
@@ -333,7 +333,7 @@ export const cartReducer = createReducer(
 
         if (
           existingItem.quantity >=
-          CART_LIMITS.MAX_QUANTITY_PER_ITEM
+                MAX_PER_ITEM
         ) {
 
           return state;
@@ -385,7 +385,7 @@ export const cartReducer = createReducer(
       if (
         !distinctProducts.has(productId) &&
         distinctProducts.size >=
-        CART_LIMITS.MAX_DISTINCT_PRODUCTS
+            MAX_DIFFERENT_PRODUCTS
       ) {
 
         return state;
@@ -452,7 +452,7 @@ export const cartReducer = createReducer(
 
       if (
         item.quantity >=
-        CART_LIMITS.MAX_QUANTITY_PER_ITEM
+            MAX_PER_ITEM
       ) {
 
         return state;

@@ -44,6 +44,9 @@ export class CartComponent {
   // id of the cart item waiting for the "remove?" confirmation
   itemToRemove = signal<string | null>(null);
 
+  // true while the "Clear cart?" confirmation popup is open
+  showClearCartConfirm = signal(false);
+
 
   // ---------- STOCK LIMITS ----------
 
@@ -94,6 +97,12 @@ export class CartComponent {
     const cartItemId = this.itemToRemove();
     if (cartItemId) this.remove(cartItemId);
     this.itemToRemove.set(null);
+  }
+
+  // Called by the popup's "Clear Cart" button: clears the cart, then closes the popup
+  confirmClearCart(): void {
+    this.clearCart();
+    this.showClearCartConfirm.set(false);
   }
 
   clearCart(): void {

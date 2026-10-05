@@ -34,19 +34,46 @@
 
       <div class="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center">
 
-        <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface">
-          @if (user.profileImage) {
-            <img [src]="user.profileImage" alt="Profile picture" class="h-full w-full object-cover" />
-          } @else {
-            <span class="text-lg font-light tracking-wide text-brand-text">
-              {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
-            </span>
-          }
+        <!-- Click the picture to change it (opens the file picker, then the crop popup) -->
+        <div class="relative h-20 w-20 shrink-0">
+
+          <label
+            title="Change profile photo"
+            class="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface"
+          >
+            @if (user.profileImage) {
+              <img [src]="user.profileImage" alt="Profile picture" class="h-full w-full object-cover" />
+            } @else {
+              <span class="text-lg font-light tracking-wide text-brand-text">
+                {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+              </span>
+            }
+            <input type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)" />
+          </label>
+
+          <!-- camera badge (always visible, so it also works on phones) -->
+          <span class="pointer-events-none absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-brand-text text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </span>
+
         </div>
 
         <div>
           <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">Welcome back</p>
           <h2 class="mt-3 text-2xl font-light text-brand-text">{{ user.firstName }} {{ user.lastName }}</h2>
+
+          @if (user.profileImage) {
+            <button
+              type="button"
+              (click)="removePhoto()"
+              class="mt-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+            >
+              Remove photo
+            </button>
+          }
         </div>
 
       </div>
@@ -171,49 +198,9 @@
               Edit Personal Information
             </h2>
 
-            <!-- PROFILE IMAGE -->
-
-            <div class="mt-7 flex flex-col gap-5 sm:flex-row sm:items-center">
-
-              <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface">
-                @if (photo()) {
-                  <img [src]="photo()!" alt="Profile picture preview" class="h-full w-full object-cover" />
-                } @else {
-                  <span class="text-xl font-light text-brand-text">
-                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text">Profile Picture</p>
-                <p class="mt-2 text-xs text-brand-muted">Upload a profile picture for your account.</p>
-
-                <div class="mt-4 flex flex-wrap gap-3">
-
-                  <label class="cursor-pointer border border-brand-border px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:border-brand-text">
-                    Choose Photo
-                    <input type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)" />
-                  </label>
-
-                  @if (photo()) {
-                    <button
-                      type="button"
-                      (click)="photo.set(null)"
-                      class="px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
-                    >
-                      Remove
-                    </button>
-                  }
-
-                </div>
-              </div>
-
-            </div>
-
             <!-- FIELDS -->
 
-            <div class="mt-8 grid gap-5 sm:grid-cols-2">
+            <div class="mt-7 grid gap-5 sm:grid-cols-2">
 
               @for (f of profileFields; track f.name) {
 
@@ -276,6 +263,104 @@
             </div>
 
           </form>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- CROP PHOTO POPUP -->
+      <!-- ================================================= -->
+
+      @if (cropImage()) {
+
+        <div
+          class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/50 px-5 py-8"
+          (click)="closeCrop()"
+        >
+
+          <div
+            (click)="$event.stopPropagation()"
+            class="w-full max-w-md bg-white p-7 shadow-xl"
+          >
+
+            <h2 class="border-b border-brand-border pb-4 text-xs font-medium uppercase tracking-[0.2em] text-brand-text">
+              Crop Photo
+            </h2>
+
+            <p class="mt-4 text-xs text-brand-muted">
+              Drag the square to move it. Drag a corner to resize it.
+            </p>
+
+            <!--
+              The picture with a square on top of it. data-mode tells the code what the
+              user grabbed. The huge shadow darkens everything outside the square.
+            -->
+            <div
+              class="relative mx-auto mt-5 touch-none select-none overflow-hidden"
+              [style.width.px]="cropSize().width"
+              [style.height.px]="cropSize().height"
+              (pointerdown)="startCrop($event)"
+              (pointermove)="moveCrop($event)"
+              (pointerup)="endCrop()"
+              (pointercancel)="endCrop()"
+            >
+
+              <img
+                [src]="cropImage()!"
+                alt="Photo to crop"
+                draggable="false"
+                class="pointer-events-none block h-full w-full"
+              />
+
+              <div
+                data-mode="move"
+                class="absolute cursor-move border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]"
+                [style.left.px]="cropBox().x"
+                [style.top.px]="cropBox().y"
+                [style.width.px]="cropBox().size"
+                [style.height.px]="cropBox().size"
+              >
+                @for (handle of cropHandles; track handle.mode) {
+                  <span
+                    [attr.data-mode]="handle.mode"
+                    [class]="handle.position"
+                    class="absolute h-4 w-4 border border-brand-text bg-white"
+                  ></span>
+                }
+              </div>
+
+            </div>
+
+            @if (profileError()) {
+              <div class="mt-5 border border-red-200 bg-red-50 px-4 py-3">
+                <p class="text-xs text-red-600">{{ profileError() }}</p>
+              </div>
+            }
+
+            <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+              <button
+                type="button"
+                (click)="closeCrop()"
+                class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                (click)="saveCroppedPhoto()"
+                [disabled]="saving()"
+                class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {{ saving() ? 'Saving...' : 'Crop & Save' }}
+              </button>
+
+            </div>
+
+          </div>
 
         </div>
 

@@ -1,1533 +1,557 @@
-import {
-  Injectable,
-  inject
-} from '@angular/core';
-import {
-  Actions,
-  createEffect,
-  ofType
-} from '@ngrx/effects';
+import { Injectable, inject } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Action, Store } from '@ngrx/store';
+import { Observable, catchError, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 
-import {
-  catchError,
-  forkJoin,
-  map,
-  of,
-  switchMap,
-  take,
-  tap
-} from 'rxjs';
-
-import {
-  Store
-} from '@ngrx/store';
-
-import {
-  CartService
-} from '../../core/services/cart.service';
-
-import {
-  GuestCartService
-} from '../../core/services/guest-cart.service';
-
-import {
-  CartItem
-} from '../../core/models/cart.model';
-
-import {
-  loadProductsSuccess
-} from '../products/products.actions';
-
-import {
-  selectProductEntities
-} from '../products/products.selectors';
-
-import {
-  selectCurrentUser
-} from '../auth/auth.selectors';
-
-import {
-  loginSuccess,
-  logout,
-  restoreAuthSuccess
-} from '../auth/auth.actions';
-
-import { CART_LIMITS } from '../../core/models/constants/cart.constants';
-
+import { CartService } from '../../core/services/cart.service';
+import { GuestCartService } from '../../core/services/guest-cart.service';
+import { ToastService } from '../../core/services/toast.service';
+import { AuthUser } from '../../core/models/auth-user.model';
+import { CartItem } from '../../core/models/cart.model';
+import { GuestCartItem } from '../../core/models/guest-cart.model';
+import { MAX_PER_ITEM } from '../../core/utils/cart.limits';
 import {
   CART_MERGE_TRIMMED_MESSAGE,
+  CartLine,
   checkQuantityLimit,
   evaluateAddToCart,
-  getMaxQuantity,
-  getSizeStock
+  findCartLine,
+  getSizeStock,
+  isOverProductLimit,
+  quantityLimitMessage
 } from '../../core/utils/cart.limits';
 
+import { selectProductEntities } from '../products/products.selectors';
+import { selectCurrentUser } from '../auth/auth.selectors';
+import { loginSuccess, logout, restoreAuthSuccess } from '../auth/auth.actions';
 import {
-  ToastService
-} from '../../core/services/toast.service';
-
-import {
-  loadCart,
-  loadCartSuccess,
-  loadCartFailure,
+  addGuestCartItem,
   addToCart,
-  increaseQuantity,
-  decreaseQuantity,
-  removeFromCart,
   clearCart,
-  resetCart,
-
+  clearGuestCart,
+  decreaseGuestQuantity,
+  decreaseQuantity,
+  increaseGuestQuantity,
+  increaseQuantity,
+  loadCart,
+  loadCartFailure,
+  loadCartSuccess,
   loadGuestCart,
   loadGuestCartSuccess,
-  addGuestCartItem,
-  increaseGuestQuantity,
-  decreaseGuestQuantity,
-  removeGuestItem,
-  clearGuestCart,
-
   mergeGuestCart,
   mergeGuestCartFailure,
-  mergeGuestCartSuccess
+  mergeGuestCartSuccess,
+  removeFromCart,
+  removeGuestItem,
+  resetCart
 } from './cart.actions';
+
+
+// A cart row needs an id. Same product + colour + size always gives the same id.
+function makeCartItemId(productId: string, variantId: string, size: string): string {
+  return `${productId}-${variantId}-${size}`;
+}
 
 
 @Injectable()
 export class CartEffects {
 
-  private actions$ =
-    inject(Actions);
-
-  private store =
-    inject(Store);
-
-  private cartService =
-    inject(CartService);
-
-  private guestCartService =
-    inject(GuestCartService);
-
-  private toastService =
-    inject(ToastService);
+  private actions$ = inject(Actions);
+  private store = inject(Store);
+  private cartService = inject(CartService);
+  private guestCartService = inject(GuestCartService);
+  private toast = inject(ToastService);
 
 
-  // =====================================================
-  // LOAD CART AFTER LOGIN / AUTH RESTORE
-  // =====================================================
+  private products$ = this.store.select(selectProductEntities).pipe(take(1));
 
-  loadCartAfterAuth$ =
-    createEffect(() =>
 
-      this.actions$.pipe(
-
-        ofType(
-          loginSuccess,
-          restoreAuthSuccess
-        ),
-
-        map(() =>
-          loadCart()
-        )
-
-      )
-
+  private withLoggedInUser(
+    errorMessage: string,
+    doRequest: (user: AuthUser) => Observable<Action>
+  ): Observable<Action> {
+    return this.store.select(selectCurrentUser).pipe(
+      take(1),
+      switchMap((user): Observable<Action> => {
+        if (!user) {
+          this.toast.warning('Please log in to use your cart.');
+          return of(loadCart());
+        }
+        return doRequest(user);
+      }),
+      catchError(() => of(loadCartFailure({ error: errorMessage })))
     );
+  }
 
 
-  // =====================================================
-  // LOAD GUEST CART INITIALLY
-  // =====================================================
-
-  loadGuestCartAfterAuthRestore$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(
-          restoreAuthSuccess,
-          logout
-        ),
-
-        map(() =>
-          loadGuestCart()
-        )
-
-      )
-
+  private checkCanIncrease(row: CartLine) {
+    return this.products$.pipe(
+      map(products => {
+        const stock = getSizeStock(products[row.productId], row.variantId, row.size);
+        const limit = checkQuantityLimit(row.quantity, stock);
+        return { limit, stock };
+      })
     );
+  }
 
 
-  // =====================================================
-  // RESET CART ON LOGOUT
-  // =====================================================
+  loadCartAfterAuth$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loginSuccess, restoreAuthSuccess),
+      map(() => loadCart())
+    )
+  );
 
-  resetCartOnLogout$ =
-    createEffect(() =>
 
-      this.actions$.pipe(
+  loadGuestCartAfterAuthRestore$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(restoreAuthSuccess, logout),
+      map(() => loadGuestCart())
+    )
+  );
 
-        ofType(logout),
+  resetCartOnLogout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(logout),
+      map(() => resetCart())
+    )
+  );
 
-        map(() =>
-          resetCart()
+
+
+  loadCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadCart),
+      switchMap(() =>
+        this.store.select(selectCurrentUser).pipe(
+          take(1),
+          switchMap((user): Observable<Action> => {
+            // nobody logged in -> the account cart is empty
+            if (!user) {
+              return of(loadCartSuccess({ items: [] }));
+            }
+            return this.cartService.getCart(user.id).pipe(
+              map(items => loadCartSuccess({ items }))
+            );
+          }),
+          catchError(() =>
+            of(loadCartFailure({ error: 'Could not load your cart. Please try again.' }))
+          )
         )
-
       )
+    )
+  );
 
-    );
+ 
+  addToCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(addToCart),
+      switchMap(({ product, variantId, size }) =>
+        this.withLoggedInUser('Could not add the item to your cart. Please try again.', user =>
 
+          
+          this.cartService.getCart(user.id).pipe(
+            switchMap((cartItems): Observable<Action> => {
 
-  // =====================================================
-  // LOAD CART
-  // =====================================================
+              
+              const stock = getSizeStock(product, variantId, size);
+              const check = evaluateAddToCart(cartItems, product.id, variantId, size, stock);
 
-  loadCart$ =
-    createEffect(() =>
+              if (!check.allowed) {
+                this.toast.warning(check.message);
+                return of(loadCart());
+              }
 
-      this.actions$.pipe(
+              
+              const existingRow = findCartLine(cartItems, product.id, variantId, size);
 
-        ofType(loadCart),
-
-        switchMap(() =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    loadCartSuccess({
-                      items: []
-                    })
-                  );
-
-                }
-
-
+              if (existingRow) {
                 return this.cartService
-                  .getCart(user.id)
-                  .pipe(
+                  .updateCartItem(existingRow.id!, existingRow.quantity + 1)
+                  .pipe(map(() => loadCart()));
+              }
 
-                    map(items =>
-
-                      loadCartSuccess({
-                        items
-                      })
-
-                    ),
-
-                    catchError(error =>
-
-                      of(
-                        loadCartFailure({
-                          error:
-                            error.message ??
-                            'Failed to load cart'
-                        })
-                      )
-
-                    )
-
-                  );
-
-              })
-
-            )
-
+              
+              return this.cartService
+                .addCartItem({
+                  id: makeCartItemId(product.id, variantId, size),
+                  userId: user.id,
+                  productId: product.id,
+                  variantId,
+                  size,
+                  quantity: 1
+                })
+                .pipe(map(() => loadCart()));
+            })
+          )
         )
-
       )
+    )
+  );
 
-    );
+  increaseQuantity$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(increaseQuantity),
+      switchMap(({ cartItemId }) =>
+        this.withLoggedInUser('Could not update the quantity. Please try again.', user =>
+
+          
+          this.cartService.getCart(user.id).pipe(
+            switchMap((cartItems): Observable<Action> => {
+              const row = cartItems.find(item => item.id === cartItemId);
+
+              if (!row) {
+                return of(loadCart());
+              }
+
+           
+              return this.checkCanIncrease(row).pipe(
+                switchMap(({ limit, stock }): Observable<Action> => {
+
+                  if (limit !== 'OK') {
+                    this.toast.warning(quantityLimitMessage(limit, stock));
+                    return of(loadCart());
+                  }
+
+                  return this.cartService
+                    .updateCartItem(cartItemId, row.quantity + 1)
+                    .pipe(map(() => loadCart()));
+                })
+              );
+            })
+          )
+        )
+      )
+    )
+  );
+
+  // "-" button
+  decreaseQuantity$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(decreaseQuantity),
+      switchMap(({ cartItemId }) =>
+        this.withLoggedInUser('Could not update the quantity. Please try again.', user =>
+
+          this.cartService.getCart(user.id).pipe(
+            switchMap((cartItems): Observable<Action> => {
+              const row = cartItems.find(item => item.id === cartItemId);
+
+              if (!row) {
+                return of(loadCart());
+              }
+
+              // quantity is 1 -> "-" deletes the row
+              if (row.quantity <= 1) {
+                return this.cartService.removeCartItem(cartItemId).pipe(map(() => loadCart()));
+              }
+
+              // otherwise quantity - 1
+              return this.cartService
+                .updateCartItem(cartItemId, row.quantity - 1)
+                .pipe(map(() => loadCart()));
+            })
+          )
+        )
+      )
+    )
+  );
+
+  // "Remove" link
+  removeFromCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(removeFromCart),
+      switchMap(({ cartItemId }) =>
+        this.withLoggedInUser('Could not remove the item. Please try again.', () =>
+          this.cartService.removeCartItem(cartItemId).pipe(map(() => loadCart()))
+        )
+      )
+    )
+  );
+
+  // "Clear cart": delete every row (all delete requests are sent together)
+  clearCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(clearCart),
+      switchMap(() =>
+        this.withLoggedInUser('Could not clear your cart. Please try again.', user =>
+
+          this.cartService.getCart(user.id).pipe(
+            switchMap((cartItems): Observable<Action> => {
+              const rows = cartItems.filter(item => item.id);
+
+              // forkJoin needs at least one request, so an empty cart is handled first
+              if (rows.length === 0) {
+                return of(loadCart());
+              }
+
+              const deleteRequests = rows.map(item => this.cartService.removeCartItem(item.id!));
+
+              return forkJoin(deleteRequests).pipe(map(() => loadCart()));
+            })
+          )
+        )
+      )
+    )
+  );
 
 
-  // =====================================================
-  // LOAD GUEST CART
-  // =====================================================
+  loadGuestCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadGuestCart),
+      map(() => loadGuestCartSuccess({ items: this.guestCartService.getCart() }))
+    )
+  );
 
-  loadGuestCart$ =
-    createEffect(() =>
 
-      this.actions$.pipe(
+  addGuestCartItem$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(addGuestCartItem),
+      switchMap(({ productId, variantId, size }) =>
+        this.products$.pipe(
+          map(products => {
 
-        ofType(loadGuestCart),
+            const product = products[productId];
+            const stock = product ? getSizeStock(product, variantId, size) : Number.MAX_SAFE_INTEGER;
 
-        map(() =>
+            const guestItems = this.guestCartService.getCart();
+            const check = evaluateAddToCart(guestItems, productId, variantId, size, stock);
 
-          loadGuestCartSuccess({
-            items:
-              this.guestCartService.getCart()
+            if (check.allowed) {
+              this.guestCartService.addItem({
+                id: makeCartItemId(productId, variantId, size),
+                productId,
+                variantId,
+                size,
+                quantity: 1
+              });
+            } else {
+              this.toast.warning(check.message);
+            }
+
+            // Step 4: reload (this also undoes the reducer's change when it was blocked)
+            return loadGuestCart();
           })
-
         )
-
       )
-
-    );
-
-
-  // =====================================================
-  // ADD TO CART
-  // =====================================================
-
-  addToCart$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(addToCart),
-
-        switchMap(({
-          product,
-          variantId,
-          size
-        }) =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    loadCartFailure({
-                      error:
-                        'You must be logged in to add items to cart'
-                    })
-                  );
-
-                }
-
-
-                return this.cartService
-                  .getCart(user.id)
-                  .pipe(
-
-                    switchMap(cartItems => {
-
-                      const existingItem =
-                        cartItems.find(item =>
-
-                          item.productId ===
-                            product.id &&
-
-                          item.variantId ===
-                            variantId &&
-
-                          item.size ===
-                            size
-
-                        );
-
-
-                      // ---------------------------------
-                      // LIMITS
-                      // - quantity of THIS item (product +
-                      //   color + size), capped by its stock
-                      // - number of distinct products
-                      // (the user is told about it in the
-                      //  component before this runs)
-                      // ---------------------------------
-
-                      const limitCheck =
-                        evaluateAddToCart(
-
-                          cartItems,
-
-                          product.id,
-
-                          variantId,
-
-                          size,
-
-                          getSizeStock(
-                            product,
-                            variantId,
-                            size
-                          )
-
-                        );
-
-
-                      if (!limitCheck.allowed) {
-
-                        return of(
-                          loadCart()
-                        );
-
-                      }
-
-
-                      // ---------------------------------
-                      // EXISTING CART ITEM
-                      // ---------------------------------
-
-                      if (existingItem) {
-
-                        return this.cartService
-                          .updateCartItem(
-
-                            existingItem.id!,
-
-                            existingItem.quantity + 1
-
-                          )
-
-                          .pipe(
-
-                            switchMap(() =>
-                              of(
-                                loadCart()
-                              )
-                            )
-
-                          );
-
-                      }
-
-
-                      // ---------------------------------
-                      // NEW CART ITEM
-                      // ---------------------------------
-
-                      const cartItem: CartItem = {
-
-                        id:
-                          `${product.id}-${variantId}-${size}`,
-
-                        userId:
-                          user.id,
-
-                        productId:
-                          product.id,
-
-                        variantId,
-
-                        size,
-
-                        quantity: 1
-
-                      };
-
-
-                      return this.cartService
-                        .addCartItem(cartItem)
-
-                        .pipe(
-
-                          switchMap(() =>
-                            of(
-                              loadCart()
-                            )
-                          )
-
-                        );
-
-                    }),
-
-                    catchError(error =>
-
-                      of(
-                        loadCartFailure({
-                          error:
-                            error.message ??
-                            'Failed to add item to cart'
-                        })
-                      )
-
-                    )
-
-                  );
-
-              })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // INCREASE QUANTITY
-  // =====================================================
-
-  increaseQuantity$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(increaseQuantity),
-
-        switchMap(({ cartItemId }) =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    loadCart()
-                  );
-
-                }
-
-
-                return this.cartService
-                  .getCart(user.id)
-                  .pipe(
-
-                    switchMap(cartItems => {
-
-                      const item =
-                        cartItems.find(
-                          cartItem =>
-                            cartItem.id ===
-                            cartItemId
-                        );
-
-
-                      if (!item) {
-
-                        return of(
-                          loadCart()
-                        );
-
-                      }
-
-
-                      // ---------------------------------
-                      // CHECK LIMITS FOR THIS ITEM ONLY
-                      // (max per item + variant size stock)
-                      // ---------------------------------
-
-                      return this.store
-                        .select(selectProductEntities)
-                        .pipe(
-
-                          take(1),
-
-                          switchMap(products => {
-
-                            const product =
-                              products[item.productId];
-
-
-                            if (!product) {
-
-                              return of(
-                                loadCart()
-                              );
-
-                            }
-
-
-                            const variant =
-                              product.variants.find(
-                                variant =>
-                                  variant.id ===
-                                  item.variantId
-                              );
-
-
-                            if (!variant) {
-
-                              return of(
-                                loadCart()
-                              );
-
-                            }
-
-
-                            const size =
-                              variant.sizes.find(
-                                size =>
-                                  size.size ===
-                                  item.size
-                              );
-
-
-                            if (
-                              !size ||
-                              checkQuantityLimit(
-                                item.quantity,
-                                size.stock
-                              ) !== 'OK'
-                            ) {
-
-                              return of(
-                                loadCart()
-                              );
-
-                            }
-
-
-                            return this.cartService
-                              .updateCartItem(
-
-                                item.id!,
-
-                                item.quantity + 1
-
-                              )
-
-                              .pipe(
-
-                                switchMap(() =>
-                                  of(
-                                    loadCart()
-                                  )
-                                )
-
-                              );
-
-                          })
-
-                        );
-
-                    }),
-
-                    catchError(error =>
-
-                      of(
-                        loadCartFailure({
-                          error:
-                            error.message ??
-                            'Failed to increase quantity'
-                        })
-                      )
-
-                    )
-
-                  );
-
-              })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // DECREASE QUANTITY
-  // =====================================================
-
-  decreaseQuantity$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(decreaseQuantity),
-
-        switchMap(({ cartItemId }) =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    loadCart()
-                  );
-
-                }
-
-
-                return this.cartService
-                  .getCart(user.id)
-                  .pipe(
-
-                    switchMap(cartItems => {
-
-                      const item =
-                        cartItems.find(
-                          cartItem =>
-                            cartItem.id ===
-                            cartItemId
-                        );
-
-
-                      if (!item) {
-
-                        return of(
-                          loadCart()
-                        );
-
-                      }
-
-
-                      if (
-                        item.quantity <= 1
-                      ) {
-
-                        return this.cartService
-                          .removeCartItem(
-                            item.id!
-                          )
-
-                          .pipe(
-
-                            switchMap(() =>
-                              of(
-                                loadCart()
-                              )
-                            )
-
-                          );
-
-                      }
-
-
-                      return this.cartService
-                        .updateCartItem(
-
-                          item.id!,
-
-                          item.quantity - 1
-
-                        )
-
-                        .pipe(
-
-                          switchMap(() =>
-                            of(
-                              loadCart()
-                            )
-                          )
-
-                        );
-
-                    }),
-
-                    catchError(error =>
-
-                      of(
-                        loadCartFailure({
-                          error:
-                            error.message ??
-                            'Failed to decrease quantity'
-                        })
-                      )
-
-                    )
-
-                  );
-
-              })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // REMOVE FROM CART
-  // =====================================================
-
-  removeFromCart$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(removeFromCart),
-
-        switchMap(({ cartItemId }) =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    loadCart()
-                  );
-
-                }
-
-
-                return this.cartService
-                  .removeCartItem(
-                    cartItemId
-                  )
-
-                  .pipe(
-
-                    switchMap(() =>
-                      of(
-                        loadCart()
-                      )
-                    ),
-
-                    catchError(error =>
-
-                      of(
-                        loadCartFailure({
-                          error:
-                            error.message ??
-                            'Failed to remove cart item'
-                        })
-                      )
-
-                    )
-
-                  );
-
-              })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // CLEAR CART
-  // =====================================================
-
-  clearCart$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(clearCart),
-
-        switchMap(() =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    loadCartSuccess({
-                      items: []
-                    })
-                  );
-
-                }
-
-
-                return this.cartService
-                  .getCart(user.id)
-                  .pipe(
-
-                    switchMap(items => {
-
-                      if (!items.length) {
-
-                        return of(
-                          loadCart()
-                        );
-
-                      }
-
-
-                      return forkJoin(
-
-                        items
-
-                          .filter(
-                            item =>
-                              !!item.id
-                          )
-
-                          .map(item =>
-                            this.cartService
-                              .removeCartItem(
-                                item.id!
-                              )
-                          )
-
-                      )
-
-                      .pipe(
-
-                        switchMap(() =>
-                          of(
-                            loadCart()
-                          )
-                        )
-
-                      );
-
-                    }),
-
-                    catchError(error =>
-
-                      of(
-                        loadCartFailure({
-                          error:
-                            error.message ??
-                            'Failed to clear cart'
-                        })
-                      )
-
-                    )
-
-                  );
-
-              })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // ADD GUEST CART ITEM
-  // =====================================================
-
-  addGuestCartItem$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(addGuestCartItem),
-
-        switchMap(({
-          productId,
-          variantId,
-          size
-        }) =>
-
-          this.store
-            .select(selectProductEntities)
-            .pipe(
-
-              take(1),
-
-              map(products => {
-
-                const product =
-                  products[productId];
-
-
-                // Same rules as the logged-in cart:
-                // per-item quantity, size stock and
-                // distinct product limit.
-                const limitCheck =
-                  evaluateAddToCart(
-
-                    this.guestCartService
-                      .getCart(),
-
-                    productId,
-
-                    variantId,
-
-                    size,
-
-                    // product not loaded -> don't block
-                    product
-                      ? getSizeStock(
-                          product,
-                          variantId,
-                          size
-                        )
-                      : Number.MAX_SAFE_INTEGER
-
-                  );
-
-
-                if (limitCheck.allowed) {
-
-                  this.guestCartService.addItem({
-
-                    id:
-                      `${productId}-${variantId}-${size}`,
-
-                    productId,
-
-                    variantId,
-
-                    size,
-
-                    quantity: 1
-
-                  });
-
-                }
-
-
-                return loadGuestCart();
-
-              })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // INCREASE GUEST QUANTITY
-  // =====================================================
-
-  increaseGuestQuantity$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(increaseGuestQuantity),
-
-        switchMap(({ cartItemId }) =>
-
-          this.store
-            .select(selectProductEntities)
-            .pipe(
-
-              take(1),
-
-              switchMap(products => {
-
-                const cart =
-                  this.guestCartService.getCart();
-
-
-                const item =
-                  cart.find(
-                    item =>
-                      item.id ===
-                      cartItemId
-                  );
-
-
-                if (!item) {
-
-                  return of(
-                    loadGuestCart()
-                  );
-
-                }
-
-
-                const product =
-                  products[item.productId];
-
-
-                if (!product) {
-
-                  return of(
-                    loadGuestCart()
-                  );
-
-                }
-
-
-                const variant =
-                  product.variants.find(
-                    variant =>
-                      variant.id ===
-                      item.variantId
-                  );
-
-
-                const size =
-                  variant?.sizes.find(
-                    size =>
-                      size.size ===
-                      item.size
-                  );
-
-
-                if (
-                  !size ||
-                  checkQuantityLimit(
-                    item.quantity,
-                    size.stock
-                  ) !== 'OK'
-                ) {
-
-                  return of(
-                    loadGuestCart()
-                  );
-
-                }
-
-
-                this.guestCartService
-                  .updateQuantity(
-
-                    cartItemId,
-
-                    item.quantity + 1
-
-                  );
-
-
-                return of(
-                  loadGuestCart()
+    )
+  );
+
+  // "+" button
+  increaseGuestQuantity$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(increaseGuestQuantity),
+      switchMap(({ cartItemId }): Observable<Action> => {
+        const row = this.guestCartService.getCart().find(item => item.id === cartItemId);
+
+        if (!row) {
+          return of(loadGuestCart());
+        }
+
+        return this.checkCanIncrease(row).pipe(
+          map(({ limit, stock }) => {
+            if (limit === 'OK') {
+              this.guestCartService.updateQuantity(cartItemId, row.quantity + 1);
+            } else {
+              this.toast.warning(quantityLimitMessage(limit, stock));
+            }
+            return loadGuestCart();
+          })
+        );
+      })
+    )
+  );
+
+  // "-" button  (updateQuantity deletes the row when the quantity becomes 0)
+  decreaseGuestQuantity$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(decreaseGuestQuantity),
+      map(({ cartItemId }) => {
+        const row = this.guestCartService.getCart().find(item => item.id === cartItemId);
+
+        if (row) {
+          this.guestCartService.updateQuantity(cartItemId, row.quantity - 1);
+        }
+
+        return loadGuestCart();
+      })
+    )
+  );
+
+  // "Remove" link
+  removeGuestItem$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(removeGuestItem),
+      map(({ cartItemId }) => {
+        this.guestCartService.removeItem(cartItemId);
+        return loadGuestCart();
+      })
+    )
+  );
+
+  // "Clear cart"
+  clearGuestCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(clearGuestCart),
+      map(() => {
+        this.guestCartService.clearCart();
+        return loadGuestCart();
+      })
+    )
+  );
+
+
+
+  private prepareMergeRequests(
+    userId: string,
+    guestItems: GuestCartItem[],
+    accountItems: CartItem[]
+  ) {
+    const maxPerItem = MAX_PER_ITEM;
+
+  
+    const cartRows: CartLine[] = [...accountItems];
+
+
+    const requests: Observable<unknown>[] = [];
+
+    let wasReduced = false;
+
+    for (const guestItem of guestItems) {
+      const existingRow = findCartLine(
+        accountItems,
+        guestItem.productId,
+        guestItem.variantId,
+        guestItem.size
+      );
+
+      if (existingRow) {
+        // CASE 1
+        const freeSpace = Math.max(0, maxPerItem - existingRow.quantity);
+        const quantityToAdd = Math.min(guestItem.quantity, freeSpace);
+
+        if (quantityToAdd < guestItem.quantity) {
+          wasReduced = true;
+        }
+
+        if (quantityToAdd > 0) {
+          requests.push(
+            this.cartService.updateCartItem(existingRow.id!, existingRow.quantity + quantityToAdd)
+          );
+        } else {
+          requests.push(of(null));
+        }
+
+      } else if (isOverProductLimit(cartRows, guestItem.productId)) {
+        // CASE 2
+        wasReduced = true;
+        requests.push(of(null));
+
+      } else {
+        // CASE 3
+        const quantity = Math.min(guestItem.quantity, maxPerItem);
+
+        if (quantity < guestItem.quantity) {
+          wasReduced = true;
+        }
+
+        cartRows.push({ ...guestItem, quantity });
+
+        requests.push(
+          this.cartService.addCartItem({
+            id: makeCartItemId(guestItem.productId, guestItem.variantId, guestItem.size),
+            userId,
+            productId: guestItem.productId,
+            variantId: guestItem.variantId,
+            size: guestItem.size,
+            quantity
+          })
+        );
+      }
+    }
+
+    return { requests, wasReduced };
+  }
+
+  mergeGuestCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(mergeGuestCart),
+      switchMap(({ returnUrl }) =>
+        this.store.select(selectCurrentUser).pipe(
+          take(1),
+          switchMap((user): Observable<Action> => {
+
+            // Nobody is logged in -> cannot merge
+            if (!user) {
+              return of(
+                mergeGuestCartFailure({ error: 'Cannot merge cart without a logged-in user', returnUrl })
+              );
+            }
+
+            // The guest cart is empty -> nothing to merge
+            const guestItems = this.guestCartService.getCart();
+
+            if (guestItems.length === 0) {
+              return of(mergeGuestCartSuccess({ returnUrl }));
+            }
+
+            // Step 1: get the account cart
+            return this.cartService.getCart(user.id).pipe(
+
+              // Step 2: prepare the requests (the 3 cases above)
+              switchMap(accountItems => {
+                const { requests, wasReduced } = this.prepareMergeRequests(
+                  user.id,
+                  guestItems,
+                  accountItems
                 );
 
+                // Step 3: send all requests together and wait until all are done
+                return forkJoin(requests).pipe(
+
+                  // Step 4: the guest cart is no longer needed; tell the user if items were reduced
+                  tap(() => {
+                    this.guestCartService.clearCart();
+
+                    if (wasReduced) {
+                      this.toast.info(CART_MERGE_TRIMMED_MESSAGE);
+                    }
+                  }),
+
+                  // Step 5: the merge is finished
+                  map(() => mergeGuestCartSuccess({ returnUrl }))
+                );
               })
-
-            )
-
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // DECREASE GUEST QUANTITY
-  // =====================================================
-
-  decreaseGuestQuantity$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(decreaseGuestQuantity),
-
-        tap(({ cartItemId }) => {
-
-          const cart =
-            this.guestCartService.getCart();
-
-
-          const item =
-            cart.find(
-              item =>
-                item.id ===
-                cartItemId
             );
-
-
-          if (!item) {
-
-            return;
-
-          }
-
-
-          this.guestCartService.updateQuantity(
-
-            cartItemId,
-
-            item.quantity - 1
-
-          );
-
-        }),
-
-        map(() =>
-          loadGuestCart()
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // REMOVE GUEST ITEM
-  // =====================================================
-
-  removeGuestItem$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(removeGuestItem),
-
-        tap(({ cartItemId }) => {
-
-          this.guestCartService.removeItem(
-            cartItemId
-          );
-
-        }),
-
-        map(() =>
-          loadGuestCart()
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // CLEAR GUEST CART
-  // =====================================================
-
-  clearGuestCart$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(clearGuestCart),
-
-        tap(() => {
-
-          this.guestCartService.clearCart();
-
-        }),
-
-        map(() =>
-          loadGuestCart()
-        )
-
-      )
-
-    );
-
-
-  // =====================================================
-  // MERGE GUEST CART AFTER LOGIN
-  // =====================================================
-
-  mergeGuestCart$ =
-    createEffect(() =>
-
-      this.actions$.pipe(
-
-        ofType(mergeGuestCart),
-
-        switchMap(({ returnUrl }) =>
-
-          this.store
-            .select(selectCurrentUser)
-            .pipe(
-
-              take(1),
-
-              switchMap(user => {
-
-                if (!user) {
-
-                  return of(
-                    mergeGuestCartFailure({
-
-                      error:
-                        'Cannot merge cart without a logged-in user',
-
-                      returnUrl
-
-                    })
-                  );
-
-                }
-
-
-                const guestItems =
-                  this.guestCartService.getCart();
-
-
-                if (!guestItems.length) {
-
-                  return of(
-                    mergeGuestCartSuccess({
-                      returnUrl
-                    })
-                  );
-
-                }
-
-
-                return this.cartService
-                  .getCart(user.id)
-                  .pipe(
-
-                    switchMap(cartItems => {
-
-                      const distinctProducts =
-                        new Set(
-                          cartItems.map(
-                            item =>
-                              item.productId
-                          )
-                        );
-
-
-                      let anyItemTrimmed = false;
-
-
-
-
-                      const requests =
-                        guestItems.map(
-                          guestItem => {
-
-                            const existingItem =
-                              cartItems.find(
-                                item =>
-
-                                  item.productId ===
-                                    guestItem.productId &&
-
-                                  item.variantId ===
-                                    guestItem.variantId &&
-
-                                  item.size ===
-                                    guestItem.size
-
-                              );
-
-
-                            // ---------------------------
-                            // ITEM ALREADY IN THE ACCOUNT CART
-                            // Limit applies to THIS item only
-                            // (same product + color + size)
-                            // ---------------------------
-
-                            if (existingItem) {
-
-                              const allowedQuantity =
-                                Math.min(
-
-                                  guestItem.quantity,
-
-                                  Math.max(
-                                    0,
-
-                                    CART_LIMITS
-                                      .MAX_QUANTITY_PER_ITEM -
-                                    existingItem.quantity
-
-                                  )
-
-                                );
-
-
-                              if (
-                                allowedQuantity <= 0
-                              ) {
-
-                                anyItemTrimmed = true;
-
-                                return of(null);
-
-                              }
-
-
-                              if (
-                                allowedQuantity <
-                                guestItem.quantity
-                              ) {
-
-                                anyItemTrimmed = true;
-
-                              }
-
-
-                              return this.cartService
-                                .updateCartItem(
-
-                                  existingItem.id!,
-
-                                  existingItem.quantity +
-                                  allowedQuantity
-
-                                );
-
-                            }
-
-
-                            // ---------------------------
-                            // NEW PRODUCT FOR THIS ACCOUNT
-                            // ---------------------------
-
-                            if (
-                              !distinctProducts.has(
-                                guestItem.productId
-                              ) &&
-                              distinctProducts.size >=
-                              CART_LIMITS.MAX_DISTINCT_PRODUCTS
-                            ) {
-
-                              anyItemTrimmed = true;
-
-                              return of(null);
-
-                            }
-
-
-                            distinctProducts.add(
-                              guestItem.productId
-                            );
-
-
-                            if (
-                              guestItem.quantity >
-                              CART_LIMITS.MAX_QUANTITY_PER_ITEM
-                            ) {
-
-                              anyItemTrimmed = true;
-
-                            }
-
-
-                            const cartItem: CartItem = {
-
-                              id:
-                                `${guestItem.productId}-${guestItem.variantId}-${guestItem.size}`,
-
-                              userId:
-                                user.id,
-
-                              productId:
-                                guestItem.productId,
-
-                              variantId:
-                                guestItem.variantId,
-
-                              size:
-                                guestItem.size,
-
-                              quantity:
-                                Math.min(
-                                  guestItem.quantity,
-                                  CART_LIMITS.MAX_QUANTITY_PER_ITEM
-                                )
-
-                            };
-
-
-                            return this.cartService
-                              .addCartItem(
-                                cartItem
-                              );
-
-                          }
-
-                        );
-
-
-                      return forkJoin(
-                        requests
-                      )
-
-                      .pipe(
-
-                        tap(() => {
-
-                          this.guestCartService
-                            .clearCart();
-
-
-                          if (anyItemTrimmed) {
-
-                            this.toastService.info(
-                              CART_MERGE_TRIMMED_MESSAGE
-                            );
-
-                          }
-
-                        }),
-
-                        switchMap(() =>
-
-                          of(
-                            mergeGuestCartSuccess({
-                              returnUrl
-                            })
-                          )
-
-                        )
-
-                      );
-
-                    }),
-
-                    catchError(error =>
-
-                      of(
-                        mergeGuestCartFailure({
-
-                          error:
-                            error.message ??
-                            'Failed to merge guest cart',
-
-                          returnUrl
-
-                        })
-                      )
-
-                    )
-
-                  );
-
+          }),
+          catchError(() =>
+            of(
+              mergeGuestCartFailure({
+                error: 'Could not merge your guest cart. Please try again.',
+                returnUrl
               })
-
             )
-
+          )
         )
-
       )
+    )
+  );
 
-    );
+  // The merge is finished -> show the real account cart
+  loadCartAfterMerge$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(mergeGuestCartSuccess),
+      map(() => loadCart())
+    )
+  );
 
 
-  // =====================================================
-  // LOAD CART AFTER MERGE
-  // =====================================================
 
-  loadCartAfterMerge$ =
-    createEffect(() =>
-
+  showCartError$ = createEffect(
+    () =>
       this.actions$.pipe(
-
-        ofType(
-          mergeGuestCartSuccess
-        ),
-
-        map(() =>
-          loadCart()
-        )
-
-      )
-
-    );
-
+        ofType(loadCartFailure, mergeGuestCartFailure),
+        tap(({ error }) => this.toast.error(error))
+      ),
+    { dispatch: false }
+  );
 }

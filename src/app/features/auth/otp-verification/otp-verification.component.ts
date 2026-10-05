@@ -14,7 +14,6 @@ import {
 import { OtpService } from '../../../core/services/otp.service';
 
 const OTP_LENGTH = 4;
-const OTP_SECONDS = 90;
 
 @Component({
   selector: 'app-otp-verification',
@@ -34,7 +33,8 @@ export class OtpVerificationComponent implements OnDestroy {
   digits = signal<string[]>(Array(OTP_LENGTH).fill(''));
   error = signal('');
   isResending = signal(false);
-  seconds = signal(OTP_SECONDS);
+
+  seconds = signal(this.otpService.getSecondsLeft());
 
   // mm:ss
   time = computed(() => {
@@ -130,13 +130,23 @@ export class OtpVerificationComponent implements OnDestroy {
 
   // ---------- TIMER ----------
 
+  // Every second the remaining time is read again from the service. This is more
+  // accurate than subtracting 1 each tick (a hidden tab slows timers down), and it
+  // is what makes the countdown continue after a refresh.
   private startTimer(): void {
     this.stopTimer();
-    this.seconds.set(OTP_SECONDS);
+    this.seconds.set(this.otpService.getSecondsLeft());
+
+    if (this.seconds() === 0) {
+      return;   // already expired (for example, refreshed after the code expired)
+    }
 
     this.timer = setInterval(() => {
-      this.seconds.update(s => s - 1);
-      if (this.seconds() <= 0) this.stopTimer();
+      this.seconds.set(this.otpService.getSecondsLeft());
+
+      if (this.seconds() === 0) {
+        this.stopTimer();
+      }
     }, 1000);
   }
 

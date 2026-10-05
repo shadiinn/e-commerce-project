@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GuestCartItem } from '../models/guest-cart.model';
-import { CART_LIMITS } from '../models/constants/cart.constants';
+import { MAX_DIFFERENT_PRODUCTS,MAX_PER_ITEM } from '../utils/cart.limits';
 
 @Injectable({
   providedIn: 'root'
@@ -52,14 +52,14 @@ export class GuestCartService {
 
     if (existingItem) {
       if (
-        existingItem.quantity >=CART_LIMITS.MAX_QUANTITY_PER_ITEM
+        existingItem.quantity >=MAX_PER_ITEM
       ) {
         return false;
       }
       existingItem.quantity =Math.min(
           existingItem.quantity +
           item.quantity,
-          CART_LIMITS.MAX_QUANTITY_PER_ITEM
+          MAX_PER_ITEM
         );
       this.saveCart(cart);
       return true;
@@ -79,7 +79,7 @@ export class GuestCartService {
         item.productId
       ) &&
       distinctProducts.size >=
-      CART_LIMITS.MAX_DISTINCT_PRODUCTS
+      MAX_DIFFERENT_PRODUCTS
     ) {
       return false;
     }
@@ -112,7 +112,7 @@ export class GuestCartService {
     }
     item.quantity =Math.min(
         quantity,
-        CART_LIMITS.MAX_QUANTITY_PER_ITEM
+        MAX_PER_ITEM
     );
     this.saveCart(cart);
   }

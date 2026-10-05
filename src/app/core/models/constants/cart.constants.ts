@@ -1,7 +1,5 @@
 export const CART_LIMITS = {
 
-  MAX_QUANTITY_PER_ITEM: 5,
 
-  MAX_DISTINCT_PRODUCTS: 10
 
 };
