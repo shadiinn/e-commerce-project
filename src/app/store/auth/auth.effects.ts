@@ -117,7 +117,9 @@ export class AuthEffects {
 
                   phone: user.phone,
 
-                  profileImage: user.profileImage
+                  profileImage: user.profileImage,
+
+                  role: user.role
 
                 };
 
@@ -131,7 +133,11 @@ export class AuthEffects {
 
                   user: authUser,
 
-                  returnUrl
+                  // an admin who just logs in (no page to return to) goes to the admin area
+                  returnUrl:
+                    user.role === 'admin' && (!returnUrl || returnUrl === '/')
+                      ? '/admin'
+                      : returnUrl
 
                 });
 
@@ -290,7 +296,9 @@ export class AuthEffects {
                   phone: user.phone,
 
                   profileImage:
-                    user.profileImage
+                    user.profileImage,
+
+                  role: user.role
 
                 };
 
@@ -407,7 +415,7 @@ export class AuthEffects {
       )
 
     )
-    
+
   );
 
 

@@ -1,0 +1,177 @@
+<!-- ================================================= -->
+<!-- SIDEBAR CONTENT (written once, used on desktop and in the phone drawer) -->
+<!-- ================================================= -->
+
+<ng-template #sidebarContent>
+
+  <div class="flex h-full flex-col">
+
+    <!-- BRAND -->
+
+    <div class="border-b border-white/10 px-6 py-6">
+      <p class="text-lg font-light tracking-[0.2em] text-white">SA</p>
+      <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-white/50">Admin</p>
+    </div>
+
+    <!-- LINKS -->
+
+    <nav class="flex-1 space-y-1 px-3 py-6" aria-label="Admin">
+
+      @for (item of navItems; track item.path) {
+
+        @if (item.ready) {
+
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="!bg-white/10 !text-white"
+            [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
+            (click)="closeMenu()"
+            class="flex items-center gap-3 px-3 py-3 text-xs uppercase tracking-[0.15em] text-white/70 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="item.icon"></path>
+            </svg>
+            {{ item.label }}
+          </a>
+
+        } @else {
+
+          <!-- page not built yet -->
+          <span class="flex cursor-not-allowed items-center gap-3 px-3 py-3 text-xs uppercase tracking-[0.15em] text-white/30">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="item.icon"></path>
+            </svg>
+            {{ item.label }}
+            <span class="ml-auto border border-white/20 px-1.5 py-0.5 text-[8px] tracking-[0.15em] text-white/40">Soon</span>
+          </span>
+
+        }
+
+      }
+
+    </nav>
+
+    <!-- BOTTOM LINKS -->
+
+    <div class="space-y-1 border-t border-white/10 px-3 py-4">
+
+      <a
+        routerLink="/"
+        class="block px-3 py-3 text-xs uppercase tracking-[0.15em] text-white/70 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+      >
+        View store
+      </a>
+
+      <button
+        type="button"
+        (click)="logout()"
+        class="block w-full px-3 py-3 text-left text-xs uppercase tracking-[0.15em] text-white/70 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+      >
+        Log out
+      </button>
+
+    </div>
+
+  </div>
+
+</ng-template>
+
+
+<!-- ================================================= -->
+<!-- PAGE FRAME -->
+<!-- ================================================= -->
+
+<div class="min-h-screen bg-brand-background lg:grid lg:grid-cols-[256px_minmax(0,1fr)]">
+
+  <!-- DESKTOP SIDEBAR (fixed on screen while the page scrolls) -->
+
+  <aside class="hidden bg-brand-text lg:sticky lg:top-0 lg:block lg:h-screen">
+    <ng-container [ngTemplateOutlet]="sidebarContent"></ng-container>
+  </aside>
+
+  <!-- RIGHT SIDE: header + page -->
+
+  <div class="flex min-w-0 flex-col">
+
+    <header class="sticky top-0 z-30 flex items-center justify-between border-b border-brand-border bg-brand-background px-5 py-4 sm:px-8">
+
+      <!-- menu button (phones only) -->
+
+      <button
+        type="button"
+        (click)="isMenuOpen.set(true)"
+        class="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-brand-text lg:hidden"
+        aria-label="Open admin menu"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M3 6h18M3 12h18M3 18h18"></path>
+        </svg>
+        Menu
+      </button>
+
+      <p class="hidden text-[10px] uppercase tracking-[0.25em] text-brand-muted lg:block">Admin panel</p>
+
+      <!-- who is logged in -->
+
+      @if (currentUser(); as user) {
+        <div class="flex items-center gap-3">
+
+          <div class="text-right">
+            <p class="text-xs text-brand-text">{{ user.firstName }} {{ user.lastName }}</p>
+            <p class="text-[9px] uppercase tracking-[0.2em] text-brand-muted">Administrator</p>
+          </div>
+
+          <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface">
+            @if (user.profileImage) {
+              <img [src]="user.profileImage" alt="Profile picture" class="h-full w-full object-cover" />
+            } @else {
+              <span class="text-xs text-brand-text">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>
+            }
+          </div>
+
+        </div>
+      }
+
+    </header>
+
+    <!-- THE ADMIN PAGE (dashboard, orders, products ...) -->
+
+    <main class="flex-1 px-5 py-8 sm:px-8 sm:py-10">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- PHONE DRAWER -->
+<!-- ================================================= -->
+
+@if (isMenuOpen()) {
+
+  <div class="fixed inset-0 z-40 lg:hidden">
+
+    <div class="absolute inset-0 bg-black/50" (click)="closeMenu()"></div>
+
+    <aside class="relative h-full w-64 bg-brand-text shadow-xl">
+
+      <button
+        type="button"
+        (click)="closeMenu()"
+        class="absolute right-3 top-4 text-white/70 hover:text-white"
+        aria-label="Close admin menu"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <ng-container [ngTemplateOutlet]="sidebarContent"></ng-container>
+
+    </aside>
+
+  </div>
+
+}

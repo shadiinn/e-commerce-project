@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { NotFoundComponent } from './features/not-found/not-found.component';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -88,27 +89,33 @@ export const routes: Routes = [
       import('./features/order-details/order-details.component')
         .then(m => m.OrderDetailsComponent)
   },
-{
-  path: 'login',
-  loadComponent: () =>
-    import  ('./features/auth/auth.component') 
-      .then(m => m.AuthComponent),
-  canActivate: [guestGuard]
-},
-
-{
-  path: 'register',
-  loadComponent: () =>
-    import('./features/auth/auth.component')
-      .then(m => m.AuthComponent),
-  canActivate: [guestGuard]
-},
+  {
+    path: 'login',
+    loadComponent: () =>
+      import  ('./features/auth/auth.component') 
+        .then(m => m.AuthComponent),
+    canActivate: [guestGuard]
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/auth/auth.component')
+        .then(m => m.AuthComponent),
+    canActivate: [guestGuard]
+  },
   {
     path: 'account',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/account/account.component')
         .then(m => m.AccountComponent)
+  },
+  {
+    path: 'admin',
+    canMatch: [adminGuard],
+    loadChildren: () =>
+      import('./features/admin/admin.routes')
+        .then(m => m.ADMIN_ROUTES)
   },
   {
     path: '**',

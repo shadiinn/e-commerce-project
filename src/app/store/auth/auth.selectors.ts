@@ -38,3 +38,10 @@ export const selectAuthError =
     selectAuthState,
     state => state.registrationEmailAvailable
   );
+
+// true when the logged-in user is an admin
+export const selectIsAdmin =
+  createSelector(
+    selectCurrentUser,
+    user => user?.role === 'admin'
+  );

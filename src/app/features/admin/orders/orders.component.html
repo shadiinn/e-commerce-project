@@ -1,0 +1,376 @@
+<div class="mx-auto max-w-6xl">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="flex flex-col gap-4 border-b border-brand-border pb-8 sm:flex-row sm:items-end sm:justify-between">
+
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-brand-muted">Orders</p>
+      <h1 class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl">All orders</h1>
+      <p class="mt-3 text-sm text-brand-muted">Search, filter and update the orders of your store.</p>
+    </div>
+
+    <button
+      type="button"
+      (click)="data.load()"
+      [disabled]="data.loading()"
+      class="shrink-0 border border-brand-border px-5 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:border-brand-text disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {{ data.loading() ? 'Loading...' : 'Refresh' }}
+    </button>
+
+  </div>
+
+  @if (data.error()) {
+    <div class="mt-8 border border-red-200 bg-red-50 px-4 py-3">
+      <p class="text-xs text-red-600">{{ data.error() }}</p>
+    </div>
+  }
+
+
+  <!-- ================================================= -->
+  <!-- SEARCH + STATUS TABS -->
+  <!-- ================================================= -->
+
+  <div class="mt-8 space-y-5">
+
+    <input
+      type="search"
+      placeholder="Search by order number, customer name, email or phone"
+      [value]="search()"
+      (input)="setSearch($any($event.target).value)"
+      class="w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+    />
+
+    <div class="flex flex-wrap gap-2">
+      @for (tab of tabs(); track tab.value) {
+        <button
+          type="button"
+          (click)="setStatus(tab.value)"
+          class="border px-4 py-2 text-[10px] font-medium uppercase tracking-[0.12em] transition-colors duration-200"
+          [class]="statusFilter() === tab.value
+            ? 'border-brand-text bg-brand-text text-white'
+            : 'border-brand-border text-brand-muted hover:border-brand-text hover:text-brand-text'"
+        >
+          {{ tab.label }} ({{ tab.count }})
+        </button>
+      }
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- TABLE -->
+  <!-- ================================================= -->
+
+  <!-- the page buttons scroll back to this point -->
+  <div id="admin-orders-table" class="scroll-mt-24"></div>
+
+  @if (orderPage().totalItems === 0) {
+
+    <div class="mt-6 border border-dashed border-brand-border p-12 text-center">
+      <p class="text-sm text-brand-text">
+        {{ data.loading() ? 'Loading orders...' : 'No orders found' }}
+      </p>
+      @if (!data.loading()) {
+        <p class="mt-2 text-xs text-brand-muted">Try another search or status.</p>
+      }
+    </div>
+
+  } @else {
+
+    <div class="mt-6 overflow-x-auto border border-brand-border bg-brand-surface">
+
+      <table class="w-full min-w-[820px] text-left text-xs">
+
+        <thead class="border-b border-brand-border text-[10px] uppercase tracking-[0.15em] text-brand-muted">
+          <tr>
+            <th class="px-4 py-4 font-medium">Order</th>
+            <th class="px-4 py-4 font-medium">Customer</th>
+            <th class="px-4 py-4 font-medium">Items</th>
+            <th class="px-4 py-4 font-medium">Total</th>
+            <th class="px-4 py-4 font-medium">Payment</th>
+            <th class="px-4 py-4 font-medium">Status</th>
+            <th class="px-4 py-4"></th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-brand-border">
+
+          @for (order of orderPage().items; track order.id) {
+
+            <tr class="transition-colors duration-200 hover:bg-brand-background">
+
+              <td class="px-4 py-4">
+                <button type="button" (click)="selectedOrderId.set(order.id)" class="font-medium text-brand-text hover:underline">
+                  {{ order.orderNumber }}
+                </button>
+                <p class="mt-1 text-brand-muted">{{ order.createdAt | date: 'd MMM y, h:mm a' }}</p>
+              </td>
+
+              <td class="px-4 py-4">
+                <p class="text-brand-text">{{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}</p>
+                <p class="mt-1 text-brand-muted">{{ order.shippingAddress.email }}</p>
+              </td>
+
+              <td class="px-4 py-4 text-brand-text">{{ pieces(order) }}</td>
+
+              <td class="px-4 py-4 text-brand-text">{{ data.money(order.total) }}</td>
+
+              <td class="px-4 py-4">
+                <p class="text-brand-text">{{ order.paymentMethod === 'cod' ? 'Cash on delivery' : 'Online' }}</p>
+                <p
+                  class="mt-1 capitalize"
+                  [class]="order.paymentStatus === 'paid' ? 'text-green-700' : order.paymentStatus === 'failed' ? 'text-red-600' : 'text-amber-700'"
+                >
+                  {{ order.paymentStatus }}
+                </p>
+              </td>
+
+              <td class="px-4 py-4">
+                <span class="inline-block border px-2 py-1 text-[9px] uppercase tracking-[0.12em]" [class]="statusStyles[order.orderStatus]">
+                  {{ statusLabels[order.orderStatus] }}
+                </span>
+              </td>
+
+              <td class="px-4 py-4 text-right">
+                <button
+                  type="button"
+                  (click)="selectedOrderId.set(order.id)"
+                  class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors hover:text-brand-text"
+                >
+                  View
+                </button>
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <app-pagination
+      [page]="orderPage().page"
+      [totalPages]="orderPage().totalPages"
+      [totalItems]="orderPage().totalItems"
+      [pageSize]="pageSize"
+      scrollTo="admin-orders-table"
+      (pageChange)="goToPage($event)"
+    />
+
+  }
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- ORDER POPUP -->
+<!-- ================================================= -->
+
+@if (selectedOrder(); as current) {
+
+  <div
+    class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-8"
+    (click)="selectedOrderId.set(null)"
+  >
+
+    <div
+      class="w-full max-w-3xl bg-white p-6 shadow-xl sm:p-8"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- HEADER -->
+
+      <div class="flex items-start justify-between gap-4 border-b border-brand-border pb-6">
+
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.25em] text-brand-muted">Order</p>
+          <h2 class="mt-2 text-2xl font-light text-brand-text">{{ current.orderNumber }}</h2>
+          <p class="mt-2 text-xs text-brand-muted">Placed on {{ current.createdAt | date: 'd MMM y, h:mm a' }}</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span class="inline-block border px-3 py-1.5 text-[10px] uppercase tracking-[0.15em]" [class]="statusStyles[current.orderStatus]">
+            {{ statusLabels[current.orderStatus] }}
+          </span>
+
+          <button
+            type="button"
+            (click)="selectedOrderId.set(null)"
+            class="text-brand-muted transition-colors hover:text-brand-text"
+            aria-label="Close"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- PROGRESS -->
+
+      <div class="mt-6">
+
+        @if (current.orderStatus === 'cancelled') {
+
+          <p class="border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
+            This order was cancelled. It can not be changed any more.
+          </p>
+
+        } @else {
+
+          <ol class="grid grid-cols-4 gap-2">
+            @for (step of progress(); track step.label) {
+              <li>
+                <div class="h-1" [class]="step.done ? 'bg-brand-text' : 'bg-[#e7e3dc]'"></div>
+                <p class="mt-2 text-[10px] uppercase tracking-[0.12em]" [class]="step.done ? 'text-brand-text' : 'text-brand-muted'">
+                  {{ step.label }}
+                </p>
+              </li>
+            }
+          </ol>
+
+        }
+
+      </div>
+
+      <!-- ITEMS -->
+
+      <h3 class="mt-8 text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Items</h3>
+
+      <ul class="mt-2 divide-y divide-brand-border">
+        @for (item of current.items; track $index) {
+          <li class="flex gap-4 py-4">
+
+            <img [src]="item.image" [alt]="item.name" class="h-20 w-16 shrink-0 bg-brand-background object-cover" />
+
+            <div class="min-w-0 flex-1">
+              <p class="text-sm text-brand-text">{{ item.name }}</p>
+              <p class="mt-1 text-xs text-brand-muted">{{ item.color }} · Size {{ item.size }}</p>
+              <p class="mt-2 text-xs text-brand-muted">{{ data.money(item.price) }} × {{ item.quantity }}</p>
+            </div>
+
+            <p class="shrink-0 text-sm text-brand-text">{{ data.money(item.total) }}</p>
+
+          </li>
+        }
+      </ul>
+
+      <div class="space-y-2 border-t border-brand-border pt-4 text-xs">
+        <div class="flex justify-between">
+          <span class="text-brand-muted">Subtotal</span>
+          <span class="text-brand-text">{{ data.money(current.subtotal) }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-brand-muted">Shipping</span>
+          <span class="text-brand-text">{{ current.shipping === 0 ? 'Free' : data.money(current.shipping) }}</span>
+        </div>
+        <div class="flex justify-between pt-2 text-sm">
+          <span class="font-medium text-brand-text">Total</span>
+          <span class="font-medium text-brand-text">{{ data.money(current.total) }}</span>
+        </div>
+      </div>
+
+      <!-- CUSTOMER, ADDRESS, PAYMENT -->
+
+      <div class="mt-8 grid gap-6 border-t border-brand-border pt-6 sm:grid-cols-3">
+
+        <div>
+          <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Customer</h3>
+          <p class="mt-3 text-sm text-brand-text">{{ current.shippingAddress.firstName }} {{ current.shippingAddress.lastName }}</p>
+          <p class="mt-1 break-all text-xs text-brand-muted">{{ current.shippingAddress.email }}</p>
+          <p class="mt-1 text-xs text-brand-muted">{{ current.shippingAddress.phone }}</p>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Shipping address</h3>
+          <p class="mt-3 text-xs leading-5 text-brand-muted">
+            {{ current.shippingAddress.address }}<br />
+            @if (current.shippingAddress.apartment) {
+              {{ current.shippingAddress.apartment }}<br />
+            }
+            {{ current.shippingAddress.city }}, {{ current.shippingAddress.state }} {{ current.shippingAddress.postalCode }}<br />
+            {{ current.shippingAddress.country }}
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Payment</h3>
+          <p class="mt-3 text-xs text-brand-muted">
+            {{ current.paymentMethod === 'cod' ? 'Cash on delivery' : 'Online payment' }}
+          </p>
+          <p
+            class="mt-1 text-xs capitalize"
+            [class]="current.paymentStatus === 'paid' ? 'text-green-700' : current.paymentStatus === 'failed' ? 'text-red-600' : 'text-amber-700'"
+          >
+            {{ current.paymentStatus }}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- UPDATE STATUS -->
+
+      <div class="mt-8 border-t border-brand-border pt-6">
+
+        @if (nextStatuses().length === 0) {
+
+          <p class="text-xs text-brand-muted">
+            This order is {{ statusLabels[current.orderStatus] | lowercase }}, so its status is final.
+          </p>
+
+        } @else {
+
+          <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            @for (status of nextStatuses(); track status) {
+              <button
+                type="button"
+                (click)="requestChange(status)"
+                class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] transition-opacity duration-200 hover:opacity-80"
+                [class]="status === 'cancelled'
+                  ? 'border border-red-200 text-red-700'
+                  : 'bg-brand-text text-white'"
+              >
+                {{ actionLabels[status] }}
+              </button>
+            }
+          </div>
+
+          @if (current.paymentMethod === 'cod') {
+            <p class="mt-3 text-right text-[10px] text-brand-muted">
+              Marking a cash-on-delivery order as delivered also marks it as paid.
+            </p>
+          }
+
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- CANCEL CONFIRMATION (above the order popup) -->
+
+@if (statusToConfirm()) {
+  <app-confirm-dialog
+    title="Cancel this order?"
+    [message]="selectedOrder()?.stockReduced
+      ? 'A cancelled order can not be changed again. Its pieces will be added back to the stock.'
+      : 'A cancelled order can not be changed again. Only do this if the order will not be delivered.'"
+    confirmText="Cancel order"
+    (confirmed)="confirmChange()"
+    (cancelled)="statusToConfirm.set(null)"
+  />
+}

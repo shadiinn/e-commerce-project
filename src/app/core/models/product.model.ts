@@ -23,4 +23,7 @@ export interface Product {
   reviewsCount: number;
   isNew: boolean;
   isFeatured: boolean;
+
+  // When the admin added the product (older products do not have it)
+  createdAt?: string;
 }

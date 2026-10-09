@@ -1,0 +1,259 @@
+<div class="mx-auto max-w-6xl">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <div class="flex flex-col gap-4 border-b border-brand-border pb-8 sm:flex-row sm:items-end sm:justify-between">
+
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-brand-muted">Products</p>
+      <h1 class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl">All products</h1>
+      <p class="mt-3 text-sm text-brand-muted">Add products, edit them and keep the stock up to date.</p>
+    </div>
+
+    <a
+      routerLink="/admin/products/new"
+      class="shrink-0 bg-brand-text px-6 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
+    >
+      Add product
+    </a>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- SEARCH + SORT -->
+  <!-- ================================================= -->
+
+  <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+
+    <input
+      type="search"
+      placeholder="Search by name, category, slug or colour"
+      [value]="search()"
+      (input)="setSearch($any($event.target).value)"
+      class="w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+    />
+
+    <select
+      [value]="sortBy()"
+      (change)="setSort($any($event.target).value)"
+      aria-label="Sort products"
+      class="shrink-0 border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text sm:w-56"
+    >
+      @for (option of sortOptions; track option.value) {
+        <option [value]="option.value" [selected]="option.value === sortBy()">{{ option.label }}</option>
+      }
+    </select>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- TABLE -->
+  <!-- ================================================= -->
+
+  <!-- the page buttons scroll back to this point -->
+  <div id="admin-products-table" class="scroll-mt-24"></div>
+
+  @if (productPage().totalItems === 0) {
+
+    <div class="mt-6 border border-dashed border-brand-border p-12 text-center">
+      <p class="text-sm text-brand-text">{{ loading() ? 'Loading products...' : 'No products found' }}</p>
+      @if (!loading()) {
+        <p class="mt-2 text-xs text-brand-muted">Try another search, or add a new product.</p>
+      }
+    </div>
+
+  } @else {
+
+    <div class="mt-6 overflow-x-auto border border-brand-border bg-brand-surface">
+
+      <table class="w-full min-w-[820px] text-left text-xs">
+
+        <thead class="border-b border-brand-border text-[10px] uppercase tracking-[0.15em] text-brand-muted">
+          <tr>
+            <th class="px-4 py-4 font-medium">Product</th>
+            <th class="px-4 py-4 font-medium">Category</th>
+            <th class="px-4 py-4 font-medium">Price</th>
+            <th class="px-4 py-4 font-medium">Stock</th>
+            <th class="px-4 py-4 font-medium">Tags</th>
+            <th class="px-4 py-4"></th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-brand-border">
+
+          @for (product of productPage().items; track product.id) {
+
+            <tr class="transition-colors duration-200 hover:bg-brand-background">
+
+              <td class="px-4 py-4">
+                <div class="flex items-center gap-4">
+
+                  @if (firstImage(product)) {
+                    <img [src]="firstImage(product)" [alt]="product.name" class="h-14 w-11 shrink-0 bg-brand-background object-cover" />
+                  } @else {
+                    <div class="h-14 w-11 shrink-0 bg-brand-background"></div>
+                  }
+
+                  <div class="min-w-0">
+                    <p class="truncate text-sm text-brand-text">{{ product.name }}</p>
+                    <p class="mt-1 text-brand-muted">
+                      {{ product.variants.length }} {{ product.variants.length === 1 ? 'colour' : 'colours' }} · {{ product.id }}
+                    </p>
+                  </div>
+
+                </div>
+              </td>
+
+              <td class="px-4 py-4 text-brand-text">{{ categoryName(product.category) }}</td>
+
+              <td class="px-4 py-4">
+                <p class="text-brand-text">{{ data.money(product.price) }}</p>
+                @if (product.oldPrice) {
+                  <p class="mt-1 text-brand-muted line-through">{{ data.money(product.oldPrice) }}</p>
+                }
+              </td>
+
+              <td class="px-4 py-4">
+                <p class="text-brand-text">{{ totalStock(product) }}</p>
+
+                @if (totalStock(product) === 0) {
+                  <span class="mt-1 inline-block border border-red-200 bg-red-50 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-red-700">Out of stock</span>
+                } @else if (hasLowSize(product)) {
+                  <span class="mt-1 inline-block border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-amber-700">Low</span>
+                }
+              </td>
+
+              <td class="px-4 py-4">
+                <div class="flex flex-wrap gap-1">
+                  @if (product.isNew) {
+                    <span class="border border-brand-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-brand-muted">New</span>
+                  }
+                  @if (product.isFeatured) {
+                    <span class="border border-brand-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-brand-muted">Featured</span>
+                  }
+                </div>
+              </td>
+
+              <td class="px-4 py-4">
+                <div class="flex items-center justify-end gap-5">
+
+                  <button
+                    type="button"
+                    (click)="openStock(product)"
+                    class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors hover:text-brand-text"
+                  >
+                    Stock
+                  </button>
+
+                  <a
+                    [routerLink]="['/admin/products', product.id, 'edit']"
+                    class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors hover:text-brand-text"
+                  >
+                    Edit
+                  </a>
+
+                </div>
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <app-pagination
+      [page]="productPage().page"
+      [totalPages]="productPage().totalPages"
+      [totalItems]="productPage().totalItems"
+      [pageSize]="pageSize"
+      scrollTo="admin-products-table"
+      (pageChange)="goToPage($event)"
+    />
+
+  }
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- STOCK POPUP -->
+<!-- ================================================= -->
+
+@if (stockProduct(); as product) {
+
+  <div
+    class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-8"
+    (click)="closeStock()"
+  >
+
+    <div
+      class="w-full max-w-md bg-white p-6 shadow-xl sm:p-8"
+      (click)="$event.stopPropagation()"
+    >
+
+      <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Edit stock</h2>
+      <p class="mt-2 text-sm text-brand-muted">{{ product.name }}</p>
+
+      <div class="mt-6">
+
+        @for (row of stockRows(); track $index; let i = $index) {
+
+          <!-- the colour name, shown once above its sizes -->
+          @if (i === 0 || stockRows()[i - 1].color !== row.color) {
+            <p class="mb-3 mt-5 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text first:mt-0">{{ row.color }}</p>
+          }
+
+          <div class="flex items-center justify-between gap-4 border-b border-brand-border py-3">
+
+            <span class="text-xs text-brand-muted">Size {{ row.size }}</span>
+
+            <input
+              type="number"
+              min="0"
+              step="1"
+              [value]="row.stock"
+              (change)="setRowStock(i, $any($event.target).valueAsNumber)"
+              [attr.aria-label]="'Stock of ' + row.color + ' size ' + row.size"
+              class="w-24 border border-brand-border bg-brand-surface px-3 py-2 text-right text-sm text-brand-text outline-none focus:border-brand-text"
+            />
+
+          </div>
+
+        }
+
+      </div>
+
+      <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+        <button
+          type="button"
+          (click)="closeStock()"
+          class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          (click)="saveStock()"
+          [disabled]="saving()"
+          class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {{ saving() ? 'Saving...' : 'Save stock' }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

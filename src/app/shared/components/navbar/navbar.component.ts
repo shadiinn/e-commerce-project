@@ -25,6 +25,7 @@ import {
 
 import {
   selectCurrentUser,
+  selectIsAdmin,
   selectIsAuthenticated
 } from '../../../store/auth/auth.selectors';
 
@@ -53,6 +54,7 @@ export class NavbarComponent {
   private router = inject(Router);
   private store = inject(Store);
   private elementRef = inject(ElementRef);
+  toastService=inject(ToastService);
 
   isMenuOpen = signal(false);
   isAccountMenuOpen = signal(false);
@@ -78,6 +80,12 @@ export class NavbarComponent {
   currentUser$ =
     this.store.select(
       selectCurrentUser
+    );
+
+  // true for admins: shows the "Admin" link in the account menu
+  isAdmin$ =
+    this.store.select(
+      selectIsAdmin
     );
 
 

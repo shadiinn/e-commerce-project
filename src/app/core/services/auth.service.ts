@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
-import { ToastService } from './toast.service';
 
 
 @Injectable({
@@ -12,7 +11,6 @@ export class AuthService {
 
   private http = inject(HttpClient);
   private readonly API_URL ='http://localhost:3000/users';
-  toastservice=inject(ToastService)
 
   // LOGIN
 
@@ -30,14 +28,22 @@ export class AuthService {
       `${this.API_URL}?email=${encodeURIComponent(email)}`
     );
   }
+  // GET ALL USERS (admin only; the caller must not keep or show the passwords)
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(
+      this.API_URL
+    );
+  }
+
 
   // REGISTER
 
   register(user: Omit<User, 'id'>): Observable<User> {
-    this.toastservice.success("Registration Successful")
+        // Everyone who registers on the site is a customer. (An admin is created by hand
+    // in db.json, or by a real backend later.)
     return this.http.post<User>(
       this.API_URL,
-      user
+      { ...user, role: 'customer' }
     );
   }
 

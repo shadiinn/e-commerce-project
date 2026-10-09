@@ -83,13 +83,17 @@ export class AppComponent {
   }
 
 
-  isAuthPage(): boolean {
+  // Pages that have their own full-screen layout: no customer navbar or footer.
+  //   login / register  -> the auth screen
+  //   /admin...         -> the admin layout has its own sidebar and header
+  hideSiteShell(): boolean {
+    const url = this.router.url;
 
     return (
-      this.router.url === '/login' ||
-      this.router.url === '/register'
+      url === '/login' ||
+      url === '/register' ||
+      url.startsWith('/admin')
     );
-
   }
 
 }

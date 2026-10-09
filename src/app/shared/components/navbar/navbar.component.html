@@ -212,6 +212,16 @@
 
               <div class="mt-3">
 
+                @if (isAdmin$ | async) {
+                  <a
+                    routerLink="/admin"
+                    (click)="closeAccountMenu()"
+                    class="block px-2 py-3 text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity hover:opacity-50"
+                  >
+                    Admin Dashboard
+                  </a>
+                }
+
                 <a
                   routerLink="/orders"
                   (click)="closeAccountMenu()"
@@ -632,6 +642,16 @@
 
 
                   <div class="flex flex-col">
+
+                    @if (isAdmin$ | async) {
+                      <a
+                        routerLink="/admin"
+                        (click)="closeMenu(); closeAccountMenu()"
+                        class="border-t border-brand-border py-3 text-[10px] font-medium uppercase tracking-[0.1em] text-brand-text"
+                      >
+                        Admin Dashboard
+                      </a>
+                    }
 
                     <a
                       routerLink="/orders"

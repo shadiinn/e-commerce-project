@@ -53,4 +53,8 @@ export interface Order {
     'delivered' |
     'cancelled';
   createdAt: string;
+
+  // true when placing this order took its pieces out of the stock, so cancelling it must
+  // put them back. Orders from before stock tracking do not have it (they are not restored).
+  stockReduced?: boolean;
 }

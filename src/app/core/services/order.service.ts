@@ -22,6 +22,13 @@ export class OrderService {
     );
   }
 
+  // GET ALL ORDERS (admin only)
+  getAllOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(
+      this.API_URL
+    );
+  }
+
   // GET SINGLE ORDER
 
   getOrder(id: string): Observable<Order> {

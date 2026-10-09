@@ -1,0 +1,316 @@
+<div class="mx-auto max-w-4xl">
+
+  <a
+    routerLink="/admin/products"
+    class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+  >
+    ← All products
+  </a>
+
+  @if (notFound()) {
+
+    <div class="mt-10 border border-dashed border-brand-border p-12 text-center">
+      <p class="text-sm text-brand-text">Product not found</p>
+      <p class="mt-2 text-xs text-brand-muted">It may have been removed.</p>
+    </div>
+
+  } @else {
+
+    <div class="mt-6 border-b border-brand-border pb-8">
+      <p class="text-xs uppercase tracking-[0.25em] text-brand-muted">Products</p>
+      <h1 class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl">
+        {{ isEditing ? 'Edit product' : 'Add product' }}
+      </h1>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="mt-8 space-y-6">
+
+      <!-- ================================================= -->
+      <!-- DETAILS -->
+      <!-- ================================================= -->
+
+      <section class="border border-brand-border bg-brand-surface p-6 sm:p-8">
+
+        <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Details</h2>
+
+        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+
+          <div>
+            <label for="name" class="text-[11px] text-brand-muted">Name</label>
+            <input
+              id="name" type="text" formControlName="name" placeholder="Deep Sea Blue Linen Shirt"
+              class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+            />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <p class="mt-2 text-[10px] text-red-600">Name is required.</p>
+            }
+          </div>
+
+          <div>
+            <label for="category" class="text-[11px] text-brand-muted">Category</label>
+            <select
+              id="category" formControlName="category"
+              class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+            >
+              @for (category of categories; track category.slug) {
+                <option [value]="category.slug">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="slug" class="text-[11px] text-brand-muted">Slug (optional)</label>
+            <input
+              id="slug" type="text" formControlName="slug" placeholder="made from the name when empty"
+              class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+            />
+            @if (form.controls.slug.touched && form.controls.slug.invalid) {
+              <p class="mt-2 text-[10px] text-red-600">This slug is already used. Please change it.</p>
+            }
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="description" class="text-[11px] text-brand-muted">Description</label>
+            <textarea
+              id="description" rows="4" formControlName="description"
+              class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+            ></textarea>
+            @if (form.controls.description.touched && form.controls.description.invalid) {
+              <p class="mt-2 text-[10px] text-red-600">Description is required.</p>
+            }
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- PRICE AND TAGS -->
+      <!-- ================================================= -->
+
+      <section class="border border-brand-border bg-brand-surface p-6 sm:p-8">
+
+        <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Price and tags</h2>
+
+        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+
+          <div>
+            <label for="price" class="text-[11px] text-brand-muted">Price (₹)</label>
+            <input
+              id="price" type="number" min="1" formControlName="price"
+              class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+            />
+            @if (form.controls.price.touched && form.controls.price.invalid) {
+              <p class="mt-2 text-[10px] text-red-600">Enter a price of 1 or more.</p>
+            }
+          </div>
+
+          <div>
+            <label for="oldPrice" class="text-[11px] text-brand-muted">Old price (₹, optional)</label>
+            <input
+              id="oldPrice" type="number" min="0" formControlName="oldPrice"
+              class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 focus:border-brand-text"
+            />
+            <p class="mt-2 text-[10px] text-brand-muted">Shown crossed out. It is only used when it is higher than the price.</p>
+          </div>
+
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-8">
+
+          <label class="flex cursor-pointer items-center gap-3 text-xs text-brand-text">
+            <input type="checkbox" formControlName="isNew" class="h-4 w-4 accent-black" />
+            New arrival
+          </label>
+
+          <label class="flex cursor-pointer items-center gap-3 text-xs text-brand-text">
+            <input type="checkbox" formControlName="isFeatured" class="h-4 w-4 accent-black" />
+            Featured on the home page
+          </label>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- COLOURS (each with its images, sizes and stock) -->
+      <!-- ================================================= -->
+
+      <section class="border border-brand-border bg-brand-surface p-6 sm:p-8">
+
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Colours, images and stock</h2>
+
+          <button
+            type="button"
+            (click)="addVariant()"
+            class="border border-brand-border px-4 py-2 text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-colors duration-200 hover:border-brand-text"
+          >
+            Add colour
+          </button>
+        </div>
+
+        <div formArrayName="variants" class="mt-6 space-y-6">
+
+          @for (variant of variants.controls; track variant; let v = $index) {
+
+            <div [formGroupName]="v" class="border border-brand-border bg-white p-5 sm:p-6">
+
+              <div class="flex items-center justify-between">
+                <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text">Colour {{ v + 1 }}</p>
+
+                @if (variants.length > 1) {
+                  <button
+                    type="button"
+                    (click)="removeVariant(v)"
+                    class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted transition-colors hover:text-red-600"
+                  >
+                    Remove colour
+                  </button>
+                }
+              </div>
+
+              <div class="mt-4 grid gap-5">
+
+                <div>
+                  <label class="text-[11px] text-brand-muted">Colour name</label>
+                  <input
+                    type="text" formControlName="color" placeholder="Deep Sea Blue"
+                    class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+                  />
+                  @if (variant.controls.color.touched && variant.controls.color.invalid) {
+                    <p class="mt-2 text-[10px] text-red-600">Colour name is required.</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="text-[11px] text-brand-muted">Image paths (one per line)</label>
+                  <textarea
+                    rows="3" formControlName="images"
+                    placeholder="assets/images/products/shirts/blue/blue-01.jpg"
+                    class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+                  ></textarea>
+                  <p class="mt-2 text-[10px] leading-4 text-brand-muted">
+                    Put the image files inside <span class="text-brand-text">public/assets/images/products</span>
+                    and write their path here, starting with <span class="text-brand-text">assets/</span>.
+                    The first image is the main one.
+                  </p>
+
+                  @if (variant.controls.images.touched && variant.controls.images.invalid) {
+                    <p class="mt-2 text-[10px] text-red-600">Add at least one image path.</p>
+                  }
+
+                  <!-- preview: a broken picture means the path is wrong -->
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    @for (path of imagePaths(variant.controls.images.value); track $index) {
+                      <img [src]="path" [alt]="'Image ' + ($index + 1)" class="h-16 w-12 bg-brand-background object-cover" />
+                    }
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- SIZES -->
+
+              <div class="mt-6 border-t border-brand-border pt-5">
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+
+                  <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text">Sizes and stock</p>
+
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" (click)="addSizes(v, clothingSizes)"
+                      class="border border-brand-border px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-brand-muted transition-colors hover:border-brand-text hover:text-brand-text">
+                      + S to XL
+                    </button>
+                    <button type="button" (click)="addSizes(v, trouserSizes)"
+                      class="border border-brand-border px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-brand-muted transition-colors hover:border-brand-text hover:text-brand-text">
+                      + 30 to 38
+                    </button>
+                    <button type="button" (click)="addSize(v)"
+                      class="border border-brand-border px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-brand-muted transition-colors hover:border-brand-text hover:text-brand-text">
+                      + Other size
+                    </button>
+                  </div>
+
+                </div>
+
+                <div formArrayName="sizes" class="mt-4 space-y-2">
+
+                  @for (size of variant.controls.sizes.controls; track size; let s = $index) {
+
+                    <div [formGroupName]="s" class="flex items-center gap-3">
+
+                      <input
+                        type="text" formControlName="size" placeholder="Size" aria-label="Size"
+                        class="w-28 border bg-white px-3 py-2 text-sm text-brand-text outline-none focus:border-brand-text"
+                        [class]="size.controls.size.touched && size.controls.size.invalid ? 'border-red-300' : 'border-brand-border'"
+                      />
+
+                      <input
+                        type="number" min="0" step="1" formControlName="stock" placeholder="Stock" aria-label="Stock"
+                        class="w-28 border bg-white px-3 py-2 text-sm text-brand-text outline-none focus:border-brand-text"
+                        [class]="size.controls.stock.touched && size.controls.stock.invalid ? 'border-red-300' : 'border-brand-border'"
+                      />
+
+                      <span class="text-[10px] text-brand-muted">in stock</span>
+
+                      <button
+                        type="button"
+                        (click)="removeSize(v, s)"
+                        class="ml-auto text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted transition-colors hover:text-red-600"
+                      >
+                        Remove
+                      </button>
+
+                    </div>
+
+                  }
+
+                  @if (variant.controls.sizes.length === 0) {
+                    <p class="text-[10px] text-red-600">Add at least one size.</p>
+                  }
+
+                </div>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- SAVE -->
+      <!-- ================================================= -->
+
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+        <a
+          routerLink="/admin/products"
+          class="px-6 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+        >
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="bg-brand-text px-8 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {{ saving() ? 'Saving...' : (isEditing ? 'Save changes' : 'Add product') }}
+        </button>
+
+      </div>
+
+    </form>
+
+  }
+
+</div>

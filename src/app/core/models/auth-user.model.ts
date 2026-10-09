@@ -1,3 +1,5 @@
+import { UserRole } from './user.model';
+ 
 export interface AuthUser {
   id: string;
   firstName: string;
@@ -5,4 +7,6 @@ export interface AuthUser {
   email: string;
   phone?: string;
   profileImage?: string | null;
+  role?: UserRole;
 }
+ 
