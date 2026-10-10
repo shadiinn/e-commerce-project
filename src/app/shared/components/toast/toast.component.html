@@ -1,0 +1,57 @@
+<div
+  class="fixed bottom-6 right-6 z-[100] flex w-[320px] flex-col gap-3"
+>
+  @for (toast of toastService.toasts(); track toast.id) {
+
+    <div
+      class="flex items-center gap-3 rounded-sm border bg-white px-4 py-3 shadow-lg"
+      [class.border-brand-border]="toast.type === 'success'"
+      [class.border-brand-border]="toast.type === 'info'"
+      [class.border-brand-border]="toast.type === 'warning'"
+      [class.border-brand-border]="toast.type === 'error'"
+    >
+
+      <!-- Icon -->
+      <div
+        class="flex h-6 w-6 shrink-0 items-center justify-center text-sm font-medium"
+      >
+
+        @if (toast.type === 'success') {
+          ✓
+        }
+
+        @if (toast.type === 'warning') {
+          !
+        }
+
+        @if (toast.type === 'error') {
+          ×
+        }
+
+        @if (toast.type === 'info') {
+          i
+        }
+
+      </div>
+
+      <!-- Message -->
+      <p
+        class="flex-1 text-sm text-brand-text"
+      >
+        {{ toast.message }}
+      </p>
+
+      <!-- Close -->
+      <button
+        type="button"
+        class="text-lg leading-none text-brand-muted transition hover:text-brand-text"
+        (click)="remove(toast.id)"
+        aria-label="Close notification"
+      >
+        ×
+      </button>
+
+    </div>
+
+  }
+</div>

@@ -1,0 +1,524 @@
+<div class="mx-auto max-w-6xl">
+
+  <!-- HEADER -->
+
+  <div class="flex flex-col gap-4 border-b border-brand-border pb-8 sm:flex-row sm:items-end sm:justify-between">
+
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-brand-muted">
+        Products
+      </p>
+
+      <h1 class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl">
+        All products
+      </h1>
+
+      <p class="mt-3 text-sm text-brand-muted">
+        Manage products and view their stock details.
+      </p>
+    </div>
+
+    <a
+      routerLink="/admin/products/new"
+      class="shrink-0 bg-brand-text px-6 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80"
+    >
+      Add product
+    </a>
+
+  </div>
+
+
+  <!-- SEARCH AND SORT -->
+
+  <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+
+    <input
+      type="search"
+      placeholder="Search by name, category, slug or colour"
+      [value]="search()"
+      (input)="setSearch($any($event.target).value)"
+      class="w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
+    />
+
+    <select
+      [value]="sortBy()"
+      (change)="setSort($any($event.target).value)"
+      aria-label="Sort products"
+      class="shrink-0 border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-text outline-none focus:border-brand-text sm:w-56"
+    >
+      @for (option of sortOptions; track option.value) {
+        <option
+          [value]="option.value"
+          [selected]="option.value === sortBy()"
+        >
+          {{ option.label }}
+        </option>
+      }
+    </select>
+
+  </div>
+
+
+  <!-- PRODUCT TABLE -->
+
+  <div id="admin-products-table" class="scroll-mt-24"></div>
+
+  @if (productPage().totalItems === 0) {
+
+    <div class="mt-6 border border-dashed border-brand-border p-12 text-center">
+
+      <p class="text-sm text-brand-text">
+        {{ loading() ? 'Loading products...' : 'No products found' }}
+      </p>
+
+      @if (!loading()) {
+        <p class="mt-2 text-xs text-brand-muted">
+          Try another search, or add a new product.
+        </p>
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="mt-6 overflow-x-auto border border-brand-border bg-brand-surface">
+
+      <table class="w-full min-w-[700px] text-left text-xs">
+
+        <thead class="border-b border-brand-border text-[10px] uppercase tracking-[0.15em] text-brand-muted">
+
+          <tr>
+            <th class="px-4 py-4 font-medium">Product</th>
+            <th class="px-4 py-4 font-medium">Category</th>
+            <th class="px-4 py-4 font-medium">Price</th>
+            <th class="px-4 py-4 font-medium">Tags</th>
+            <th class="px-4 py-4"></th>
+          </tr>
+
+        </thead>
+
+        <tbody class="divide-y divide-brand-border">
+
+          @for (product of productPage().items; track product.id) {
+
+            <tr class="transition-colors duration-200 hover:bg-brand-background">
+
+              <td class="px-4 py-4">
+
+                <div class="flex items-center gap-4">
+
+                  @if (firstImage(product)) {
+
+                    <img
+                      [src]="firstImage(product)"
+                      [alt]="product.name"
+                      class="h-14 w-11 shrink-0 bg-brand-background object-cover"
+                    />
+
+                  } @else {
+
+                    <div class="h-14 w-11 shrink-0 bg-brand-background"></div>
+
+                  }
+
+                  <div class="min-w-0">
+
+                    <p class="truncate text-sm text-brand-text">
+                      {{ product.name }}
+                    </p>
+
+                    <p class="mt-1 text-brand-muted">
+                      {{ product.variants.length }}
+                      {{ product.variants.length === 1 ? 'colour' : 'colours' }}
+                      · {{ product.id }}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+              <td class="px-4 py-4 text-brand-text">
+                {{ categoryName(product.category) }}
+              </td>
+
+              <td class="px-4 py-4">
+
+                <p class="text-brand-text">
+                  {{ data.money(product.price) }}
+                </p>
+
+                @if (product.oldPrice) {
+                  <p class="mt-1 text-brand-muted line-through">
+                    {{ data.money(product.oldPrice) }}
+                  </p>
+                }
+
+              </td>
+
+              <td class="px-4 py-4">
+
+                <div class="flex flex-wrap gap-1">
+
+                  @if (isNew(product)) {
+                    <span class="border border-brand-border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] text-brand-muted">
+                      New
+                    </span>
+                  }
+
+                </div>
+
+              </td>
+
+              <td class="px-4 py-4">
+
+                <div class="flex items-center justify-end gap-4">
+
+                  <button
+                    type="button"
+                    (click)="openProduct(product)"
+                    class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-muted transition-colors hover:text-brand-text"
+                  >
+                    View
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="requestDelete(product)"
+                    class="text-[10px] font-medium uppercase tracking-[0.12em] text-red-600 transition-colors hover:text-red-800"
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <app-pagination
+      [page]="productPage().page"
+      [totalPages]="productPage().totalPages"
+      [totalItems]="productPage().totalItems"
+      [pageSize]="pageSize"
+      scrollTo="admin-products-table"
+      (pageChange)="goToPage($event)"
+    />
+
+  }
+
+</div>
+
+
+<!-- PRODUCT DETAILS POPUP -->
+
+@if (selectedProduct(); as product) {
+
+  <div
+    class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-8"
+    (click)="selectedProduct.set(null)"
+  >
+
+    <section
+      class="w-full max-w-2xl bg-white p-6 shadow-xl sm:p-8"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- HEADER -->
+
+      <div class="flex items-start justify-between gap-4 border-b border-brand-border pb-5">
+
+        <div>
+
+          <p class="text-[10px] uppercase tracking-[0.2em] text-brand-muted">
+            Product details
+          </p>
+
+          <h2 class="mt-2 text-2xl font-light text-brand-text">
+            {{ product.name }}
+          </h2>
+
+          <p class="mt-1 text-xs text-brand-muted">
+            {{ categoryName(product.category) }} · {{ product.id }}
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          (click)="selectedProduct.set(null)"
+          aria-label="Close product details"
+          class="text-xl text-brand-muted hover:text-brand-text"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- PRODUCT INFORMATION -->
+
+      <div class="mt-6 grid gap-6 sm:grid-cols-[150px_minmax(0,1fr)]">
+
+        @if (firstImage(product)) {
+
+          <img
+            [src]="firstImage(product)"
+            [alt]="product.name"
+            class="h-52 w-full bg-brand-background object-cover sm:w-36"
+          />
+
+        }
+
+        <div>
+
+          <p class="text-sm leading-6 text-brand-muted">
+            {{ product.description }}
+          </p>
+
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+
+            <strong class="text-lg font-medium text-brand-text">
+              {{ data.money(product.price) }}
+            </strong>
+
+            @if (product.oldPrice && product.oldPrice > product.price) {
+              <span class="text-sm text-brand-muted line-through">
+                {{ data.money(product.oldPrice) }}
+              </span>
+            }
+
+          </div>
+
+          <p class="mt-3 text-xs text-brand-muted">
+            Rating {{ product.rating }} / 5 · {{ product.reviewsCount }} reviews
+          </p>
+
+          <div class="mt-4 border border-brand-border bg-brand-background/50 p-3">
+
+            <p class="text-[10px] uppercase tracking-[0.14em] text-brand-muted">
+              Total available stock
+            </p>
+
+            <p class="mt-1 text-lg font-medium text-brand-text">
+              {{ totalStock(product) }}
+
+              <span class="text-xs font-normal text-brand-muted">
+                pieces
+              </span>
+            </p>
+
+          </div>
+
+          @if (isNew(product)) {
+            <span class="mt-3 inline-block border border-brand-border px-2 py-1 text-[9px] uppercase tracking-[0.12em] text-brand-muted">
+              New
+            </span>
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- STOCK BY COLOUR AND SIZE -->
+
+      <h3 class="mt-7 text-xs font-medium uppercase tracking-[0.16em] text-brand-text">
+        Stock by colour and size
+      </h3>
+
+      <div class="mt-3 space-y-3">
+
+        @for (variant of product.variants; track variant.id) {
+
+          <div class="border border-brand-border p-4">
+
+            <p class="text-xs font-medium text-brand-text">
+              {{ variant.color }}
+            </p>
+
+            <div class="mt-2 flex flex-wrap gap-2">
+
+              @for (size of variant.sizes; track size.size) {
+
+                <span class="border border-brand-border px-2 py-1 text-[10px] text-brand-muted">
+                  {{ size.size }}: {{ size.stock }} left
+                </span>
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- UPDATE STOCK + EDIT PRODUCT -->
+
+      <div class="mt-7 flex flex-col-reverse gap-3 border-t border-brand-border pt-5 sm:flex-row sm:justify-end">
+
+        <button
+          type="button"
+          (click)="openStock(product.id)"
+          class="border border-brand-border px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:border-brand-text"
+        >
+          Update stock
+        </button>
+
+        <a
+          [routerLink]="['/admin/products', product.id, 'edit']"
+          (click)="selectedProduct.set(null)"
+          class="bg-brand-text px-6 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white"
+        >
+          Edit product
+        </a>
+
+      </div>
+
+    </section>
+
+  </div>
+
+}
+
+
+<!-- STOCK-ONLY POPUP -->
+
+@if (stockProduct(); as stockItem) {
+
+  <div
+    class="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-8"
+    (click)="closeStock()"
+  >
+
+    <section
+      class="w-full max-w-md bg-white p-6 shadow-xl sm:p-8"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- HEADER -->
+
+      <div class="flex items-start justify-between gap-4 border-b border-brand-border pb-5">
+
+        <div>
+
+          <p class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted">
+            Inventory management
+          </p>
+
+          <h2 class="mt-2 text-xl font-light text-brand-text">
+            Update stock
+          </h2>
+
+          <p class="mt-2 text-sm text-brand-muted">
+            {{ stockItem.name }}
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          (click)="closeStock()"
+          [disabled]="savingStock()"
+          aria-label="Close stock editor"
+          class="text-xl text-brand-muted hover:text-brand-text disabled:opacity-40"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- STOCK INPUTS -->
+
+      <div class="mt-5 max-h-[55vh] overflow-y-auto">
+
+        @for (row of stockRows(); track row.variantId + row.size; let i = $index) {
+
+          @if (i === 0 || stockRows()[i - 1].color !== row.color) {
+
+            <p class="mb-2 mt-5 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text first:mt-0">
+              {{ row.color }}
+            </p>
+
+          }
+
+          <label class="flex items-center justify-between gap-4 border-b border-brand-border py-3">
+
+            <span class="text-xs text-brand-muted">
+              Size {{ row.size }}
+            </span>
+
+            <input
+              type="number"
+              min="0"
+              step="1"
+              [value]="row.stock"
+              (change)="setRowStock(i, $any($event.target).valueAsNumber)"
+              [attr.aria-label]="'Stock of ' + row.color + ' size ' + row.size"
+              class="w-24 border border-brand-border bg-brand-background px-3 py-2 text-right text-sm text-brand-text outline-none focus:border-brand-text"
+            />
+
+          </label>
+
+        }
+
+      </div>
+
+
+      <!-- ACTIONS -->
+
+      <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+        <button
+          type="button"
+          (click)="closeStock()"
+          [disabled]="savingStock()"
+          class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted hover:text-brand-text disabled:opacity-40"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          (click)="saveStock()"
+          [disabled]="savingStock()"
+          class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {{ savingStock() ? 'Saving...' : 'Save stock' }}
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+}
+
+
+<!-- DELETE CONFIRMATION -->
+
+@if (productToDelete(); as product) {
+
+  <app-confirm-dialog
+    title="Delete this product?"
+    [message]="'Delete ' + product.name + ' from the catalogue? This cannot be undone. Existing order records will remain available.'"
+    [confirmText]="deleting() ? 'Deleting...' : 'Delete product'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
+
+}

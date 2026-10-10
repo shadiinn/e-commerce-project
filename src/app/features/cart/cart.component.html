@@ -1,0 +1,213 @@
+<section class="min-h-screen bg-brand-background">
+
+  <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="flex items-end justify-between border-b border-brand-border pb-6">
+
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">Your Selection</p>
+        <h1 class="mt-3 text-3xl font-light tracking-tight text-brand-text">Shopping Bag</h1>
+      </div>
+
+      @if (count(); as total) {
+        <p class="text-sm text-brand-muted">{{ total }} {{ total === 1 ? 'item' : 'items' }}</p>
+      }
+
+    </div>
+
+
+    @if (items().length > 0) {
+
+      <div class="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]">
+
+        <!-- ================================================= -->
+        <!-- CART ITEMS -->
+        <!-- ================================================= -->
+
+        <div class="space-y-6">
+
+          @for (item of items(); track item.id) {
+
+            <article class="flex gap-5 border-b border-brand-border pb-6">
+
+              <a
+                [routerLink]="['/products', item.product.id]"
+                class="h-36 w-28 shrink-0 overflow-hidden bg-brand-surface sm:h-44 sm:w-36"
+              >
+                <img
+                  [src]="item.variant.images[0]"
+                  [alt]="item.product.name"
+                  class="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </a>
+
+              <div class="flex flex-1 flex-col justify-between">
+
+                <div>
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 class="text-sm font-medium text-brand-text">{{ item.product.name }}</h2>
+                      <p class="mt-1 text-xs capitalize text-brand-muted">{{ item.product.category }}</p>
+                    </div>
+                    <p class="text-sm font-medium text-brand-text">₹{{ item.product.price * item.quantity }}</p>
+                  </div>
+
+                  <div class="mt-3 space-y-1">
+                    <p class="text-xs text-brand-muted">Color: {{ item.variant.color }}</p>
+                    <p class="text-xs text-brand-muted">Size: {{ item.size }}</p>
+                  </div>
+
+                </div>
+
+                <div class="mt-5 flex items-center justify-between">
+
+                  <div>
+
+                    <div class="flex items-center border border-brand-border">
+
+                      <button
+                        type="button"
+                        (click)="decrease(item)"
+                        class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background"
+                      >
+                        −
+                      </button>
+
+                      <span class="min-w-10 text-center text-xs text-brand-text">{{ item.quantity }}</span>
+
+                      <button
+                        type="button"
+                        (click)="increase(item.id!)"
+                        [disabled]="!canIncrease(item)"
+                        class="px-3 py-2 text-sm text-brand-text transition-colors hover:bg-brand-background disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                    @if (limitNote(item); as note) {
+                      <p class="mt-1.5 text-[10px] text-brand-muted">{{ note }}</p>
+                    }
+
+                  </div>
+
+                  <button
+                    type="button"
+                    (click)="remove(item.id!)"
+                    class="text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
+                  >
+                    Remove
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SUMMARY -->
+        <!-- ================================================= -->
+
+        <aside class="h-fit border border-brand-border bg-brand-surface p-6 lg:p-8">
+
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">Order Summary</p>
+
+          <div class="mt-6 space-y-4">
+
+            <div class="flex justify-between">
+              <span class="text-sm text-brand-muted">Subtotal</span>
+              <span class="text-sm text-brand-text">₹{{ subtotal() }}</span>
+            </div>
+
+            <div class="flex justify-between border-t border-brand-border pt-4">
+              <span class="text-sm font-medium text-brand-text">Total</span>
+              <span class="text-sm font-medium text-brand-text">₹{{ subtotal() }}</span>
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            (click)="proceedToCheckout()"
+            class="mt-6 w-full bg-brand-text px-6 py-4 text-xs font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+          >
+            Proceed to Checkout
+          </button>
+
+          <button
+            type="button"
+            (click)="showClearCartConfirm.set(true)"
+            class="mt-4 w-full text-xs text-brand-muted underline underline-offset-4 transition-colors hover:text-brand-text"
+          >
+            Clear Cart
+          </button>
+
+        </aside>
+
+      </div>
+
+    } @else {
+
+      <!-- EMPTY CART -->
+
+      <div class="flex min-h-[500px] flex-col items-center justify-center text-center">
+
+        <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">Your bag is empty</p>
+
+        <h2 class="mt-4 text-2xl font-light text-brand-text">Nothing here yet.</h2>
+
+        <p class="mt-3 max-w-sm text-sm leading-6 text-brand-muted">
+          Explore our collection and find something that belongs in your wardrobe.
+        </p>
+
+        <a
+          routerLink="/shop"
+          class="mt-8 bg-brand-text px-8 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
+        >
+          Continue Shopping
+        </a>
+
+      </div>
+
+    }
+
+  </div>
+
+</section>
+
+
+<!-- ================================================= -->
+<!-- CONFIRMATION POPUPS: clear cart, and remove item (quantity decreased from 1) -->
+<!-- ================================================= -->
+
+@if (showClearCartConfirm()) {
+  <app-confirm-dialog
+    title="Clear cart?"
+    message="All items will be removed from your bag. This cannot be undone."
+    confirmText="Clear Cart"
+    (confirmed)="confirmClearCart()"
+    (cancelled)="showClearCartConfirm.set(false)"
+  />
+}
+
+@if (itemToRemove()) {
+  <app-confirm-dialog
+    title="Remove item?"
+    message="The quantity can't go below 1. Do you want to remove this item from your bag?"
+    confirmText="Remove"
+    (confirmed)="confirmRemove()"
+    (cancelled)="itemToRemove.set(null)"
+  />
+}

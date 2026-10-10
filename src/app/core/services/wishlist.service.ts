@@ -1,0 +1,44 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { WishlistItem } from '../models/wishlist.model';
+import { ToastService } from './toast.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WishlistService {
+
+  private http = inject(HttpClient);
+  private readonly API_URL ='http://localhost:3000/wishlists';
+  toastservice=inject(ToastService)
+
+  // GET CURRENT USER'S WISHLIST
+
+  getWishlist(userId: string): Observable<WishlistItem[]> {
+    return this.http.get<WishlistItem[]>(
+      `${this.API_URL}?userId=${userId}`
+    );
+  }
+
+  // ADD TO WISHLIST
+
+  addWishlistItem(item: WishlistItem): Observable<WishlistItem> {
+    this.toastservice.success("Product Added To Wishlist")
+    return this.http.post<WishlistItem>(
+      this.API_URL,
+      item
+    );
+  }
+
+  // REMOVE FROM WISHLIST
+
+  removeWishlistItem(id: string): Observable<void> {
+    this.toastservice.success("Product Removed From Wishlist")
+    return this.http.delete<void>(
+      `${this.API_URL}/${id}`
+    );
+  }
+
+}

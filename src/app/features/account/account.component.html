@@ -1,0 +1,373 @@
+<section class="min-h-screen bg-brand-background">
+
+  <div class="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+
+    @if (currentUser(); as user) {
+
+      <!-- ================================================= -->
+      <!-- HEADER -->
+      <!-- ================================================= -->
+
+      <div class="flex flex-col gap-6 border-b border-brand-border pb-8 sm:flex-row sm:items-end sm:justify-between">
+
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-brand-muted">Account</p>
+          <h1 class="mt-4 text-3xl font-light tracking-tight text-brand-text sm:text-4xl">My Account</h1>
+          <p class="mt-3 text-sm text-brand-muted">Manage your personal information and account details.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="logout()"
+          routerLink="/"
+          class="shrink-0 bg-brand-text px-7 py-3 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80"
+        >
+          Log Out
+        </button>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- WELCOME -->
+      <!-- ================================================= -->
+
+      <div class="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center">
+
+        <!-- Click the picture to change it (opens the file picker, then the crop popup) -->
+        <div class="relative h-20 w-20 shrink-0">
+
+          <label
+            title="Change profile photo"
+            class="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-full border border-brand-border bg-brand-surface"
+          >
+            @if (user.profileImage) {
+              <img [src]="user.profileImage" alt="Profile picture" class="h-full w-full object-cover" />
+            } @else {
+              <span class="text-lg font-light tracking-wide text-brand-text">
+                {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+              </span>
+            }
+            <input type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)" />
+          </label>
+
+          <!-- camera badge (always visible, so it also works on phones) -->
+          <span class="pointer-events-none absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-brand-text text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </span>
+
+        </div>
+
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-brand-muted">Welcome back</p>
+          <h2 class="mt-3 text-2xl font-light text-brand-text">{{ user.firstName }} {{ user.lastName }}</h2>
+
+          @if (user.profileImage) {
+            <button
+              type="button"
+              (click)="removePhoto()"
+              class="mt-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+            >
+              Remove photo
+            </button>
+          }
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- PERSONAL INFORMATION -->
+      <!-- ================================================= -->
+
+      <div class="mt-12">
+
+        <div class="flex items-end justify-between border-b border-brand-border pb-4">
+
+          <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Personal Information</h2>
+
+          <button
+            type="button"
+            (click)="openProfile(user)"
+            class="text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+          >
+            Edit
+          </button>
+
+        </div>
+
+        <div class="divide-y divide-brand-border border-b border-brand-border">
+
+          @for (
+            row of [
+              ['Name', user.firstName + ' ' + user.lastName],
+              ['Email', user.email],
+              ['Phone', user.phone || 'Not provided']
+            ];
+            track row[0]
+          ) {
+            <div class="flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <p class="text-xs uppercase tracking-[0.12em] text-brand-muted">{{ row[0] }}</p>
+              <p class="text-sm sm:text-right" [class]="row[1] === 'Not provided' ? 'text-brand-muted' : 'text-brand-text'">
+                {{ row[1] }}
+              </p>
+            </div>
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- SAVED ADDRESSES (saved list + form live in the component) -->
+      <!-- ================================================= -->
+
+      <div class="mt-12">
+
+        <div class="border-b border-brand-border pb-4">
+          <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Saved Addresses</h2>
+          <p class="mt-2 text-xs text-brand-muted">Manage the addresses you use for checkout.</p>
+        </div>
+
+        <div class="mt-6">
+          <app-address-form
+            [email]="user.email"
+            [firstName]="user.firstName"
+            [lastName]="user.lastName"
+          />
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- QUICK LINKS -->
+      <!-- ================================================= -->
+
+      <div class="mt-12">
+
+        <div class="border-b border-brand-border pb-4">
+          <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-brand-text">Quick Links</h2>
+        </div>
+
+        <div class="divide-y divide-brand-border border-b border-brand-border">
+
+          <a routerLink="/orders" class="group flex items-center justify-between py-5">
+            <div>
+              <p class="text-sm text-brand-text">My Orders</p>
+              <p class="mt-1 text-xs text-brand-muted">View your order history and purchases.</p>
+            </div>
+            <span class="text-lg text-brand-muted transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </a>
+
+          <a routerLink="/wishlist" class="group flex items-center justify-between py-5">
+            <div>
+              <p class="text-sm text-brand-text">Wishlist</p>
+              <p class="mt-1 text-xs text-brand-muted">View the pieces you've saved.</p>
+            </div>
+            <span class="text-lg text-brand-muted transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- EDIT PROFILE POPUP -->
+      <!-- ================================================= -->
+
+      @if (isEditingProfile()) {
+
+        <div
+          class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/50 px-5 py-8"
+          (click)="closeProfile()"
+        >
+
+          <form
+            [formGroup]="profileForm"
+            (click)="$event.stopPropagation()"
+            class="w-full max-w-2xl bg-white p-7 shadow-xl sm:p-9"
+          >
+
+            <h2 class="border-b border-brand-border pb-4 text-xs font-medium uppercase tracking-[0.2em] text-brand-text">
+              Edit Personal Information
+            </h2>
+
+            <!-- FIELDS -->
+
+            <div class="mt-7 grid gap-5 sm:grid-cols-2">
+
+              @for (f of profileFields; track f.name) {
+
+                <div>
+
+                  <label [for]="'profile-' + f.name" class="text-[11px] text-brand-muted">{{ f.label }}</label>
+
+                  <input
+                    [id]="'profile-' + f.name"
+                    [type]="f.type"
+                    [formControlName]="f.name"
+                    [placeholder]="f.placeholder ?? ''"
+                    [class]="f.name === 'email' ? 'bg-brand-surface text-brand-muted' : 'bg-transparent text-brand-text focus:border-brand-text'"
+                    class="mt-2 w-full border border-brand-border px-4 py-3 text-sm outline-none transition-colors duration-200 placeholder:text-brand-muted"
+                  />
+
+                  @if (f.note) {
+                    <p class="mt-2 text-[10px] text-brand-muted">{{ f.note }}</p>
+                  }
+
+                  @if (profileForm.get(f.name)?.touched && profileForm.get(f.name)?.invalid) {
+                    <p class="mt-2 text-[10px] text-red-600">{{ f.error }}</p>
+                  }
+
+                </div>
+
+              }
+
+            </div>
+
+            <!-- ERROR -->
+
+            @if (profileError()) {
+              <div class="mt-6 border border-red-200 bg-red-50 px-4 py-3">
+                <p class="text-xs text-red-600">{{ profileError() }}</p>
+              </div>
+            }
+
+            <!-- ACTIONS -->
+
+            <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+              <button
+                type="button"
+                (click)="closeProfile()"
+                class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                (click)="saveProfile()"
+                [disabled]="saving()"
+                class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {{ saving() ? 'Saving...' : 'Save Changes' }}
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      }
+
+
+      <!-- ================================================= -->
+      <!-- CROP PHOTO POPUP -->
+      <!-- ================================================= -->
+
+      @if (cropImage()) {
+
+        <div
+          class="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/50 px-5 py-8"
+          (click)="closeCrop()"
+        >
+
+          <div
+            (click)="$event.stopPropagation()"
+            class="w-full max-w-md bg-white p-7 shadow-xl"
+          >
+
+            <h2 class="border-b border-brand-border pb-4 text-xs font-medium uppercase tracking-[0.2em] text-brand-text">
+              Crop Photo
+            </h2>
+
+            <p class="mt-4 text-xs text-brand-muted">
+              Drag the square to move it. Drag a corner to resize it.
+            </p>
+
+            <!--
+              The picture with a square on top of it. data-mode tells the code what the
+              user grabbed. The huge shadow darkens everything outside the square.
+            -->
+            <div
+              class="relative mx-auto mt-5 touch-none select-none overflow-hidden"
+              [style.width.px]="cropSize().width"
+              [style.height.px]="cropSize().height"
+              (pointerdown)="startCrop($event)"
+              (pointermove)="moveCrop($event)"
+              (pointerup)="endCrop()"
+              (pointercancel)="endCrop()"
+            >
+
+              <img
+                [src]="cropImage()!"
+                alt="Photo to crop"
+                draggable="false"
+                class="pointer-events-none block h-full w-full"
+              />
+
+              <div
+                data-mode="move"
+                class="absolute cursor-move border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]"
+                [style.left.px]="cropBox().x"
+                [style.top.px]="cropBox().y"
+                [style.width.px]="cropBox().size"
+                [style.height.px]="cropBox().size"
+              >
+                @for (handle of cropHandles; track handle.mode) {
+                  <span
+                    [attr.data-mode]="handle.mode"
+                    [class]="handle.position"
+                    class="absolute h-4 w-4 border border-brand-text bg-white"
+                  ></span>
+                }
+              </div>
+
+            </div>
+
+            @if (profileError()) {
+              <div class="mt-5 border border-red-200 bg-red-50 px-4 py-3">
+                <p class="text-xs text-red-600">{{ profileError() }}</p>
+              </div>
+            }
+
+            <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+
+              <button
+                type="button"
+                (click)="closeCrop()"
+                class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                (click)="saveCroppedPhoto()"
+                [disabled]="saving()"
+                class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {{ saving() ? 'Saving...' : 'Crop & Save' }}
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+</section>

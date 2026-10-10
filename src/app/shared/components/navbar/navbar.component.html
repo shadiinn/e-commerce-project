@@ -1,0 +1,808 @@
+<header
+  class="sticky top-0 z-50 w-full border-b border-brand-border bg-brand-surface"
+>
+
+  <!-- ========================================================= -->
+  <!-- MAIN NAVBAR -->
+  <!-- ========================================================= -->
+
+  <nav
+    class="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-6 lg:px-10"
+  >
+
+    <!-- ======================================================= -->
+    <!-- LOGO -->
+    <!-- ======================================================= -->
+
+    <a
+      routerLink="/"
+      aria-label="SA Home"
+      class="text-[19px] font-bold tracking-[-0.04em] text-brand-text transition-opacity duration-200 hover:opacity-60"
+    >
+      SA
+    </a>
+
+
+    <!-- ======================================================= -->
+    <!-- DESKTOP NAVIGATION -->
+    <!-- ======================================================= -->
+
+    <div class="hidden items-center gap-9 md:flex">
+
+      <a
+        routerLink="/"
+        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+        Home
+      </a>
+
+      <a
+        routerLink="/shop"
+        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+        Shop
+      </a>
+
+      <a
+        routerLink="/collection"
+        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+        Collection
+      </a>
+
+      <!-- <a
+        routerLink="/about"
+        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+        About
+      </a>
+
+      <a
+        routerLink="/contact"
+        class="text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+        Contact
+      </a> -->
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- DESKTOP ACTIONS -->
+    <!-- ======================================================= -->
+
+    <div class="flex items-center gap-4">
+
+
+      <!-- ===================================================== -->
+      <!-- SEARCH -->
+      <!-- ===================================================== -->
+
+      <form
+        class="hidden items-center border-b border-brand-border md:flex"
+        (submit)="$event.preventDefault(); search()"
+      >
+
+        <input
+          type="text"
+          placeholder="Search"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+          class="w-28 bg-transparent px-1 py-2 text-[11px] text-brand-text outline-none placeholder:text-brand-muted lg:w-36"
+          aria-label="Search products"
+        />
+
+        <button
+          type="submit"
+          aria-label="Search products"
+          class="p-1 text-brand-text transition-opacity duration-200 hover:opacity-50"
+        >
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+            ></circle>
+
+            <path
+              d="m20 20-4-4"
+            ></path>
+
+          </svg>
+
+        </button>
+
+      </form>
+
+
+      <!-- ===================================================== -->
+      <!-- ACCOUNT -->
+      <!-- ===================================================== -->
+
+      <div class="relative hidden sm:block">
+
+        <button
+          type="button"
+          aria-label="Account"
+          aria-haspopup="true"
+          [attr.aria-expanded]="isAccountMenuOpen()"
+          class="p-1 text-brand-text transition-opacity duration-200 hover:opacity-50"
+          (click)="toggleAccountMenu()"
+        >
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+
+            <circle
+              cx="12"
+              cy="8"
+              r="4"
+            ></circle>
+
+            <path
+              d="M4 21c0-4 3.5-7 8-7s8 3 8 7"
+            ></path>
+
+          </svg>
+
+        </button>
+
+
+        <!-- =================================================== -->
+        <!-- ACCOUNT DROPDOWN -->
+        <!-- =================================================== -->
+
+        @if (isAccountMenuOpen()) {
+
+          <div
+            class="absolute right-0 top-full z-50 mt-4 w-72 border border-brand-border bg-brand-surface-light p-5 shadow-card"
+          >
+
+            <!-- ============================================== -->
+            <!-- LOGGED IN -->
+            <!-- ============================================== -->
+
+            @if (isAuthenticated$ | async) {
+
+              @if (currentUser$ | async; as user) {
+
+                <div
+                  class="border-b border-brand-border pb-4"
+                >
+
+                  <p
+                    class="text-[9px] uppercase tracking-[0.2em] text-brand-muted"
+                  >
+                    Welcome
+                  </p>
+
+                  <p
+                    class="mt-1 text-sm font-medium text-brand-text"
+                  >
+                    {{ user.firstName }} {{ user.lastName }}
+                  </p>
+
+                </div>
+
+              }
+
+
+              <div class="mt-3">
+
+                @if (isAdmin$ | async) {
+                  <a
+                    routerLink="/admin"
+                    (click)="closeAccountMenu()"
+                    class="block px-2 py-3 text-[10px] font-medium uppercase tracking-[0.12em] text-brand-text transition-opacity hover:opacity-50"
+                  >
+                    Admin Dashboard
+                  </a>
+                }
+
+                <a
+                  routerLink="/orders"
+                  (click)="closeAccountMenu()"
+                  class="block px-2 py-3 text-[10px] uppercase tracking-[0.12em] text-brand-text transition-opacity hover:opacity-50"
+                >
+                  My Orders
+                </a>
+
+                <a
+                  routerLink="/account"
+                  (click)="closeAccountMenu()"
+                  class="block px-2 py-3 text-[10px] uppercase tracking-[0.12em] text-brand-text transition-opacity hover:opacity-50"
+                >
+                  My Account
+                </a>
+
+                <button
+                  type="button"
+                  (click)="logout()"
+                  class="block w-full px-2 py-3 text-left text-[10px] uppercase tracking-[0.12em] text-brand-text transition-opacity hover:opacity-50"
+                >
+                  Logout
+                </button>
+
+              </div>
+
+            }
+
+
+            <!-- ============================================== -->
+            <!-- LOGGED OUT -->
+            <!-- ============================================== -->
+
+            @else {
+
+              <div>
+
+                <p
+                  class="text-sm font-medium text-brand-text"
+                >
+                  My Account
+                </p>
+
+                <p
+                  class="mt-2 text-xs leading-5 text-brand-muted"
+                >
+                  Sign in to view your orders and manage your account.
+                </p>
+
+              </div>
+
+
+              <div class="mt-5 space-y-2">
+
+                <a
+                  routerLink="/login"
+                  (click)="closeAccountMenu()"
+                  class="block w-full bg-brand-text px-4 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-85"
+                >
+                  Sign In
+                </a>
+
+                <a
+                  routerLink="/register"
+                  (click)="closeAccountMenu()"
+                  class="block w-full border border-brand-text px-4 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:bg-brand-text hover:text-white"
+                >
+                  Create Account
+                </a>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- ===================================================== -->
+      <!-- WISHLIST -->
+      <!-- ===================================================== -->
+
+      <a
+        routerLink="/wishlist"
+        aria-label="Wishlist"
+        class="relative flex items-center gap-1 p-1 text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          class="h-[18px] w-[18px]"
+        >
+
+          <path
+            d="M20.8 8.6c0 5.5-8.8 10.4-8.8 10.4S3.2 14.1 3.2 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 8.8 2.4Z"
+          ></path>
+
+        </svg>
+
+        <span class="text-[9px]">
+          {{ wishlistCount$ | async }}
+        </span>
+
+      </a>
+
+
+      <!-- ===================================================== -->
+      <!-- SHOPPING BAG -->
+      <!-- ===================================================== -->
+
+      <a
+        routerLink="/cart"
+        aria-label="Shopping bag"
+        class="relative flex items-center gap-1 p-1 text-brand-text transition-opacity duration-200 hover:opacity-50"
+      >
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+
+          <path
+            d="M6 8h12l1 13H5L6 8Z"
+          ></path>
+
+          <path
+            d="M9 8a3 3 0 0 1 6 0"
+          ></path>
+
+        </svg>
+
+        <span class="text-[9px]">
+          {{ cartItemCount$ | async }}
+        </span>
+
+      </a>
+
+
+      <!-- ===================================================== -->
+      <!-- MOBILE MENU BUTTON -->
+      <!-- ===================================================== -->
+
+      <button
+        type="button"
+        aria-label="Toggle navigation menu"
+        class="p-1 text-brand-text transition-opacity duration-200 hover:opacity-50 md:hidden"
+        (click)="toggleMenu()"
+      >
+
+        @if (isMenuOpen()) {
+
+          <!-- CLOSE -->
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="21"
+            height="21"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+
+            <path d="M6 6l12 12"></path>
+
+            <path d="M18 6 6 18"></path>
+
+          </svg>
+
+        } @else {
+
+          <!-- MENU -->
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="21"
+            height="21"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+
+            <path d="M4 7h16"></path>
+
+            <path d="M4 12h16"></path>
+
+            <path d="M4 17h16"></path>
+
+          </svg>
+
+        }
+
+      </button>
+
+    </div>
+
+  </nav>
+
+
+  <!-- ========================================================= -->
+  <!-- MOBILE NAVIGATION -->
+  <!-- ========================================================= -->
+
+  @if (isMenuOpen()) {
+
+    <div
+      class="border-t border-brand-border bg-brand-surface md:hidden"
+    >
+
+      <div class="px-6 py-7">
+
+
+        <!-- =================================================== -->
+        <!-- MOBILE LINKS -->
+        <!-- =================================================== -->
+
+        <div class="flex flex-col">
+
+          <a
+            routerLink="/"
+            (click)="closeMenu()"
+            class="border-b border-brand-border py-4 text-[11px] uppercase tracking-[0.15em] text-brand-text"
+          >
+            Home
+          </a>
+
+          <a
+            routerLink="/shop"
+            (click)="closeMenu()"
+            class="border-b border-brand-border py-4 text-[11px] uppercase tracking-[0.15em] text-brand-text"
+          >
+            Shop
+          </a>
+
+          <a
+            routerLink="/collection"
+            (click)="closeMenu()"
+            class="border-b border-brand-border py-4 text-[11px] uppercase tracking-[0.15em] text-brand-text"
+          >
+            Collection
+          </a>
+
+          <a
+            routerLink="/about"
+            (click)="closeMenu()"
+            class="border-b border-brand-border py-4 text-[11px] uppercase tracking-[0.15em] text-brand-text"
+          >
+            About
+          </a>
+
+          <a
+            routerLink="/contact"
+            (click)="closeMenu()"
+            class="py-4 text-[11px] uppercase tracking-[0.15em] text-brand-text"
+          >
+            Contact
+          </a>
+
+        </div>
+
+
+        <!-- =================================================== -->
+        <!-- MOBILE ACTIONS -->
+        <!-- =================================================== -->
+
+        <div
+          class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-brand-border pt-6"
+        >
+
+
+          <!-- ================================================ -->
+          <!-- MOBILE SEARCH -->
+          <!-- ================================================ -->
+
+          <form
+            class="flex w-full items-center border-b border-brand-border"
+            (submit)="$event.preventDefault(); search()"
+          >
+
+            <input
+              type="text"
+              placeholder="Search"
+              [value]="searchTerm()"
+              (input)="searchTerm.set($any($event.target).value)"
+              class="flex-1 bg-transparent px-1 py-2 text-xs text-brand-text outline-none placeholder:text-brand-muted"
+              aria-label="Search products"
+            />
+
+            <button
+              type="submit"
+              aria-label="Search products"
+              class="p-1 text-brand-text transition-opacity duration-200 hover:opacity-50"
+            >
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                ></circle>
+
+                <path
+                  d="m20 20-4-4"
+                ></path>
+
+              </svg>
+
+            </button>
+
+          </form>
+
+
+          <!-- ================================================ -->
+          <!-- MOBILE ACCOUNT -->
+          <!-- ================================================ -->
+
+          <div class="w-full">
+
+            <button
+              type="button"
+              class="flex w-full items-center gap-2 text-[10px] uppercase tracking-[0.12em] text-brand-text transition-opacity hover:opacity-50"
+              (click)="toggleAccountMenu()"
+              [attr.aria-expanded]="isAccountMenuOpen()"
+            >
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="4"
+                ></circle>
+
+                <path
+                  d="M4 21c0-4 3.5-7 8-7s8 3 8 7"
+                ></path>
+
+              </svg>
+
+              Account
+
+            </button>
+
+
+            <!-- MOBILE ACCOUNT DROPDOWN -->
+
+            @if (isAccountMenuOpen()) {
+
+              <div
+                class="mt-4 border-t border-brand-border pt-4"
+              >
+
+                @if (isAuthenticated$ | async) {
+
+                  <!-- LOGGED IN -->
+
+                  @if (currentUser$ | async; as user) {
+
+                    <div class="pb-3">
+
+                      <p
+                        class="text-[9px] uppercase tracking-[0.18em] text-brand-muted"
+                      >
+                        Welcome
+                      </p>
+
+                      <p
+                        class="mt-1 text-sm text-brand-text"
+                      >
+                        {{ user.firstName }} {{ user.lastName }}
+                      </p>
+
+                    </div>
+
+                  }
+
+
+                  <div class="flex flex-col">
+
+                    @if (isAdmin$ | async) {
+                      <a
+                        routerLink="/admin"
+                        (click)="closeMenu(); closeAccountMenu()"
+                        class="border-t border-brand-border py-3 text-[10px] font-medium uppercase tracking-[0.1em] text-brand-text"
+                      >
+                        Admin Dashboard
+                      </a>
+                    }
+
+                    <a
+                      routerLink="/orders"
+                      (click)="closeMenu(); closeAccountMenu()"
+                      class="border-t border-brand-border py-3 text-[10px] uppercase tracking-[0.1em] text-brand-text"
+                    >
+                      My Orders
+                    </a>
+
+                    <a
+                      routerLink="/account"
+                      (click)="closeMenu(); closeAccountMenu()"
+                      class="border-t border-brand-border py-3 text-[10px] uppercase tracking-[0.1em] text-brand-text"
+                    >
+                      My Account
+                    </a>
+
+                    <button
+                      type="button"
+                      (click)="logout(); closeMenu()"
+                      class="border-t border-brand-border py-3 text-left text-[10px] uppercase tracking-[0.1em] text-brand-text"
+                    >
+                      Logout
+                    </button>
+
+                  </div>
+
+                } @else {
+
+                  <!-- LOGGED OUT -->
+
+                  <p
+                    class="text-xs leading-5 text-brand-muted"
+                  >
+                    Sign in to view your orders and manage your account.
+                  </p>
+
+                  <div class="mt-4 flex flex-col gap-2">
+
+                    <a
+                      routerLink="/login"
+                      (click)="closeMenu(); closeAccountMenu()"
+                      class="bg-brand-text px-4 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white"
+                    >
+                      Sign In
+                    </a>
+
+                    <a
+                      routerLink="/register"
+                      (click)="closeMenu(); closeAccountMenu()"
+                      class="border border-brand-text px-4 py-3 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors hover:bg-brand-text hover:text-white"
+                    >
+                      Create Account
+                    </a>
+
+                  </div>
+
+                }
+
+              </div>
+
+            }
+
+          </div>
+
+
+          <!-- ================================================ -->
+          <!-- MOBILE WISHLIST -->
+          <!-- ================================================ -->
+
+          <a
+            routerLink="/wishlist"
+            (click)="closeMenu()"
+            class="flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-brand-text transition-opacity hover:opacity-50"
+          >
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+
+              <path
+                d="M20.8 8.6c0 5.5-8.8 10.4-8.8 10.4S3.2 14.1 3.2 8.6A4.6 4.6 0 0 1 12 6.2a4.6 4.6 0 0 1 8.8 2.4Z"
+              ></path>
+
+            </svg>
+
+            Wishlist
+
+            <span>
+              ({{ wishlistCount$ | async }})
+            </span>
+
+          </a>
+
+
+          <!-- ================================================ -->
+          <!-- MOBILE BAG -->
+          <!-- ================================================ -->
+
+          <a
+            routerLink="/cart"
+            (click)="closeMenu()"
+            class="flex items-center gap-2 text-[10px] uppercase tracking-[0.1em] text-brand-text transition-opacity hover:opacity-50"
+          >
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+
+              <path
+                d="M6 8h12l1 13H5L6 8Z"
+              ></path>
+
+              <path
+                d="M9 8a3 3 0 0 1 6 0"
+              ></path>
+
+            </svg>
+
+            Bag
+
+            <span>
+              ({{ cartItemCount$ | async }})
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+</header>

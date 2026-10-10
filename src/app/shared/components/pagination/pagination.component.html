@@ -1,0 +1,69 @@
+@if (totalPages() > 1) {
+
+  <nav
+    class="mt-16 flex flex-col items-center gap-5"
+    aria-label="Pagination"
+  >
+
+    <p class="text-[10px] uppercase tracking-[0.18em] text-brand-muted">
+      Showing {{ showingFrom() }} – {{ showingTo() }} of {{ totalItems() }}
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+
+      <!-- PREVIOUS -->
+
+      <button
+        type="button"
+        (click)="goTo(page() - 1)"
+        [disabled]="page() === 1"
+        class="px-3 py-2 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:text-brand-muted disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        Previous
+      </button>
+
+      <!-- PAGE NUMBERS (null = "...") -->
+
+      @for (number of pageNumbers(); track $index) {
+
+        @if (number === null) {
+
+          <span class="px-1 text-sm text-brand-muted">&hellip;</span>
+
+        } @else {
+
+          <button
+            type="button"
+            (click)="goTo(number)"
+            [attr.aria-current]="number === page() ? 'page' : null"
+            [attr.aria-label]="'Page ' + number"
+            class="h-9 min-w-9 border px-2 text-[11px] transition-colors duration-200"
+            [class]="
+              number === page()
+                ? 'border-brand-text bg-brand-text text-white'
+                : 'border-brand-border text-brand-text hover:border-brand-text'
+            "
+          >
+            {{ number }}
+          </button>
+
+        }
+
+      }
+
+      <!-- NEXT -->
+
+      <button
+        type="button"
+        (click)="goTo(page() + 1)"
+        [disabled]="page() === totalPages()"
+        class="px-3 py-2 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-text transition-colors duration-200 hover:text-brand-muted disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        Next
+      </button>
+
+    </div>
+
+  </nav>
+
+}
