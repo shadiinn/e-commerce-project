@@ -342,7 +342,7 @@
     {
       "id": "AmrpZbm-e3U",
       "userId": "6ivFObMKcqE",
-      "orderNumber": "SA-261010-0003",
+      "orderNumber": "SA-H4N8X2C7M5",
       "items": [
         {
           "productId": "p027",
@@ -411,9 +411,11 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "cancelled",
       "createdAt": "2026-10-10T07:13:46.156Z",
-      "stockReduced": true
+      "stockReduced": true,
+      "cancellationReason": "Changed my mind",
+      "cancelledBy": "customer"
     },
     {
       "id": "xuC1Rxsl7Cs",
@@ -451,6 +453,55 @@
       "paymentStatus": "pending",
       "orderStatus": "confirmed",
       "createdAt": "2026-10-10T07:14:44.417Z",
+      "stockReduced": true
+    },
+    {
+      "id": "_w6s0Ht-qrY",
+      "userId": "nyMx045jWlo",
+      "orderNumber": "SA-WVHAUCY6BH",
+      "items": [
+        {
+          "productId": "p006",
+          "variantId": "p006-01",
+          "name": "Lemon Yellow Linen Shirt",
+          "image": "assets/images/products/shirts/lemon yellow/lemon-yellow-linen-01.jpg",
+          "color": "Lemon Yellow",
+          "size": "S",
+          "quantity": 1,
+          "price": 5999,
+          "total": 5999
+        },
+        {
+          "productId": "p007",
+          "variantId": "p007-01",
+          "name": "Hunter Green Linen Shirt",
+          "image": "assets/images/products/shirts/hunter green/hunter-green-linen-01.jpg",
+          "color": "Hunter Green",
+          "size": "S",
+          "quantity": 1,
+          "price": 5999,
+          "total": 5999
+        }
+      ],
+      "subtotal": 11998,
+      "shipping": 0,
+      "total": 11998,
+      "shippingAddress": {
+        "firstName": "Shadin",
+        "lastName": "Ahammed",
+        "address": "Vadakkepurath House,Nedumparamba,Moonniyur South PO,Malappuram",
+        "apartment": "",
+        "city": "gvagvjhh",
+        "state": "Kerala",
+        "postalCode": "656565",
+        "country": "India",
+        "phone": "9876353535",
+        "email": "shadinahammed07@gmail.com"
+      },
+      "paymentMethod": "cod",
+      "paymentStatus": "pending",
+      "orderStatus": "confirmed",
+      "createdAt": "2026-10-10T10:58:17.735Z",
       "stockReduced": true
     }
   ],
@@ -535,7 +586,7 @@
         }
       ],
       "rating": 4.7,
-      "reviewsCount": 89,
+      "reviewsCount": 189,
       "isNew": true,
       "isFeatured": true
     },
@@ -688,7 +739,7 @@
           "sizes": [
             {
               "size": "S",
-              "stock": 5
+              "stock": 4
             },
             {
               "size": "M",
@@ -730,7 +781,7 @@
           "sizes": [
             {
               "size": "S",
-              "stock": 5
+              "stock": 4
             },
             {
               "size": "M",
@@ -1731,7 +1782,7 @@
             },
             {
               "size": "M",
-              "stock": 32
+              "stock": 33
             },
             {
               "size": "L",

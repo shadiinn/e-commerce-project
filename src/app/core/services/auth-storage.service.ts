@@ -1,11 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthUser } from '../models/auth-user.model';
 import { ToastService } from './toast.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthStorageService {
+
+  router=inject(Router)
 
   private readonly STORAGE_KEY = 'sa_auth_user';
   toastservice=inject(ToastService)
@@ -34,6 +37,7 @@ export class AuthStorageService {
     localStorage.removeItem(
       this.STORAGE_KEY
     );
+    this.router.navigate(['/login'])
     this.toastservice.success("Logged Out Successfully")
   }
 }

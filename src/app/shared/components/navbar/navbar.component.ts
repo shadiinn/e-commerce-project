@@ -172,10 +172,6 @@ export class NavbarComponent {
     );
 
     this.closeAccountMenu();
-
-    this.router.navigate(
-      ['/']
-    );
   }
 
 }

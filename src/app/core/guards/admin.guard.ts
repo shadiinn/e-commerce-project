@@ -14,9 +14,7 @@ export const adminGuard: CanMatchFn = (route, segments) => {
     map(user => {
  
       if (!user) {
-        return router.createUrlTree(['/login'], {
-          queryParams: { returnUrl: '/' + segments.join('/') }
-        });
+        return router.createUrlTree(['/login']);
       }
  
       return user.role === 'admin' ? true : router.createUrlTree(['/']);

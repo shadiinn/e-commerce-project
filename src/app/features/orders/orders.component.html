@@ -49,7 +49,6 @@
 
       }
 
-
       <!-- Error -->
       @else if (state.error) {
 
@@ -62,7 +61,6 @@
         </div>
 
       }
-
 
       <!-- Orders -->
       @else {
@@ -206,27 +204,80 @@
                       <!-- Order Status -->
                       <div class="flex items-center gap-2">
 
-                        <span
-                          class="h-2 w-2 rounded-full"
-                          [class.bg-brand-accent]="
-                            order.orderStatus !== 'cancelled'
-                          "
-                          [class.bg-red-500]="
-                            order.orderStatus === 'cancelled'
-                          "
-                        ></span>
+                        <!-- Pending -->
+                        @if (order.orderStatus === 'pending') {
 
-                        <span
-                          class="text-xs capitalize"
-                          [class.text-brand-text]="
-                            order.orderStatus !== 'cancelled'
-                          "
-                          [class.text-red-600]="
-                            order.orderStatus === 'cancelled'
-                          "
-                        >
-                          {{ order.orderStatus }}
-                        </span>
+                          <span
+                            class="h-2 w-2 rounded-full bg-amber-600"
+                          ></span>
+
+                          <span
+                            class="text-xs font-medium capitalize text-amber-700"
+                          >
+                            {{ order.orderStatus }}
+                          </span>
+
+                        }
+
+                        <!-- Confirmed -->
+                        @else if (order.orderStatus === 'confirmed') {
+
+                          <span
+                            class="h-2 w-2 rounded-full bg-blue-600"
+                          ></span>
+
+                          <span
+                            class="text-xs font-medium capitalize text-blue-700"
+                          >
+                            {{ order.orderStatus }}
+                          </span>
+
+                        }
+
+                        <!-- Shipped -->
+                        @else if (order.orderStatus === 'shipped') {
+
+                          <span
+                            class="h-2 w-2 rounded-full bg-indigo-600"
+                          ></span>
+
+                          <span
+                            class="text-xs font-medium capitalize text-indigo-700"
+                          >
+                            {{ order.orderStatus }}
+                          </span>
+
+                        }
+
+                        <!-- Delivered -->
+                        @else if (order.orderStatus === 'delivered') {
+
+                          <span
+                            class="h-2 w-2 rounded-full bg-green-600"
+                          ></span>
+
+                          <span
+                            class="text-xs font-medium capitalize text-green-700"
+                          >
+                            {{ order.orderStatus }}
+                          </span>
+
+                        }
+
+                        <!-- Cancelled -->
+                        @else if (order.orderStatus === 'cancelled') {
+
+                          <span
+                            class="h-2 w-2 rounded-full bg-red-600"
+                          ></span>
+
+                          <span
+                            class="text-xs font-medium capitalize text-red-700"
+                          >
+                            {{ order.orderStatus }}
+                          </span>
+
+                        }
 
                       </div>
 
@@ -262,7 +313,6 @@
           </div>
 
         }
-
 
         <!-- Empty State -->
         @else {

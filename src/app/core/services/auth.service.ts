@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { User } from '../models/user.model';
 
 
@@ -27,6 +27,16 @@ export class AuthService {
   checkEmailExists(email: string): Observable<User[]> {
     return this.http.get<User[]>(
       `${this.API_URL}?email=${encodeURIComponent(email)}`
+    );
+  }
+
+  checkAdminEmail(email: string) {
+    return this.http
+      .get<{ role: string }[]>(
+        `${this.API_URL}?email=${encodeURIComponent(email)}`
+      )
+      .pipe(
+        map(users => users.some(user => user.role === 'admin'))
     );
   }
   // GET ALL USERS (admin only; the caller must not keep or show the passwords)

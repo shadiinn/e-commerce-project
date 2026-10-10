@@ -89,6 +89,5 @@ export class AdminLayoutComponent implements OnDestroy {
 
   logout(): void {
     this.store.dispatch(logout());
-    this.router.navigateByUrl('/');
   }
 }

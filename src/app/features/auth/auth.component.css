@@ -2,7 +2,19 @@
   display: block;
 }
 
+@keyframes authViewIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+/* Only ONE form is rendered at a time, so nothing can overlap while
+    switching. The incoming form fades in while the panels slide. */
+.auth-view {
+  animation: authViewIn 0.4s ease-out 0.2s both;
+}
+[hidden] {
+  visibility: hidden !important;
+}
 /* ========================================================= */
 /* PANEL SLIDE */
 /* ========================================================= */

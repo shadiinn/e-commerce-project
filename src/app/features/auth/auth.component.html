@@ -1,21 +1,4 @@
 <div class="min-h-screen w-full bg-[#eeeeec] flex items-center justify-center overflow-hidden">
-
-  <!-- Local styles (scoped to this component).
-       Keyframes and the class that uses them live together so Angular's
-       style scoping keeps the animation name and its reference in sync. -->
-  <style>
-    @keyframes authViewIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* Only ONE form is rendered at a time, so nothing can overlap while
-       switching. The incoming form fades in while the panels slide. */
-    .auth-view {
-      animation: authViewIn 0.4s ease-out 0.2s both;
-    }
-  </style>
-
   <!-- ===================================================== -->
   <!-- AUTH CONTAINER -->
   <!-- ===================================================== -->
@@ -142,9 +125,19 @@
 
                   </form>
 
-                  <div class="mt-7 flex items-center justify-center gap-1.5 text-[10px] text-[#77736e]">
+                  <div
+                    [hidden]="isAdminEmail()"
+                    class="mt-7 flex items-center justify-center gap-1.5 text-[10px] text-[#77736e]"
+                  >
                     <span>Don't have an account?</span>
-                    <button type="button" (click)="showRegister()" class="text-[#151515] underline underline-offset-2 transition-opacity hover:opacity-50">Sign up</button>
+
+                    <button
+                      type="button"
+                      (click)="showRegister()"
+                      class="text-[#151515] underline underline-offset-2 transition-opacity hover:opacity-50"
+                    >
+                      Sign up
+                    </button>
                   </div>
 
                 </div>

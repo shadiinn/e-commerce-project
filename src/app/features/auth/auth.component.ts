@@ -23,6 +23,8 @@ import { selectAuthError } from '../../store/auth/auth.selectors';
 import { ToastService } from '../../core/services/toast.service';
 import { OtpService } from '../../core/services/otp.service';
 import { OtpVerificationComponent } from './otp-verification/otp-verification.component';
+import { AuthService } from '../../core/services/auth.service';
+import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 
 // Registration details are kept in sessionStorage while the OTP popup is open, so a
 // page refresh can bring the popup back (sessionStorage is erased when the tab closes).
@@ -62,6 +64,7 @@ export class AuthComponent {
   private actions$ = inject(Actions);
   private otpService = inject(OtpService);
   private toast = inject(ToastService);
+  private authService = inject(AuthService);
 
   error$ = this.store.select(selectAuthError);
 
@@ -71,6 +74,7 @@ export class AuthComponent {
   showRegisterPassword = signal(false);
   showConfirmPassword = signal(false);
   showOtp = signal(false);
+  isAdminEmail = signal(false);
 
   // Registration details kept until the email is verified with the OTP
   pendingRegistration: PendingRegistration | null = null;
@@ -110,6 +114,26 @@ export class AuthComponent {
       });
 
     this.restorePendingRegistration();
+
+    this.loginForm.get('email')?.valueChanges
+    .pipe(
+      map(email => email?.trim().toLowerCase() ?? ''),
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(email => {
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return of(false);
+        }
+
+        return this.authService.checkAdminEmail(email).pipe(
+          catchError(() => of(false))
+        );
+      }),
+      takeUntilDestroyed()
+    )
+    .subscribe(isAdmin => {
+      this.isAdminEmail.set(isAdmin);
+    });
   }
 
 
