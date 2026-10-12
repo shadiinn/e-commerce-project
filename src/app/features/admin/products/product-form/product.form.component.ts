@@ -3,12 +3,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { filter, take } from 'rxjs';
+import { filter, firstValueFrom, take } from 'rxjs';
 
 import { CATEGORIES } from '../../../../core/models/constants/categories';
 import { Product, ProductVariant } from '../../../../core/models/product.model';
 import { ToastService } from '../../../../core/services/toast.service';
-import { isFeaturedProduct, isNewProduct } from '../../../../core/utils/product-flags';
+import { ProductImageUploadService } from '../../product-image-upload.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { selectAllProducts } from '../../../../store/products/products.selectors';
 import { AdminDataService } from '../../admin.service';
@@ -40,6 +40,7 @@ export class AdminProductFormComponent {
   private router = inject(Router);
   private toast = inject(ToastService);
   private data = inject(AdminDataService);
+  private imageUpload = inject(ProductImageUploadService);
 
   categories = CATEGORIES;
   clothingSizes = CLOTHING_SIZES;
@@ -423,32 +424,84 @@ export class AdminProductFormComponent {
       variants,
       rating: this.existing?.rating ?? 0,
       reviewsCount: this.existing?.reviewsCount ?? 0,
+      // Legacy fields retained for compatibility with the existing Product model.
+      // New-arrival and featured status are derived by NgRx selectors, not stored flags.
       isNew: false,
       isFeatured: false,
       createdAt: this.isEditing ? this.existing?.createdAt : new Date().toISOString()
     };
 
-    product.isNew = isNewProduct(product);
-    product.isFeatured = isFeaturedProduct(product);
     this.pendingProduct.set(product);
   }
 
-  confirmSave(): void {
+  async confirmSave(): Promise<void> {
     const product = this.pendingProduct();
     if (!product || this.saving()) return;
 
     this.saving.set(true);
-    this.data.saveProduct(product, !this.isEditing).subscribe({
-      next: () => {
-        this.toast.success(this.isEditing ? 'Product updated.' : 'Product added.');
-        this.pendingProduct.set(null);
-        this.router.navigateByUrl('/admin/products');
-      },
-      error: () => {
-        this.toast.error('Could not save the product. Please try again.');
-        this.saving.set(false);
+
+    try {
+      // Upload only new or re-cropped Base64 images. Existing Cloudinary URLs
+      // are preserved, so editing product details does not upload images again.
+      const productWithImageUrls = await this.persistProductImages(product);
+
+      // Save only URLs to JSON Server, never Base64 image data.
+      await firstValueFrom(
+        this.data.saveProduct(productWithImageUrls, !this.isEditing)
+      );
+
+      this.toast.success(this.isEditing ? 'Product updated.' : 'Product added.');
+      this.pendingProduct.set(null);
+      this.router.navigateByUrl('/admin/products');
+    } catch (error) {
+      console.error('Product save failed:', error);
+      this.toast.error(
+        'Could not upload the product photos or save the product. Check your Cloudinary configuration and try again.'
+      );
+      this.saving.set(false);
+    }
+  }
+
+  private async persistProductImages(product: Product): Promise<Product> {
+    const variants: ProductVariant[] = [];
+
+    for (const variant of product.variants) {
+      const images = [...variant.images];
+      const originalImages = [...(variant.originalImages ?? variant.images)];
+
+      for (let index = 0; index < images.length; index++) {
+        // Upload the original source when it is a temporary Base64 data URL.
+        if (originalImages[index]?.startsWith('data:image/')) {
+          originalImages[index] = await this.imageUpload.uploadImage(
+            originalImages[index],
+            product.name,
+            variant.color,
+            'original'
+          );
+        }
+
+        // Upload the cropped/display image when it is a temporary Base64 data URL.
+        if (images[index]?.startsWith('data:image/')) {
+          images[index] = await this.imageUpload.uploadImage(
+            images[index],
+            product.name,
+            variant.color,
+            'cropped'
+          );
+        }
       }
-    });
+
+      variants.push({
+        ...variant,
+        images,
+        originalImages
+      });
+    }
+
+    return {
+      ...product,
+      variants
+    };
   }
 
   cancelSave(): void {

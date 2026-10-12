@@ -184,7 +184,7 @@
             This order was cancelled. It cannot be changed any more.
           </p>
         } @else {
-          <ol class="grid grid-cols-4 gap-2">
+          <ol class="grid grid-cols-5 gap-2">
             @for (step of progress(); track step.label) {
               <li>
                 <div class="h-1" [class]="step.done ? 'bg-brand-text' : 'bg-[#e7e3dc]'"></div>

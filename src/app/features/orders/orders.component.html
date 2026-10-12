@@ -234,6 +234,21 @@
 
                         }
 
+                        <!-- Processing -->
+                        @else if (order.orderStatus === 'processing') {
+
+                          <span
+                            class="h-2 w-2 rounded-full bg-[#7c3aed]"
+                          ></span>
+
+                          <span
+                            class="text-xs font-medium capitalize text-purple-700"
+                          >
+                            {{ order.orderStatus }}
+                          </span>
+
+                        }
+
                         <!-- Shipped -->
                         @else if (order.orderStatus === 'shipped') {
 

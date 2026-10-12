@@ -49,6 +49,7 @@ export interface Order {
   orderStatus:
     'pending' |
     'confirmed' |
+    'processing'|
     'shipped' |
     'delivered' |
     'cancelled';

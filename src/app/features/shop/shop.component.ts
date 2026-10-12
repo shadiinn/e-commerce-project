@@ -1,4 +1,3 @@
-import { isFeaturedProduct, isNewProduct } from '../../core/utils/product-flags';
 import {
   Component,
   computed,
@@ -22,7 +21,9 @@ import {
 import {
   selectAllProducts,
   selectProductsLoading,
-  selectProductsError
+  selectProductsError,
+  selectNewProductIds,
+  selectFeaturedProductIds
 } from '../../store/products/products.selectors';
 
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
@@ -79,6 +80,17 @@ export class ShopComponent implements OnInit {
     {
       initialValue: []
     }
+  );
+
+  // Product flags are derived by NgRx selectors, not utility functions.
+  newProductIds = toSignal(
+    this.store.select(selectNewProductIds),
+    { initialValue: new Set<string>() }
+  );
+
+  featuredProductIds = toSignal(
+    this.store.select(selectFeaturedProductIds),
+    { initialValue: new Set<string>() }
   );
 
   loading$ =
@@ -527,8 +539,8 @@ export class ShopComponent implements OnInit {
 
           return products.sort(
             (a, b) =>
-              Number(isNewProduct(b)) -
-              Number(isNewProduct(a))
+              Number(this.newProductIds().has(b.id)) -
+              Number(this.newProductIds().has(a.id))
           );
 
 
@@ -538,8 +550,8 @@ export class ShopComponent implements OnInit {
 
           return products.sort(
             (a, b) =>
-              Number(isFeaturedProduct(b)) -
-              Number(isFeaturedProduct(a))
+              Number(this.featuredProductIds().has(b.id)) -
+              Number(this.featuredProductIds().has(a.id))
           );
 
       }

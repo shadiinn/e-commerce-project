@@ -500,7 +500,7 @@
       },
       "paymentMethod": "cod",
       "paymentStatus": "pending",
-      "orderStatus": "confirmed",
+      "orderStatus": "processing",
       "createdAt": "2026-10-10T10:58:17.735Z",
       "stockReduced": true
     }
@@ -1984,12 +1984,12 @@
           "images": [
             "assets/products/oversized-tee-1.jpg",
             "assets/products/oversized-tee-2.jpg",
-            "https://res.cloudinary.com/ww4yzcj6/image/upload/v1791608309/ecommerce-products/oversized-essential-tee-white-cropped-1791608309331-89cc7mp.jpg"
+            "https://res.cloudinary.com/ww4yzcj6/image/upload/v1791647525/ecommerce-products/oversized-essential-tee-white-cropped-1791647525039-2n443c8.jpg"
           ],
           "originalImages": [
             "assets/products/oversized-tee-1.jpg",
             "assets/products/oversized-tee-2.jpg",
-            "https://res.cloudinary.com/ww4yzcj6/image/upload/v1791608308/ecommerce-products/oversized-essential-tee-white-original-1791608306552-ur8uybu.jpg"
+            "https://res.cloudinary.com/ww4yzcj6/image/upload/v1791647525/ecommerce-products/oversized-essential-tee-white-original-1791647522631-3p2bn2g.jpg"
           ],
           "sizes": [
             {
@@ -2014,7 +2014,51 @@
       "rating": 4.8,
       "reviewsCount": 203,
       "isNew": false,
-      "isFeatured": true
+      "isFeatured": false
+    },
+    {
+      "id": "wtplekWIz9Q",
+      "name": "Shadin",
+      "slug": "shadin",
+      "category": "shirts",
+      "price": 700,
+      "oldPrice": 820,
+      "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "variants": [
+        {
+          "id": "p069-01",
+          "color": "White",
+          "images": [
+            "https://res.cloudinary.com/ww4yzcj6/image/upload/v1791647586/ecommerce-products/shadin-white-cropped-1791647585534-iqnyhau.jpg"
+          ],
+          "originalImages": [
+            "https://res.cloudinary.com/ww4yzcj6/image/upload/v1791647585/ecommerce-products/shadin-white-original-1791647584879-5j2mavq.jpg"
+          ],
+          "sizes": [
+            {
+              "size": "S",
+              "stock": 5
+            },
+            {
+              "size": "M",
+              "stock": 0
+            },
+            {
+              "size": "L",
+              "stock": 0
+            },
+            {
+              "size": "XL",
+              "stock": 0
+            }
+          ]
+        }
+      ],
+      "rating": 0,
+      "reviewsCount": 0,
+      "isNew": false,
+      "isFeatured": false,
+      "createdAt": "2026-10-10T15:53:03.573Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

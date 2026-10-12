@@ -19,6 +19,7 @@ export type OrderStatus = Order['orderStatus'];
 export const ORDER_STATUSES: OrderStatus[] = [
   'pending',
   'confirmed',
+  'processing',
   'shipped',
   'delivered',
   'cancelled'
@@ -28,6 +29,7 @@ export const ORDER_STATUSES: OrderStatus[] = [
 export const ORDER_PROGRESS: OrderStatus[] = [
   'pending',
   'confirmed',
+  'processing',
   'shipped',
   'delivered'
 ];
@@ -35,6 +37,7 @@ export const ORDER_PROGRESS: OrderStatus[] = [
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   pending: 'Pending',
   confirmed: 'Confirmed',
+  processing: 'Processing',
   shipped: 'Shipped',
   delivered: 'Delivered',
   cancelled: 'Cancelled'
@@ -44,6 +47,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 export const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
   pending: 'border-amber-200 bg-amber-50 text-amber-700',
   confirmed: 'border-blue-200 bg-blue-50 text-blue-700',
+  processing: 'border border-purple-200 bg-purple-50 text-purple-700',
   shipped: 'border-indigo-200 bg-indigo-50 text-indigo-700',
   delivered: 'border-green-200 bg-green-50 text-green-700',
   cancelled: 'border-red-200 bg-red-50 text-red-700'
@@ -53,6 +57,7 @@ export const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
 export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
   pending: '#d97706',
   confirmed: '#2563eb',
+  processing: '#7c3aed',
   shipped: '#4f46e5',
   delivered: '#16a34a',
   cancelled: '#dc2626'
@@ -61,7 +66,8 @@ export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
 // Which statuses may an order move to from its current status?
 const NEXT_STATUSES: Record<OrderStatus, OrderStatus[]> = {
   pending: ['confirmed', 'cancelled'],
-  confirmed: ['shipped', 'cancelled'],
+  confirmed: ['processing','cancelled'],
+  processing: ['shipped', 'cancelled'],
   shipped: ['delivered'],
   delivered: [],
   cancelled: []

@@ -43,6 +43,7 @@ export class AdminOrdersComponent {
   actionLabels: Record<OrderStatus, string> = {
     pending: 'Mark as pending',
     confirmed: 'Confirm order',
+    processing:'Mark as Processing',
     shipped: 'Mark as shipped',
     delivered: 'Mark as delivered',
     cancelled: 'Cancel order'
@@ -172,6 +173,7 @@ export class AdminOrdersComponent {
     const next = this.statusToConfirm();
     if (!order || !next) return '';
     if (next === 'confirmed') return `Confirm order ${order.orderNumber}? This will mark the order as accepted for processing.`;
+    if (next === 'processing') return `Confirm order ${order.orderNumber}? This will mark the order as processing.`;
     if (next === 'shipped') return `Mark ${order.orderNumber} as shipped? Only do this after the parcel has been handed to the delivery carrier.`;
     if (next === 'delivered') return `Mark ${order.orderNumber} as delivered? This should only be done after delivery is confirmed.`;
     return `Change order ${order.orderNumber} to ${this.statusLabels[next].toLowerCase()}?`;

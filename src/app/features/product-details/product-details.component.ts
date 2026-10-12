@@ -3,7 +3,8 @@ import {
   inject,
   OnInit,
   signal,
-  computed
+  computed,
+  HostListener
 } from '@angular/core';
 
 import {
@@ -140,6 +141,26 @@ export class ProductDetailsComponent
 
   selectedImage =
     signal('');
+
+
+  // =====================================================
+  // IMAGE ZOOM (hover) + FULL VIEW (click)
+  // =====================================================
+
+  // true while the mouse is over the main image
+  isZooming =
+    signal(false);
+
+  // the point the image zooms from (follows the mouse)
+  zoomOrigin =
+    signal('50% 50%');
+
+  // how much the image is enlarged on hover (1.5 = 150%)
+  zoomLevel = 1.5;
+
+  // true when the full view (lightbox) is open
+  isLightboxOpen =
+    signal(false);
 
 
   // =====================================================
@@ -395,6 +416,100 @@ export class ProductDetailsComponent
     this.selectedImage.set(
       images[nextIndex]
     );
+
+  }
+
+
+  // =====================================================
+  // HOVER ZOOM
+  // =====================================================
+
+  // mouse enters the image -> start zooming
+  startZoom(): void {
+
+    this.isZooming.set(true);
+
+  }
+
+
+  // mouse moves over the image -> zoom the part under the mouse
+  moveZoom(
+    event: MouseEvent
+  ): void {
+
+    const box =
+      (event.currentTarget as HTMLElement)
+        .getBoundingClientRect();
+
+    // mouse position inside the image, as a percentage (0 - 100)
+    const x =
+      ((event.clientX - box.left) / box.width) * 100;
+
+    const y =
+      ((event.clientY - box.top) / box.height) * 100;
+
+    this.zoomOrigin.set(
+      `${x}% ${y}%`
+    );
+
+  }
+
+
+  // mouse leaves the image -> back to normal size
+  stopZoom(): void {
+
+    this.isZooming.set(false);
+
+    this.zoomOrigin.set('50% 50%');
+
+  }
+
+
+  // =====================================================
+  // FULL VIEW (LIGHTBOX)
+  // =====================================================
+
+  openLightbox(): void {
+
+    if (!this.selectedImage()) {
+      return;
+    }
+
+    this.stopZoom();
+
+    this.isLightboxOpen.set(true);
+
+  }
+
+
+  closeLightbox(): void {
+
+    this.isLightboxOpen.set(false);
+
+  }
+
+
+  // keyboard: Esc closes, arrow keys change the image
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(
+    event: KeyboardEvent
+  ): void {
+
+    if (!this.isLightboxOpen()) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      this.closeLightbox();
+    }
+
+    if (event.key === 'ArrowLeft') {
+      this.goToImage(-1);
+    }
+
+    if (event.key === 'ArrowRight') {
+      this.goToImage(1);
+    }
 
   }
 

@@ -5,7 +5,6 @@ import { Store } from '@ngrx/store';
 
 import { CATEGORIES } from '../../../core/models/constants/categories';
 import { Product } from '../../../core/models/product.model';
-import { isNewProduct } from '../../../core/utils/product-flags';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ToastService } from '../../../core/services/toast.service';
 import {
@@ -14,7 +13,8 @@ import {
 } from '../../../shared/components/pagination/pagination.component';
 import {
   selectAllProducts,
-  selectProductsLoading
+  selectProductsLoading,
+  selectNewProductIds
 } from '../../../store/products/products.selectors';
 import { AdminDataService } from '../admin.service';
 
@@ -57,6 +57,12 @@ export class AdminProductsComponent {
   loading = toSignal(
     this.store.select(selectProductsLoading),
     { initialValue: false }
+  );
+
+  // Derived by the NgRx selector: products created within the last 30 days.
+  newProductIds = toSignal(
+    this.store.select(selectNewProductIds),
+    { initialValue: new Set<string>() }
   );
 
   readonly pageSize = 10;
@@ -188,7 +194,7 @@ export class AdminProductsComponent {
   }
 
   isNew(product: Product): boolean {
-    return isNewProduct(product);
+    return this.newProductIds().has(product.id);
   }
 
   // =====================================================
