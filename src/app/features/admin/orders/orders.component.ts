@@ -41,7 +41,6 @@ export class AdminOrdersComponent {
 
   // The text of each action button in the popup
   actionLabels: Record<OrderStatus, string> = {
-    pending: 'Mark as pending',
     confirmed: 'Confirm order',
     processing:'Mark as Processing',
     shipped: 'Mark as shipped',
@@ -122,7 +121,10 @@ export class AdminOrdersComponent {
     return order.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-
+  hasInvalidCancellationDetails(): boolean {
+    const details = this.cancellationDetails();
+    return !!details && !/^[a-zA-Z ]+$/.test(details);
+  }
   // ===================================================================
   // 2. THE ORDER POPUP
   // ===================================================================
@@ -210,7 +212,8 @@ export class AdminOrdersComponent {
   }
 
   canConfirmCancellation(): boolean {
-    return !!this.cancellationReason() && (this.cancellationReason() !== 'Other' || !!this.cancellationDetails().trim());
+    return !!this.cancellationReason() &&
+    !this.hasInvalidCancellationDetails();
   }
 
   private applyChange(status: OrderStatus, reason = ''): void {

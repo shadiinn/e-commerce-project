@@ -13,6 +13,7 @@ import {
   catchError,
   concat,
   concatMap,
+  EMPTY,
   forkJoin,
   map,
   of,
@@ -83,7 +84,7 @@ export class WishlistEffects {
   private guestWishlistService =
     inject(GuestWishlistService);
 
-
+  private toast=inject(ToastService)
 
   // =====================================================
   // LOAD WISHLIST AFTER AUTH RESTORE
@@ -252,7 +253,6 @@ export class WishlistEffects {
                   );
                   
                 }
-
 
                 // -----------------------------------------------
                 // ADD TO GUEST WISHLIST

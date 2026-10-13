@@ -81,7 +81,6 @@ export class OrderDetailsComponent implements OnInit {
   canCancel(order: Order): boolean {
 
     return (
-      order.orderStatus === 'pending' ||
       order.orderStatus === 'confirmed'
     );
 

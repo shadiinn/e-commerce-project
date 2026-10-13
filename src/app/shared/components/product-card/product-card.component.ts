@@ -18,6 +18,8 @@ import {
 import { AsyncPipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { QuickAddComponent } from '../quick-add/quick-add.component';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { selectNewProductIds } from '../../../store/products/products.selectors';
 
 @Component({
   selector: 'app-product-card',
@@ -40,6 +42,10 @@ export class ProductCardComponent implements OnInit {
 
   isQuickAddOpen =signal(false);
 
+  private newProductIds = toSignal(
+    this.store.select(selectNewProductIds),
+    { initialValue: new Set<string>() }
+  );
   ngOnInit(): void {
     this.isWishlisted$ =
       this.store.select(
@@ -48,7 +54,21 @@ export class ProductCardComponent implements OnInit {
         )
       );
   }
-
+  
+  get totalStock(): number {
+    return this.product().variants.reduce(
+      (variantTotal, variant) =>
+        variantTotal +
+        variant.sizes.reduce(
+          (sizeTotal, size) => sizeTotal + size.stock,
+          0
+        ),
+      0
+    );
+  }
+  get isNewArrival(): boolean {
+    return this.newProductIds().has(this.product().id);
+  }
   toggleWishlist(): void {
     this.store.dispatch(
       toggleWishlist({

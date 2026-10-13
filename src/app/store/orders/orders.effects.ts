@@ -326,7 +326,7 @@ export class OrdersEffects {
                 }
 
                 // an order that is shipped (or finished) can no longer be cancelled
-                if (order.orderStatus !== 'pending' && order.orderStatus !== 'confirmed') {
+                if (order.orderStatus !== 'confirmed') {
                   return of(cancelOrderFailure({ error: 'This order can no longer be cancelled.' }));
                 }
 

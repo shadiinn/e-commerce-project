@@ -57,7 +57,7 @@ export class AdminProductFormComponent {
   private allProducts = toSignal(this.store.select(selectAllProducts), { initialValue: [] });
 
   form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
+    name: ['', [Validators.required, Validators.minLength(3),Validators.pattern('^[a-zA-Z ]+$')]],
     category: [CATEGORIES[0].slug, Validators.required],
     description: ['', [Validators.required, Validators.minLength(20)]],
     price: [0, [Validators.required, Validators.min(1)]],

@@ -59,7 +59,7 @@
               id="name"
               type="text"
               formControlName="name"
-              placeholder="Deep Sea Blue Linen Shirt"
+              placeholder="Enter Product Name"
               [class.border-red-500]="(form.controls.name.dirty || submitted()) && form.controls.name.invalid"
               class="mt-2 w-full border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none placeholder:text-brand-muted focus:border-brand-text"
               [attr.aria-invalid]="(form.controls.name.dirty || submitted()) && form.controls.name.invalid"
@@ -74,10 +74,10 @@
               >
                 @if (form.controls.name.hasError('required')) {
                   Product name is required.
-                } @else if (form.controls.name.hasError('minlength')) {
-                  Product name must contain at least 3 characters.
                 } @else if (form.controls.name.hasError('pattern')) {
                   Use letters and spaces only.
+                } @else if (form.controls.name.hasError('minlength')) {
+                  Product name must contain at least 3 characters.
                 }
               </p>
             }
@@ -232,9 +232,9 @@
               aria-describedby="old-price-error"
             />
 
-            <p class="mt-2 text-[10px] text-brand-muted">
+            <!-- <p class="mt-2 text-[10px] text-brand-muted">
               Only shown when it is higher than the selling price.
-            </p>
+            </p> -->
 
             @if ((form.controls.oldPrice.dirty || submitted()) && form.controls.oldPrice.invalid) {
               <p

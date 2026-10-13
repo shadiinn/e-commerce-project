@@ -421,7 +421,7 @@ export class AdminDashboardComponent {
     return rows.sort((a, b) => a.stock - b.stock);
   });
 
-  lowStockRowsForDashboard = computed(() => this.lowStockRows().slice(0, 3));
+  lowStockRowsForDashboard = computed(() => this.lowStockRows().slice(0, 5));
 
   lowStockProductCount = computed(() =>
     new Set(this.lowStockRows().map(row => row.productId)).size

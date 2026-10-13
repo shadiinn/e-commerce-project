@@ -1,9 +1,7 @@
 <div class="mx-auto max-w-6xl">
 
   <!-- HEADER -->
-
   <div class="flex flex-col gap-4 border-b border-brand-border pb-8 sm:flex-row sm:items-end sm:justify-between">
-
     <div>
       <p class="text-xs uppercase tracking-[0.25em] text-brand-muted">
         Inventory
@@ -24,12 +22,9 @@
     >
       Manage all products
     </a>
-
   </div>
 
-
-  <!-- INVENTORY SUMMARY -->
-
+  <!-- SUMMARY CARDS -->
   <div class="mt-8 grid gap-4 sm:grid-cols-3">
 
     <article class="border border-brand-border bg-brand-surface p-5">
@@ -76,9 +71,7 @@
 
   </div>
 
-
   <!-- SEARCH -->
-
   <input
     type="search"
     placeholder="Search product, colour or size"
@@ -87,13 +80,10 @@
     class="mt-8 w-full border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-text outline-none placeholder:text-brand-muted focus:border-brand-text"
   />
 
-
-  <!-- EMPTY STATE -->
-
+  <!-- INVENTORY TABLE -->
   @if (!rows().length) {
 
     <div class="mt-6 border border-dashed border-brand-border p-12 text-center">
-
       <p class="text-sm text-brand-text">
         No low-stock variants found.
       </p>
@@ -101,22 +91,14 @@
       <p class="mt-2 text-xs text-brand-muted">
         Everything is well stocked, or try another search.
       </p>
-
     </div>
 
   } @else {
 
-    <!-- INVENTORY TABLE -->
-
-    <div
-      id="admin-inventory-table"
-      class="mt-6 scroll-mt-24 overflow-x-auto border border-brand-border bg-brand-surface"
-    >
-
+    <div class="mt-6 overflow-x-auto border border-brand-border bg-brand-surface">
       <table class="w-full min-w-[760px] text-left text-xs">
 
         <thead class="border-b border-brand-border text-[10px] uppercase tracking-[0.15em] text-brand-muted">
-
           <tr>
             <th class="px-4 py-4 font-medium">Product</th>
             <th class="px-4 py-4 font-medium">Colour</th>
@@ -124,12 +106,10 @@
             <th class="px-4 py-4 font-medium">Available</th>
             <th class="px-4 py-4 font-medium">Action</th>
           </tr>
-
         </thead>
 
         <tbody class="divide-y divide-brand-border">
-
-          @for (row of rowPage().items; track row.productId + row.color + row.size) {
+          @for (row of inventoryPage().items; track row.productId + row.color + row.size) {
 
             <tr class="hover:bg-brand-background">
 
@@ -152,7 +132,6 @@
               </td>
 
               <td class="px-4 py-4">
-
                 <span
                   class="inline-block border px-2 py-1 text-[10px]"
                   [class]="row.stock === 0
@@ -161,11 +140,9 @@
                 >
                   {{ row.stock === 0 ? 'Out of stock' : row.stock + ' left' }}
                 </span>
-
               </td>
 
               <td class="px-4 py-4">
-
                 <button
                   type="button"
                   (click)="openStock(row.productId)"
@@ -173,42 +150,34 @@
                 >
                   Update stock →
                 </button>
-
               </td>
 
             </tr>
 
           }
-
         </tbody>
 
       </table>
-
     </div>
 
-
-    <!-- PAGINATION -->
-
-    <app-pagination
-      [page]="rowPage().page"
-      [totalPages]="rowPage().totalPages"
-      [totalItems]="rowPage().totalItems"
-      [pageSize]="pageSize"
-      scrollTo="admin-inventory-table"
-      (pageChange)="goToPage($event)"
-    />
-
     <p class="mt-3 text-[10px] leading-5 text-brand-muted">
-      Out-of-stock sizes appear first. Update stock opens a small stock-only editor, without the product details form.
+      Out-of-stock sizes appear first. Update stock opens a small stock-only
+      editor, without the product details form.
     </p>
 
   }
 
 </div>
 
+<app-pagination
+  [page]="inventoryPage().page"
+  [totalPages]="inventoryPage().totalPages"
+  [totalItems]="inventoryPage().totalItems"
+  [pageSize]="pageSize"
+  (pageChange)="goToPage($event)"
+/>
 
-<!-- STOCK-ONLY POPUP -->
-
+<!-- STOCK UPDATE POPUP -->
 @if (stockProduct(); as product) {
 
   <div
@@ -221,12 +190,10 @@
       (click)="$event.stopPropagation()"
     >
 
-      <!-- HEADER -->
-
+      <!-- POPUP HEADER -->
       <div class="flex items-start justify-between gap-4 border-b border-brand-border pb-5">
 
         <div>
-
           <p class="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted">
             Inventory management
           </p>
@@ -238,7 +205,6 @@
           <p class="mt-2 text-sm text-brand-muted">
             {{ product.name }}
           </p>
-
         </div>
 
         <button
@@ -253,46 +219,51 @@
 
       </div>
 
-
       <!-- STOCK INPUTS -->
-
       <div class="mt-5 max-h-[55vh] overflow-y-auto">
 
         @for (row of stockRows(); track row.variantId + row.size; let i = $index) {
 
           @if (i === 0 || stockRows()[i - 1].color !== row.color) {
-
             <p class="mb-2 mt-5 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-text first:mt-0">
               {{ row.color }}
             </p>
-
           }
 
-          <label class="flex items-center justify-between gap-4 border-b border-brand-border py-3">
+          <div class="border-b border-brand-border py-3">
 
-            <span class="text-xs text-brand-muted">
-              Size {{ row.size }}
-            </span>
+            <label class="flex items-center justify-between gap-4">
 
-            <input
-              type="number"
-              min="0"
-              step="1"
-              [value]="row.stock"
-              (change)="setRowStock(i, $any($event.target).valueAsNumber)"
-              [attr.aria-label]="'Stock of ' + row.color + ' size ' + row.size"
-              class="w-24 border border-brand-border bg-brand-background px-3 py-2 text-right text-sm text-brand-text outline-none focus:border-brand-text"
-            />
+              <span class="text-xs text-brand-muted">
+                Size {{ row.size }}
+              </span>
 
-          </label>
+              <input
+                type="text"
+                inputmode="numeric"
+                [value]="row.stock"
+                (input)="setRowStock(i, $any($event.target).value)"
+                [attr.aria-label]="'Stock of ' + row.color + ' size ' + row.size"
+                [attr.aria-invalid]="row.stock !== '' && !isValidStock(row.stock)"
+                class="w-24 border border-brand-border bg-brand-background px-3 py-2 text-right text-sm text-brand-text outline-none focus:border-brand-text"
+                [class.border-red-500]="row.stock !== '' && !isValidStock(row.stock)"
+              />
+
+            </label>
+
+            @if (row.stock !== '' && !isValidStock(row.stock)) {
+              <p class="mt-2 text-right text-xs text-red-600" role="alert">
+                Enter a valid non-negative whole number.
+              </p>
+            }
+
+          </div>
 
         }
 
       </div>
 
-
-      <!-- ACTIONS -->
-
+      <!-- POPUP ACTIONS -->
       <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 
         <button
@@ -307,7 +278,7 @@
         <button
           type="button"
           (click)="saveStock()"
-          [disabled]="saving()"
+          [disabled]="saving() || hasInvalidStock()"
           class="bg-brand-text px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {{ saving() ? 'Saving...' : 'Save stock' }}

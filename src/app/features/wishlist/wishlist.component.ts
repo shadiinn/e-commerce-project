@@ -2,7 +2,8 @@ import { AsyncPipe } from '@angular/common';
 
 import {
   Component,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
@@ -16,10 +17,12 @@ import {
 
 import {
   toggleWishlist,
-  clearWishlist
+  clearWishlist,
+  clearGuestWishlist
 } from '../../store/wishlist/wishlist.actions';
 
 import { Product } from '../../core/models/product.model';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 
 @Component({
@@ -29,7 +32,8 @@ import { Product } from '../../core/models/product.model';
 
   imports: [
     AsyncPipe,
-    RouterLink
+    RouterLink,
+    ConfirmDialogComponent
   ],
 
   templateUrl: './wishlist.component.html',
@@ -45,6 +49,7 @@ export class WishlistComponent {
 
   private store = inject(Store);
 
+  showClearConfirmation = signal(false);
 
   // =====================================================
   // WISHLIST
@@ -85,12 +90,19 @@ export class WishlistComponent {
   // CLEAR WISHLIST
   // =====================================================
 
-  clearWishlist(): void {
 
-    this.store.dispatch(
-      clearWishlist()
-    );
-
+  openClearConfirmation(): void {
+    this.showClearConfirmation.set(true);
   }
 
+  confirmClearWishlist(): void {
+    this.store.dispatch(clearWishlist());
+    this.store.dispatch(clearGuestWishlist());
+
+    this.showClearConfirmation.set(false);
+  }
+
+  cancelClearWishlist(): void {
+    this.showClearConfirmation.set(false);
+  }
 }

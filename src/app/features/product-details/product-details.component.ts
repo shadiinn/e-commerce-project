@@ -46,6 +46,7 @@ import {
 import { evaluateAddToCart } from '../../core/utils/cart.limits';
 
 import {
+  selectNewProductIds,
   selectProductById,
   selectSimilarProducts
 } from '../../store/products/products.selectors';
@@ -63,6 +64,7 @@ import { ToastService } from '../../core/services/toast.service';
 import {
   ProductCardComponent
 } from '../../shared/components/product-card/product-card.component';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 
 @Component({

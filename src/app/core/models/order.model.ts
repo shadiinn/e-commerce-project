@@ -47,7 +47,6 @@ export interface Order {
   paymentMethod:'cod' |'online';
   paymentStatus:'pending' |'paid' |'failed';
   orderStatus:
-    'pending' |
     'confirmed' |
     'processing'|
     'shipped' |

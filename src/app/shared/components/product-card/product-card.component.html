@@ -28,7 +28,26 @@
       </div>
 
     </a>
+    
+    <!-- PRODUCT STATUS BADGE -->
 
+    @if (totalStock === 0) {
+
+      <span
+        class="pointer-events-none absolute left-4 top-4 z-10 bg-brand-text px-3 py-2 text-[9px] font-medium uppercase tracking-[0.15em] text-white"
+      >
+        {{ isNewArrival ? 'COMING SOON' : 'OUT OF STOCK' }}
+      </span>
+
+    } @else if (isNewArrival) {
+
+      <span
+        class="pointer-events-none absolute left-4 top-4 z-10 bg-brand-text px-3 py-2 text-[9px] font-medium uppercase tracking-[0.15em] text-white"
+      >
+        NEW
+      </span>
+
+    }
 
     <!-- ================================================= -->
     <!-- HOVER ACTIONS -->

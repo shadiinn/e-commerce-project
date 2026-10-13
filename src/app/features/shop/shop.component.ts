@@ -65,15 +65,10 @@ export class ShopComponent implements OnInit {
   router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
-  // true after a search from the navbar, until the page has scrolled to the products
   private scrollToProductsAfterNavigation = false;
 
   categories = CATEGORIES;
 
-
-  // =========================================================
-  // PRODUCTS
-  // =========================================================
 
   products = toSignal(
     this.store.select(selectAllProducts),
@@ -82,7 +77,6 @@ export class ShopComponent implements OnInit {
     }
   );
 
-  // Product flags are derived by NgRx selectors, not utility functions.
   newProductIds = toSignal(
     this.store.select(selectNewProductIds),
     { initialValue: new Set<string>() }
@@ -152,7 +146,7 @@ export class ShopComponent implements OnInit {
   // =========================================================
 
   sortBy =
-    signal('featured');
+    signal('newest');
 
 
   // =========================================================
@@ -201,10 +195,6 @@ export class ShopComponent implements OnInit {
   // PRODUCT HELPERS
   // =========================================================
 
-  /**
-   * Checks whether a product has at least one
-   * selected size available in any of its variants.
-   */
   productHasSelectedSize(
     product: any,
     selectedSizes: string[]
@@ -274,17 +264,6 @@ export class ShopComponent implements OnInit {
   // SEARCH HELPER
   // =========================================================
 
-  /**
-   * Checks whether a product matches the search term.
-   *
-   * Search looks through:
-   *
-   * - Product name
-   * - Product category
-   * - Product description
-   * - Product slug
-   * - Variant/color names
-   */
   productMatchesSearch(
     product: any,
     search: string
@@ -535,7 +514,17 @@ export class ShopComponent implements OnInit {
           );
 
 
+        case 'featured':
+          return products.sort(
+            (a, b) =>
+              Number(this.featuredProductIds().has(b.id)) -
+              Number(this.featuredProductIds().has(a.id))
+          );
+
+
         case 'newest':
+
+        default:
 
           return products.sort(
             (a, b) =>
@@ -543,16 +532,6 @@ export class ShopComponent implements OnInit {
               Number(this.newProductIds().has(a.id))
           );
 
-
-        case 'featured':
-
-        default:
-
-          return products.sort(
-            (a, b) =>
-              Number(this.featuredProductIds().has(b.id)) -
-              Number(this.featuredProductIds().has(a.id))
-          );
 
       }
 

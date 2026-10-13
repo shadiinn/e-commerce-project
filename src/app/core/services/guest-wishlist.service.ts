@@ -35,6 +35,7 @@ export class GuestWishlistService {
     if (wishlist.includes(productId)) {
       return;
     }
+
     wishlist.push(productId);
     this.saveWishlist(wishlist);
     this.toastservice.success("Product Added To Wishlist")

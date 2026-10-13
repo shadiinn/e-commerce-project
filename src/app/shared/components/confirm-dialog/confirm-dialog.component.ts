@@ -1,6 +1,5 @@
 import { Component, input, output } from '@angular/core';
 
-/** Reusable confirmation popup (address delete, cart item removal). */
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,

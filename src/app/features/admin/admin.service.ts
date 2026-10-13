@@ -20,15 +20,6 @@ import {
 // A user WITHOUT the password: the admin pages never keep passwords
 export type AdminUser = Omit<User, 'password'>;
 
-/*
-  The data of the admin pages (all orders and all users), kept in signals.
-
-  It is loaded once when the admin area opens (AdminLayoutComponent) and is shared by
-  the dashboard and the orders pages. So when an order's status is changed on the
-  orders page, the dashboard charts update by themselves.
-
-  Admin-only data does not need NgRx: the customer pages never use it.
-*/
 @Injectable({ providedIn: 'root' })
 export class AdminDataService {
 
@@ -65,9 +56,6 @@ export class AdminDataService {
     });
   }
 
-  // Moves an order to a new status (the rules are checked by the pages, see order-status.ts).
-  // Cancelling an order also gives its pieces back to the stock, but only when the order
-  // took them out (stockReduced). Older orders never did, so they must not add stock.
   changeOrderStatus(
     order: Order,
     nextStatus: OrderStatus,

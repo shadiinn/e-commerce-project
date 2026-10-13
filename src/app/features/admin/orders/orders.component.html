@@ -368,24 +368,32 @@
           }
         </select>
 
-        <label for="admin-cancel-details" class="mt-5 block text-xs font-medium text-brand-text">
-          Additional details {{ cancellationReason() === 'Other' ? '(required)' : '(optional)' }}
-        </label>
+          @if (cancellationReason() === 'Other') {
+            <label for="admin-cancel-details" class="mt-5 block text-xs font-medium text-brand-text">
+              Additional details (optional)
+            </label>
 
-        <textarea
-          id="admin-cancel-details"
-          rows="3"
-          [value]="cancellationDetails()"
-          (input)="cancellationDetails.set($any($event.target).value)"
-          placeholder="Add a short explanation"
-          class="mt-2 w-full border border-brand-border bg-white px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
-        ></textarea>
+            <textarea
+              id="admin-cancel-details"
+              rows="3"
+              [value]="cancellationDetails()"
+              (input)="cancellationDetails.set($any($event.target).value)"
+              placeholder="Add a short explanation"
+              class="mt-2 w-full border border-brand-border bg-white px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+            ></textarea>
 
-        @if (!cancellationReason() || (cancellationReason() === 'Other' && !cancellationDetails().trim())) {
+            @if (cancellationDetails() && hasInvalidCancellationDetails()) {
+              <p class="mt-2 text-[11px] text-red-600">
+                Only letters and spaces are allowed.
+              </p>
+            }
+          }
+
+        <!-- @if (!cancellationReason() || (cancellationReason() === 'Other' && !cancellationDetails().trim())) {
           <p class="mt-2 text-[11px] text-red-600">
             Select a reason. If you choose Other, enter the details too.
           </p>
-        }
+        } -->
 
         <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button

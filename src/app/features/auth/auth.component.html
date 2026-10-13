@@ -88,9 +88,10 @@
                           <span class="text-[9px] font-medium leading-none text-red-600" role="alert">
                             @if (loginForm.get('password')?.hasError('required')) {
                               Required
-                            } @else if (loginForm.get('password')?.hasError('minlength')) {
-                              Min. 6 characters
                             }
+                             <!-- @else if (loginForm.get('password')?.hasError('minlength')) {
+                              Min. 6 characters
+                            } -->
                           </span>
                         } @else {
                           <!-- <button type="button" class="text-[9px] text-[#77736e] transition-colors hover:text-[#151515]">Forgot password?</button> -->

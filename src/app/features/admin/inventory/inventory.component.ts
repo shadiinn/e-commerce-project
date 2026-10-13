@@ -5,9 +5,9 @@ import { Store } from '@ngrx/store';
 
 import { Product } from '../../../core/models/product.model';
 import { ToastService } from '../../../core/services/toast.service';
-import { PaginationComponent, paginate } from '../../../shared/components/pagination/pagination.component';
 import { selectAllProducts } from '../../../store/products/products.selectors';
 import { AdminDataService } from '../admin.service';
+import { paginate, PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 const LOW_STOCK_LIMIT = 5;
 
@@ -24,19 +24,18 @@ interface StockRow {
   variantId: string;
   color: string;
   size: string;
-  stock: number;
+  stock: string;
 }
 
 @Component({
   selector: 'app-admin-inventory',
   standalone: true,
-  imports: [RouterLink, PaginationComponent],
+  imports: [RouterLink,PaginationComponent],
   templateUrl: './inventory.component.html'
 })
 export class AdminInventoryComponent {
   private store = inject(Store);
   private toast = inject(ToastService);
-
   data = inject(AdminDataService);
 
   private products = toSignal(
@@ -44,43 +43,49 @@ export class AdminInventoryComponent {
     { initialValue: [] as Product[] }
   );
 
-  // Pagination
+
   readonly pageSize = 10;
   currentPage = signal(1);
 
-  // Search
+  inventoryPage = computed(() =>
+    paginate(this.rows(), this.currentPage(), this.pageSize)
+  );
+
+  goToPage(page: number): void {
+    this.currentPage.set(page);
+  }
+
+  setSearch(value: string): void {
+    this.search.set(value);
+    this.currentPage.set(1);
+  }
+
+
   search = signal('');
+  stockProduct = signal<Product | null>(null);
+  stockRows = signal<StockRow[]>([]);
+  saving = signal(false);
 
-  // =====================================================
-  // INVENTORY ROWS
-  // =====================================================
-
+  // Display products with low stock, sorted from lowest to highest.
   rows = computed<InventoryRow[]>(() => {
     const term = this.search().trim().toLowerCase();
-    const rows: InventoryRow[] = [];
 
-    for (const product of this.products()) {
-      for (const variant of product.variants) {
-        for (const size of variant.sizes) {
-          if (size.stock <= LOW_STOCK_LIMIT) {
-            rows.push({
+    return this.products()
+      .flatMap(product =>
+        product.variants.flatMap(variant =>
+          variant.sizes
+            .filter(size => size.stock <= LOW_STOCK_LIMIT)
+            .map(size => ({
               productId: product.id,
               productName: product.name,
               category: product.category,
               color: variant.color,
               size: size.size,
               stock: size.stock
-            });
-          }
-        }
-      }
-    }
-
-    // Filter by product, category, colour or size.
-    // Then sort by ascending stock, with out-of-stock first.
-    return rows
+            }))
+        )
+      )
       .filter(row =>
-        !term ||
         `${row.productName} ${row.category} ${row.color} ${row.size}`
           .toLowerCase()
           .includes(term)
@@ -93,50 +98,26 @@ export class AdminInventoryComponent {
       );
   });
 
-  // Paginated inventory rows
-  rowPage = computed(() =>
-    paginate(
-      this.rows(),
-      this.currentPage(),
-      this.pageSize
-    )
+  lowStockProducts = computed(
+    () => new Set(this.rows().map(row => row.productId)).size
   );
 
-  // Reset pagination whenever the search changes.
-  setSearch(value: string): void {
-    this.search.set(value);
-    this.currentPage.set(1);
+  outOfStock = computed(
+    () => this.rows().filter(row => row.stock === 0).length
+  );
+
+  // Only non-negative whole numbers are valid.
+  isValidStock(value: string): boolean {
+    return /^\d+$/.test(value);
   }
 
-  // Handle pagination changes.
-  goToPage(page: number): void {
-    this.currentPage.set(page);
-  }
-
-  // =====================================================
-  // INVENTORY SUMMARY
-  // =====================================================
-
-  lowStockProducts = computed(() =>
-    new Set(this.rows().map(row => row.productId)).size
+  // Empty inputs are invalid for saving, but don't show an error message.
+  hasInvalidStock = computed(() =>
+    this.stockRows().some(row => !this.isValidStock(row.stock))
   );
-
-  outOfStock = computed(() =>
-    this.rows().filter(row => row.stock === 0).length
-  );
-
-  // =====================================================
-  // STOCK-ONLY EDITOR
-  // =====================================================
-
-  stockProduct = signal<Product | null>(null);
-  stockRows = signal<StockRow[]>([]);
-  saving = signal(false);
 
   openStock(productId: string): void {
-    const product = this.products().find(
-      item => item.id === productId
-    );
+    const product = this.products().find(item => item.id === productId);
 
     if (!product) {
       this.toast.error(
@@ -151,12 +132,20 @@ export class AdminInventoryComponent {
           variantId: variant.id,
           color: variant.color,
           size: size.size,
-          stock: size.stock
+          stock: String(size.stock)
         }))
       )
     );
 
     this.stockProduct.set(product);
+  }
+
+  setRowStock(index: number, value: string): void {
+    this.stockRows.update(rows =>
+      rows.map((row, i) =>
+        i === index ? { ...row, stock: value } : row
+      )
+    );
   }
 
   closeStock(): void {
@@ -165,24 +154,10 @@ export class AdminInventoryComponent {
     }
   }
 
-  setRowStock(index: number, value: number): void {
-    const stock = Number.isFinite(value)
-      ? Math.max(0, Math.floor(value))
-      : 0;
-
-    this.stockRows.update(rows =>
-      rows.map((row, i) =>
-        i === index
-          ? { ...row, stock }
-          : row
-      )
-    );
-  }
-
   saveStock(): void {
     const product = this.stockProduct();
 
-    if (!product || this.saving()) {
+    if (!product || this.saving() || this.hasInvalidStock()) {
       return;
     }
 
@@ -190,19 +165,17 @@ export class AdminInventoryComponent {
 
     const updatedProduct: Product = {
       ...product,
-
       variants: product.variants.map(variant => ({
         ...variant,
-
         sizes: variant.sizes.map(size => ({
           ...size,
-
-          stock:
+          stock: Number(
             rows.find(
               row =>
                 row.variantId === variant.id &&
                 row.size === size.size
             )?.stock ?? size.stock
+          )
         }))
       }))
     };
@@ -211,27 +184,16 @@ export class AdminInventoryComponent {
 
     this.data.saveProduct(updatedProduct, false).subscribe({
       next: () => {
-        this.toast.success(
-          `Stock of "${product.name}" updated.`
-        );
-
+        this.toast.success(`Stock of "${product.name}" updated.`);
         this.saving.set(false);
         this.stockProduct.set(null);
       },
-
       error: () => {
-        this.toast.error(
-          'Could not update the stock. Please try again.'
-        );
-
+        this.toast.error('Could not update the stock. Please try again.');
         this.saving.set(false);
       }
     });
   }
-
-  // =====================================================
-  // HELPERS
-  // =====================================================
 
   money(value: number): string {
     return this.data.money(value);

@@ -196,7 +196,25 @@ export class AdminProductsComponent {
   isNew(product: Product): boolean {
     return this.newProductIds().has(product.id);
   }
+  
+  productTag(product: Product): 'COMING SOON' | 'NEW' | 'OUT OF STOCK' | null {
+    const isNew = this.isNew(product);
+    const outOfStock = this.totalStock(product) === 0;
 
+    if (outOfStock && isNew) {
+      return 'COMING SOON';
+    }
+
+    if (isNew) {
+      return 'NEW';
+    }
+
+    if (outOfStock) {
+      return 'OUT OF STOCK';
+    }
+
+    return null;
+  }
   // =====================================================
   // VIEW PRODUCT
   // =====================================================

@@ -44,23 +44,8 @@
             <!-- Order Status -->
             <div class="flex items-center gap-2">
 
-              <!-- Pending -->
-              @if (order.orderStatus === 'pending') {
-
-                <span
-                  class="h-2 w-2 rounded-full bg-amber-600"
-                ></span>
-
-                <span
-                  class="text-xs font-medium capitalize text-amber-700"
-                >
-                  {{ order.orderStatus }}
-                </span>
-
-              }
-
               <!-- Confirmed -->
-              @else if (order.orderStatus === 'confirmed') {
+              @if (order.orderStatus === 'confirmed') {
 
                 <span
                   class="h-2 w-2 rounded-full bg-blue-600"
