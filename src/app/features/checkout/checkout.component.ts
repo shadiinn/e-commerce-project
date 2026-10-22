@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -15,11 +15,12 @@ import { placeOrder } from '../../store/orders/orders.actions';
 import { selectCurrentUser } from '../../store/auth/auth.selectors';
 import { Address } from '../../core/models/address.model';
 import { AddressFormComponent } from '../../shared/components/address-form/address-form.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, AddressFormComponent],
+  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, AddressFormComponent,ConfirmDialogComponent],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css'
 })
@@ -40,7 +41,7 @@ export class CheckoutComponent {
 
   checkoutForm = this.fb.nonNullable.group({
     email: [this.user()?.email ?? '', [Validators.required, Validators.email]],
-    phone: [this.user()?.phone ?? '', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    phone: [this.user()?.phone ?? '', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
     paymentMethod: ['cod', Validators.required]
   });
 
@@ -81,6 +82,20 @@ export class CheckoutComponent {
         })
       );
     });
+  }
+  showconfirmation=signal(false);
+
+  openPlaceOrderConfirmation(): void {
+    this.showconfirmation.set(true);
+  }
+
+  confirmPlaceOrder(address: Address | null): void {
+    this.showconfirmation.set(false);
+    this.placeOrder(address);
+  }
+
+  cancelPlaceOrderConfirmation(): void {
+    this.showconfirmation.set(false);
   }
 
   cancelCheckout(): void {

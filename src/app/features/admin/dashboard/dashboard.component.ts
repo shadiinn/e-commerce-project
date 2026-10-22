@@ -78,7 +78,7 @@ export class AdminDashboardComponent {
   readonly Math = Math;
 
   // Controls the main dashboard metrics and related sections.
-  range = signal<7 | 30 | 'year'>(7);
+  range = signal<7 | 30 | 'year'>('year');
 
   // Controls only the revenue chart.
   chartRange = signal<7 | 30 | 'year'>(7);

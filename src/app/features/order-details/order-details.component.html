@@ -529,17 +529,37 @@
             </p>
 
             <label for="customer-cancel-reason" class="mt-5 block text-xs font-medium text-brand-text">Reason for cancellation <span class="text-red-600">*</span></label>
-            <select id="customer-cancel-reason" [value]="cancellationReason()" (change)="cancellationReason.set($any($event.target).value)" class="mt-2 w-full border border-brand-border bg-white px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text">
-              <option value="">Select a reason</option>
-              @for (reason of cancellationReasons; track reason) { <option [value]="reason">{{ reason }}</option> }
+            <select 
+              id="customer-cancel-reason" 
+              [value]="cancellationReason()" 
+              (change)="cancellationReason.set($any($event.target).value)" 
+              class="mt-2 w-full border border-brand-border bg-white px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+            >
+            <option value="">Select a reason</option>
+              @for (reason of cancellationReasons; track reason) { 
+                <option [value]="reason">{{ reason }}</option> }
             </select>
 
-            <label for="customer-cancel-details" class="mt-4 block text-xs font-medium text-brand-text">Additional details {{ cancellationReason() === 'Other' ? '(required)' : '(optional)' }}</label>
-            <textarea id="customer-cancel-details" rows="3" [value]="cancellationDetails()" (input)="cancellationDetails.set($any($event.target).value)" placeholder="Tell us a little more (optional)" class="mt-2 w-full border border-brand-border bg-white px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"></textarea>
-            @if (!cancellationReason() || (cancellationReason() === 'Other' && !cancellationDetails().trim())) {
-              <p class="mt-2 text-[11px] text-red-600">Select a reason. If you choose Other, enter the details too.</p>
-            }
+            @if (cancellationReason() === 'Other') {
+              <label for="customer-cancel-details" class="mt-5 block text-xs font-medium text-brand-text">
+                Additional details (optional)
+              </label>
 
+              <textarea
+                id="customer-cancel-details"
+                rows="3"
+                [value]="cancellationDetails()"
+                (input)="cancellationDetails.set($any($event.target).value)"
+                placeholder="Add a short explanation"
+                class="mt-2 w-full border border-brand-border bg-white px-3 py-3 text-sm text-brand-text outline-none focus:border-brand-text"
+              ></textarea>
+
+              @if (cancellationDetails() && hasInvalidCancellationDetails()) {
+                <p class="mt-2 text-[11px] text-red-600">
+                  Only letters and spaces are allowed.
+                </p>
+              }
+            }
             <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button type="button" (click)="dismissCancelPopup()" class="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-brand-muted transition-colors duration-200 hover:text-brand-text">Keep Order</button>
               <button type="button" (click)="confirmCancelOrder()" [disabled]="!canConfirmCancellation()" class="bg-red-600 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-white transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">Confirm cancellation</button>

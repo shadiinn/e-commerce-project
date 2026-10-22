@@ -17,10 +17,6 @@ export const guestGuard: CanActivateFn = () => {
       if (isAuthenticated) {
         return router.createUrlTree(['/']);
       }
-
-      // An administrator is not a storefront customer.
-      // The admin is redirected separately by customerOnlyGuard when already signed in.
-
       return true;
     })
   );

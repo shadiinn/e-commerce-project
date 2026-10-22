@@ -57,7 +57,7 @@
 
       <button
         type="button"
-        (click)="logout()"
+        (click)="showlogoutconfirmation()"
         class="block w-full px-3 py-3 text-left text-xs uppercase tracking-[0.15em] text-white/70 transition-colors duration-200 hover:bg-white/5 hover:text-white"
       >
         Log out
@@ -167,4 +167,13 @@
 
   </div>
 
+}
+@if (showconfirmation()) {
+<app-confirm-dialog
+[title]="'Are you sure you want to log out?'"
+[message]="''"
+[confirmText]="'Log Out'"
+(confirmed)="confirmlogout()"
+(cancelled)="cancelconfirmation()"
+/>
 }

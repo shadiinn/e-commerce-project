@@ -227,6 +227,7 @@
                         }
                       </div>
                       <input id="register-email" type="email" formControlName="email" placeholder="Enter your email" autocomplete="email"
+                        
                         [style.border-bottom-color]="(registerForm.get('email')?.touched && registerForm.get('email')?.invalid) ? '#dc2626' : null"
                         [attr.aria-invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
                         class="w-full border-0 border-b border-[#d8d3cd] bg-transparent px-0 py-2 text-[12px] text-[#151515] outline-none placeholder:text-[#aaa6a1] focus:border-[#151515] transition-colors duration-200">

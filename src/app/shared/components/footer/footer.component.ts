@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CATEGORIES } from '../../../core/models/constants/categories';
 
 @Component({
   selector: 'app-footer',
@@ -9,5 +10,5 @@ import { RouterLink } from '@angular/router';
   styleUrl: './footer.component.css'
 })
 export class FooterComponent {
-
+ categories = CATEGORIES;
 }

@@ -19,14 +19,11 @@ export class ProductService {
   constructor() { }
   http=inject(HttpClient);
   API_URL='http://localhost:3000/products';
+  
   getProducts(){
     return this.http.get<Product[]>(this.API_URL);
   }
 
-  // Takes pieces out of the stock (direction -1: an order was placed)
-  // or puts them back (direction 1: an order was cancelled).
-  // The products are read again right now, so the numbers are as fresh as possible.
-  // One request per product (its colours and sizes are saved together).
   adjustStock(items: StockChange[], direction: 1 | -1): Observable<unknown> {
     return this.getProducts().pipe(
       switchMap((products): Observable<unknown> => {

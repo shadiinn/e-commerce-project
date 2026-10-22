@@ -84,50 +84,22 @@
             </a>
           </li>
 
-          <li>
-            <a
-              routerLink="/shop"
-              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
-            >
-              Shirts
-            </a>
-          </li>
+          <!-- One link per category, taken from CATEGORIES so the footer
+               always matches the homepage and the shop filters -->
 
-          <li>
-            <a
-              routerLink="/shop"
-              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
-            >
-              Trousers
-            </a>
-          </li>
+          @for (category of categories; track category.slug) {
 
-          <li>
-            <a
-              routerLink="/shop"
-              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
-            >
-              Polo Shirts
-            </a>
-          </li>
+            <li>
+              <a
+                routerLink="/shop"
+                [queryParams]="{ category: category.slug }"
+                class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
+              >
+                {{ category.name }}
+              </a>
+            </li>
 
-          <li>
-            <a
-              routerLink="/shop"
-              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
-            >
-              Sweaters
-            </a>
-          </li>
-
-          <li>
-            <a
-              routerLink="/shop"
-              class="text-sm text-[#A3A3A3] transition-colors duration-200 hover:text-white"
-            >
-              Hoodies
-            </a>
-          </li>
+          }
 
         </ul>
 

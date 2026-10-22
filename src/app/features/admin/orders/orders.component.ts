@@ -16,15 +16,7 @@ import { AdminDataService } from '../admin.service';
 
 type StatusFilter = 'all' | OrderStatus;
 
-/*
-  The Orders page. It has two parts:
-    1. the list: search, status tabs, a table and pagination
-    2. a popup with ONE order: what was bought, who it is for, and the buttons to move it
-       to the next status
 
-  The orders come from AdminDataService (loaded once when the admin area opens).
-  Which status buttons appear is decided by the rules in core/utils/order-status.ts.
-*/
 @Component({
   selector: 'app-admin-orders',
   standalone: true,

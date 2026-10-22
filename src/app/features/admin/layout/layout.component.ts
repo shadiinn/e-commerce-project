@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { logout } from '../../../store/auth/auth.actions';
 import { selectCurrentUser } from '../../../store/auth/auth.selectors';
 import { AdminDataService } from '../admin.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface AdminNavItem {
   label: string;
@@ -25,7 +26,7 @@ interface AdminNavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [NgTemplateOutlet, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [NgTemplateOutlet, RouterOutlet, RouterLink, RouterLinkActive,ConfirmDialogComponent],
   templateUrl: './layout.component.html'
 })
 export class AdminLayoutComponent implements OnDestroy {
@@ -86,7 +87,17 @@ export class AdminLayoutComponent implements OnDestroy {
   closeMenu(): void {
     this.isMenuOpen.set(false);
   }
-
+  showconfirmation=signal(false);
+  showlogoutconfirmation(){
+    this.showconfirmation.set(true);
+  }
+  confirmlogout(){
+    this.logout();
+    this.showconfirmation.set(false)
+  }
+  cancelconfirmation(){
+    this.showconfirmation.set(false)
+  }
   logout(): void {
     this.store.dispatch(logout());
   }

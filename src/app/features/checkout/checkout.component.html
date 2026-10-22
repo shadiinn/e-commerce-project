@@ -69,22 +69,28 @@
                 placeholder="you@example.com"
                 class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
               />
-              @if (checkoutForm.controls.email.touched && checkoutForm.controls.email.invalid) {
+              @if (checkoutForm.controls.email.dirty && checkoutForm.controls.email.invalid) {
                 <p class="mt-2 text-[10px] text-red-600">Please enter a valid email address.</p>
               }
             </div>
 
             <div>
               <label for="phone" class="text-[11px] text-brand-muted">Phone Number</label>
+              
               <input
                 id="phone"
                 type="tel"
+                maxlength="10"
                 formControlName="phone"
                 placeholder="10 digit mobile number"
                 class="mt-2 w-full border border-brand-border bg-transparent px-4 py-3 text-sm text-brand-text outline-none transition-colors duration-200 placeholder:text-brand-muted focus:border-brand-text"
               />
-              @if (checkoutForm.controls.phone.touched && checkoutForm.controls.phone.invalid) {
-                <p class="mt-2 text-[10px] text-red-600">Please enter a valid 10 digit phone number.</p>
+              @if (checkoutForm.get('phone')?.dirty && checkoutForm.get('phone')?.invalid) {
+                    @if (checkoutForm.get('phone')?.hasError('required')) {
+                      <p class="mt-2 text-[10px] text-red-600">Required</p>
+                    } @else if (checkoutForm.get('phone')?.hasError('pattern')) {
+                      <p class="mt-2 text-[10px] text-red-600">Enter a valid 10 digit phone number that starts with number greater than 5</p>
+                    }
               }
             </div>
 
@@ -222,7 +228,7 @@
 
         <button
           type="button"
-          (click)="placeOrder(addressBook.selectedAddress())"
+          (click)="openPlaceOrderConfirmation()"
           [disabled]="checkoutForm.invalid || !addressBook.selectedAddress()"
           class="mt-7 w-full bg-brand-text px-6 py-4 text-[10px] font-medium uppercase tracking-[0.17em] text-white transition-opacity duration-200 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
         >
@@ -238,6 +244,15 @@
         </a>
 
       </aside>
+      @if (showconfirmation()) {
+        <app-confirm-dialog
+          [title]="'Place your order?'"
+          [message]="'Are you sure you want to place this order?'"
+          [confirmText]="'Place Order'"
+          (confirmed)="confirmPlaceOrder(addressBook.selectedAddress())"
+          (cancelled)="cancelPlaceOrderConfirmation()"
+        />
+      }
 
     </div>
 

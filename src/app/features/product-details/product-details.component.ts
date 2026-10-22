@@ -875,5 +875,5 @@ export class ProductDetailsComponent
     );
 
   }
-
+ 
 }

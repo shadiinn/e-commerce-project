@@ -6,18 +6,11 @@ import {
   OnInit,
   signal
 } from '@angular/core';
-
 import { Store } from '@ngrx/store';
-
 import { AsyncPipe } from '@angular/common';
-
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
-
-import {
-  loadProducts
-} from '../../store/products/products.actions';
-
+import {loadProducts} from '../../store/products/products.actions';
 import {
   selectAllProducts,
   selectProductsLoading,
@@ -25,15 +18,12 @@ import {
   selectNewProductIds,
   selectFeaturedProductIds
 } from '../../store/products/products.selectors';
-
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import {
   PaginationComponent,
   paginate
 } from '../../shared/components/pagination/pagination.component';
-
 import { CATEGORIES } from '../../core/models/constants/categories';
-
 import {
   ActivatedRoute,
   Router,
@@ -43,30 +33,22 @@ import {
 
 @Component({
   selector: 'app-shop',
-
   standalone: true,
-
   imports: [
     ProductCardComponent,
     PaginationComponent,
     AsyncPipe
   ],
-
   templateUrl: './shop.component.html',
-
   styleUrl: './shop.component.css'
 })
 export class ShopComponent implements OnInit {
 
   store = inject(Store);
-
   route = inject(ActivatedRoute);
-
   router = inject(Router);
   private destroyRef = inject(DestroyRef);
-
   private scrollToProductsAfterNavigation = false;
-
   categories = CATEGORIES;
 
 
@@ -102,62 +84,34 @@ export class ShopComponent implements OnInit {
   // APPLIED FILTER STATE
   // =========================================================
 
-  selectedCategories =
-    signal<string[]>([]);
-
-  selectedSizes =
-    signal<string[]>([]);
-
-  minPrice =
-    signal(0);
-
-  maxPrice =
-    signal(10000);
-
-  inStockOnly =
-    signal(false);
-
-  searchTerm =
-    signal('');
+  selectedCategories =signal<string[]>([]);
+  selectedSizes =signal<string[]>([]);
+  minPrice =signal(0);
+  maxPrice =signal(10000);
+  inStockOnly =signal(false);
+  searchTerm =signal('');
 
 
   // =========================================================
   // TEMPORARY FILTER STATE
   // =========================================================
 
-  tempCategories =
-    signal<string[]>([]);
-
-  tempSizes =
-    signal<string[]>([]);
-
-  tempMinPrice =
-    signal(0);
-
-  tempMaxPrice =
-    signal(10000);
-
-  tempInStockOnly =
-    signal(false);
+  tempCategories =signal<string[]>([]);
+  tempSizes =signal<string[]>([]);
+  tempMinPrice =signal(0);
+  tempMaxPrice =signal(10000);
+  tempInStockOnly =signal(false);
 
 
-  // =========================================================
-  // SORT
-  // =========================================================
-
-  sortBy =
-    signal('newest');
+  sortBy =signal('newest');
 
 
   // =========================================================
   // FILTER DRAWER
   // =========================================================
 
-  isFilterOpen =
-    signal(false);
-
-  activeFilter =
-    signal<string | null>(null);
+  isFilterOpen =signal(false);
+  activeFilter =signal<string | null>(null);
 
 
   toggleFilter(
@@ -492,8 +446,7 @@ export class ShopComponent implements OnInit {
       ];
 
 
-      const sort =
-        this.sortBy();
+      const sort =this.sortBy();
 
 
       switch (sort) {
@@ -553,20 +506,11 @@ export class ShopComponent implements OnInit {
       });
   }
 
-  // =========================================================
+
   // PAGINATION  (the buttons come from <app-pagination>)
-  // =========================================================
 
-  // How many products are shown on one page.
-  // 12 fills complete rows on every screen (2, 3 or 4 columns).
   readonly pageSize = 12;
-
-  // The page the user asked for
-  currentPage =
-    signal(1);
-
-  // One page of the sorted products:
-  // { items, page, totalPages, totalItems }
+  currentPage =signal(1);
   productPage =
     computed(() =>
       paginate(
@@ -577,9 +521,7 @@ export class ShopComponent implements OnInit {
     );
 
   // Called when the user clicks a page button in <app-pagination>
-  goToPage(
-    page: number
-  ): void {
+  goToPage(page: number): void {
     this.currentPage.set(page);
   }
 
@@ -606,24 +548,14 @@ export class ShopComponent implements OnInit {
   }
 
 
-  selectHeaderCategory(
-    category: string
-  ): void {
+  selectHeaderCategory(category: string): void {
 
     this.scrollToProducts();
-
     this.currentPage.set(1);
-
-    this.selectedCategories.set([
-      category
-    ]);
-
+    this.selectedCategories.set([category]);
   }
 
-
-  // =========================================================
   // FILTER DRAWER
-  // =========================================================
 
   openFilters(): void {
 

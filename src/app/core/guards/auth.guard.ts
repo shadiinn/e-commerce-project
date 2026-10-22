@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     map(user => {
       if (user?.role === 'admin') return router.createUrlTree(['/admin']);
       if (user) return true;
-      return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+      return router.createUrlTree(['/login'],{ queryParams: { returnUrl: state.url } });
     })
   );
 };

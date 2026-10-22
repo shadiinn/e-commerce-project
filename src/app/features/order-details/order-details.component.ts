@@ -146,8 +146,14 @@ export class OrderDetailsComponent implements OnInit {
 
   }
 
+  hasInvalidCancellationDetails(): boolean {
+      const details = this.cancellationDetails();
+      return !!details && !/^[a-zA-Z ]+$/.test(details);
+  }
+
   canConfirmCancellation(): boolean {
-    return !!this.cancellationReason() && (this.cancellationReason() !== 'Other' || !!this.cancellationDetails().trim());
+    return !!this.cancellationReason() &&
+    !this.hasInvalidCancellationDetails();
   }
 
 }
