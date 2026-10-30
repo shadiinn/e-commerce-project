@@ -44,7 +44,7 @@ export class AdminLayoutComponent implements OnDestroy {
   navItems: AdminNavItem[] = [
     {
       label: 'Dashboard',
-      path: '/admin',
+      path: '/admin/dashboard',
       ready: true,
       icon: 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z'
     },

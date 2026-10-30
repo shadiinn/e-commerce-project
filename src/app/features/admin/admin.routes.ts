@@ -12,7 +12,11 @@ export const ADMIN_ROUTES: Routes = [
     children: [
       {
         path: '',
-        pathMatch: 'full',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
         loadComponent: () =>
           import('./dashboard/dashboard.component')
             .then(m => m.AdminDashboardComponent)

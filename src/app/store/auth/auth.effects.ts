@@ -76,102 +76,78 @@ export class AuthEffects {
   // =====================================================
 
   login$ = createEffect(() =>
-
     this.actions$.pipe(
-
       ofType(login),
 
-      switchMap(
-        ({
-          email,
-          password,
-          returnUrl
-        }) =>
+      switchMap(({ email, password, loginMode, returnUrl }) =>
+        this.authService.login(email, password).pipe(
+          map(users => {
+            const user = users.find(
+              candidate => candidate.password === password
+            );
 
-          this.authService
-            .login(email, password)
-            .pipe(
+            // Invalid credentials
+            if (!user) {
+              return loginFailure({
+                error: 'Invalid email or password'
+              });
+            }
 
-              map(users => {
+            // Account is inactive
+            if (user.active === false) {
+              return loginFailure({
+                error:
+                  'This account has been deactivated by the admin. Please contact the store administrator for assistance.'
+              });
+            }
 
-                const user = users.find(candidate => candidate.password === password);
+            // Reject the wrong role for the selected login page.
+            if (
+              (loginMode === 'admin' && user.role !== 'admin') ||
+              (loginMode === 'customer' && user.role !== 'customer')
+            ) {
+              const error =
+                loginMode === 'admin'
+                  ? 'Please use the customer login page.This account does not have administrator access. '
+                  : 'Please use the admin login page.This account is for administrators. ';
 
-                if (!user) {
-                  return loginFailure({ error: 'Invalid email or password' });
-                }
+              return loginFailure({ error });
+            }
 
-                if (user.active === false) {
-                  return loginFailure({
-                    error: 'This account has been deactivated by the admin. Please contact the store administrator for assistance.'
-                  });
-                }
+            // Only save the user after credentials and role are validated.
+            const authUser: AuthUser = {
+              id: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              phone: user.phone,
+              profileImage: user.profileImage,
+              role: user.role,
+              active: user.active ?? true
+            };
 
+            this.authStorage.saveUser(authUser);
 
-                const authUser: AuthUser = {
+            return loginSuccess({
+              user: authUser,
+              returnUrl:
+                loginMode === 'admin'
+                  ? '/admin'
+                  : returnUrl || '/home'
+            });
+          }),
 
-                  id: user.id,
-
-                  firstName: user.firstName,
-
-                  lastName: user.lastName,
-
-                  email: user.email,
-
-                  phone: user.phone,
-
-                  profileImage: user.profileImage,
-
-                  role: user.role,
-
-                  active: user.active ?? true
-
-                };
-
-
-                this.authStorage.saveUser(
-                  authUser
-                );
-
-
-                return loginSuccess({
-
-                  user: authUser,
-
-                  // an admin who just logs in (no page to return to) goes to the admin area
-                  returnUrl:
-                    user.role === 'admin' && (!returnUrl || returnUrl === '/')
-                      ? '/admin'
-                      : returnUrl
-
-                });
-
-              }),
-
-
-              catchError(error =>
-
-                of(
-
-                  loginFailure({
-
-                    error:
-                      error.message ??
-                      'Login failed'
-
-                  })
-
-                )
-
-              )
-
+          catchError(error =>
+            of(
+              loginFailure({
+                error: error.message ?? 'Login failed'
+              })
             )
-
+          )
+        )
       )
-
     )
-
   );
-
 
   // =====================================================
   // REGISTER
@@ -406,7 +382,7 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(loginSuccess),
       filter(({ user }) => user.role === 'admin'),
-      tap(() => this.router.navigateByUrl('/admin'))
+      tap(() => this.router.navigateByUrl('/admin/dashboard'))
     ), { dispatch: false }
   );
 

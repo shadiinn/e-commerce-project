@@ -40,22 +40,6 @@ export class HomeComponent {
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
 
-  // =========================================================
-  // FEATURED PRODUCTS
-  // =========================================================
-  //
-  // What counts as "featured" and how many come back is
-  // entirely decided in selectFeaturedProducts (products.selectors.ts)
-  // — this component just displays whatever it returns.
-  //
-  // The image is taken from:
-  //
-  // product
-  //   -> first variant
-  //      -> first image
-  //
-  // =========================================================
-
   private featuredProductsRaw = toSignal(
     this.store.select(selectFeaturedProducts),
     {

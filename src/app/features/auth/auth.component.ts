@@ -23,8 +23,7 @@ import { selectAuthError } from '../../store/auth/auth.selectors';
 import { ToastService } from '../../core/services/toast.service';
 import { OtpService } from '../../core/services/otp.service';
 import { OtpVerificationComponent } from './otp-verification/otp-verification.component';
-import { AuthService } from '../../core/services/auth.service';
-import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+
 
 // Registration details are kept in sessionStorage while the OTP popup is open, so a
 // page refresh can bring the popup back (sessionStorage is erased when the tab closes).
@@ -64,17 +63,17 @@ export class AuthComponent {
   private actions$ = inject(Actions);
   private otpService = inject(OtpService);
   private toast = inject(ToastService);
-  private authService = inject(AuthService);
 
   error$ = this.store.select(selectAuthError);
 
-  // UI state
-  isRegisterMode = signal(this.router.url.startsWith('/register'));
-  showLoginPassword = signal(false);
-  showRegisterPassword = signal(false);
-  showConfirmPassword = signal(false);
-  showOtp = signal(false);
-  isAdminEmail = signal(false);
+// UI state
+isRegisterMode = signal(this.router.url.startsWith('/register'));
+isAdminLogin = signal(this.router.url.startsWith('/admin/login'));
+
+showLoginPassword = signal(false);
+showRegisterPassword = signal(false);
+showConfirmPassword = signal(false);
+showOtp = signal(false);
 
   // Registration details kept until the email is verified with the OTP
   pendingRegistration: PendingRegistration | null = null;
@@ -115,25 +114,6 @@ export class AuthComponent {
 
     this.restorePendingRegistration();
 
-    this.loginForm.get('email')?.valueChanges
-    .pipe(
-      map(email => email?.trim().toLowerCase() ?? ''),
-      debounceTime(500),
-      distinctUntilChanged(),
-      switchMap(email => {
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          return of(false);
-        }
-
-        return this.authService.checkAdminEmail(email).pipe(
-          catchError(() => of(false))
-        );
-      }),
-      takeUntilDestroyed()
-    )
-    .subscribe(isAdmin => {
-      this.isAdminEmail.set(isAdmin);
-    });
   }
 
 
@@ -186,12 +166,26 @@ export class AuthComponent {
   }
 
   private switchMode(toRegister: boolean): void {
+    // Admins cannot switch to customer registration.
+    if (this.isAdminLogin() && toRegister) {
+      return;
+    }
+
     this.isRegisterMode.set(toRegister);
 
-    const path = toRegister ? '/register' : '/login';
+    const path = toRegister
+      ? '/register'
+      : this.isAdminLogin()
+        ? '/admin/login'
+        : '/login';
+
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
 
-    this.location.replaceState(returnUrl ? `${path}?returnUrl=${encodeURIComponent(returnUrl)}` : path);
+    this.location.replaceState(
+      returnUrl
+        ? `${path}?returnUrl=${encodeURIComponent(returnUrl)}`
+        : path
+    );
   }
 
 
@@ -204,9 +198,31 @@ export class AuthComponent {
     }
 
     const { email, password } = this.loginForm.getRawValue();
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
 
-    this.store.dispatch(login({ email: email!, password: password!, returnUrl }));
+    const loginMode = this.isAdminLogin()
+      ? 'admin'
+      : 'customer';
+
+    const requestedReturnUrl =
+      this.route.snapshot.queryParamMap.get('returnUrl');
+
+    const returnUrl =
+      loginMode === 'admin'
+        ? '/admin/dashboard'
+        : requestedReturnUrl &&
+            requestedReturnUrl !== '/' &&
+            !requestedReturnUrl.startsWith('/admin')
+          ? requestedReturnUrl
+          : '/home';
+
+    this.store.dispatch(
+      login({
+        email: email!,
+        password: password!,
+        loginMode,
+        returnUrl
+      })
+    );
   }
 
 

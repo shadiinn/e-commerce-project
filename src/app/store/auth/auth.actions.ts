@@ -10,15 +10,13 @@ import { AuthUser } from '../../core/models/auth-user.model';
 // =====================================================
 
 export const login = createAction(
-
   '[Auth] Login',
-
   props<{
     email: string;
     password: string;
+    loginMode: 'customer' | 'admin';
     returnUrl?: string;
   }>()
-
 );
 
 

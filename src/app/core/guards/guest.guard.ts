@@ -3,21 +3,25 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { map, take } from 'rxjs';
 
-import { selectIsAuthenticated } from '../../store/auth/auth.selectors';
+import { selectCurrentUser } from '../../store/auth/auth.selectors';
 
 export const guestGuard: CanActivateFn = () => {
-
   const store = inject(Store);
   const router = inject(Router);
 
-  return store.select(selectIsAuthenticated).pipe(
+  return store.select(selectCurrentUser).pipe(
     take(1),
-    map(isAuthenticated => {
 
-      if (isAuthenticated) {
-        return router.createUrlTree(['/']);
+    map(user => {
+      if (!user) {
+        return true;
       }
-      return true;
+
+      if (user.role === 'admin') {
+        return router.createUrlTree(['/admin/dashboard']);
+      }
+
+      return router.createUrlTree(['/home']);
     })
   );
 };

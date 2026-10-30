@@ -46,8 +46,13 @@
                   <div class="mb-8">
                     <p class="mb-2 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#77736e]">Welcome back</p>
                     <h1 class="text-[26px] md:text-[29px] leading-[1.1] font-medium tracking-[-0.03em] text-[#151515]">
-                      Sign in to your
-                      <span class="italic">account.</span>
+                      @if (isAdminLogin()) {
+                        Administrator
+                        <span class="italic">sign in.</span>
+                      } @else {
+                        Sign in to your
+                        <span class="italic">account.</span>
+                      }
                     </h1>
                     <p class="hidden md:block mt-4 max-w-[330px] text-[12px] leading-relaxed text-[#77736e]">
                       Continue your journey with timeless pieces designed for modern gentlemen.
@@ -126,20 +131,19 @@
 
                   </form>
 
-                  <div
-                    [hidden]="isAdminEmail()"
-                    class="mt-7 flex items-center justify-center gap-1.5 text-[10px] text-[#77736e]"
-                  >
-                    <span>Don't have an account?</span>
+                  @if (!isAdminLogin()) {
+                    <div class="mt-7 flex items-center justify-center gap-1.5 text-[10px] text-[#77736e]">
+                      <span>Don't have an account?</span>
 
-                    <button
-                      type="button"
-                      (click)="showRegister()"
-                      class="text-[#151515] underline underline-offset-2 transition-opacity hover:opacity-50"
-                    >
-                      Sign up
-                    </button>
-                  </div>
+                      <button
+                        type="button"
+                        (click)="showRegister()"
+                        class="text-[#151515] underline underline-offset-2 transition-opacity hover:opacity-50"
+                      >
+                        Sign up
+                      </button>
+                    </div>
+                  }
 
                 </div>
 

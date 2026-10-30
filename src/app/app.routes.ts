@@ -114,6 +114,13 @@ export const routes: Routes = [
     canActivate: [customerOnlyGuard, guestGuard]
   },
   {
+    path: 'admin/login',
+    loadComponent: () =>
+      import('./features/auth/auth.component')
+        .then(m => m.AuthComponent),
+    canActivate: [guestGuard]
+  },
+  {
     path: 'account',
     canActivate: [customerOnlyGuard, authGuard],
     loadComponent: () =>
